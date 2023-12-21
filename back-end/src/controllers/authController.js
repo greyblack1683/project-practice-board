@@ -1,52 +1,49 @@
 const connection = require("../utils/database");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-function checkPassword(password) {
-  if (password.length < 8 && password.length < 10) throw new Error("Password has to be between 8 to 10 characters");
-  if (password.search(/[^a-zA-Z0-9]/g) < 0) throw new Error("Password should contain special characters.");
-  if (password.search(/[a-zA-Z]/g) < 0) throw new Error("Password should contain letters.");
-  if (password.search(/[0-9]/g) < 0) throw new Error("Password should contain numbers.");
-}
+exports.checkGroup = async (userId, groupName) => {
+  const [row, fields] = await connection.query("SELECT `groups` FROM accounts WHERE id = ?;", userId);
 
-function checkGroup(userid, groupName) {}
+  let groupArray = row[0].groups.split(", ");
+  console.log(groupArray);
 
-exports.registerUser = async (req, res, next) => {
+  for (let i = 0; i < groupArray.length; i++) {
+    if (groupArray[i] === groupName) return true;
+    if (i === groupArray.length - 1) return false;
+  }
+};
+
+exports.getAuthenticiated = async (req, res, next) => {
   try {
-    console.log("request body:", req.body);
+    let token = req.get("authorization");
+    console.log("authorization header:", token);
 
-    checkPassword(req.body.password);
+    if (token && token.startsWith("Bearer")) {
+      token = token.split(" ")[1];
 
-    const password = await bcrypt.hash(req.body.password, 10);
-
-    results = {
-      username: req.body.username,
-      password,
-      email: req.body.email,
-      groups: req.body.groups ? req.body.groups : "user"
-    };
-
-    const response = await connection.query("INSERT INTO `accounts` (`username`, `password`, `email`, `groups`) VALUES (?,?,?,?);", Object.values(results));
-    console.log(response);
-
-    return res.status(201).json({
-      success: true,
-      message: `User created.`,
-      results
-    });
-  } catch (error) {
-    //sql errors
-    if (error.code == "ER_DUP_ENTRY") {
-      return res.status(400).json({
-        success: false,
-        error,
-        message: "Username already exists",
-        stack: error.stack
-      });
+      if (!token) throw new Error("Error: Session expired");
+    } else {
+      throw new Error("Error: Session expired");
     }
 
-    //not sql error
-    return res.status(error.message.toLowerCase().includes("password") ? 400 : 500).json({
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(decoded);
+
+    const [row, fields] = await connection.query("SELECT `id`, `username`, `email`, `groups`, `active` FROM accounts WHERE id = ?;", decoded.id);
+    console.log(row);
+
+    //if there is one user and the id matches with the request
+    if (row.length === 1 && row[0].active === "true") {
+      //valid user
+      return res.status(200).json({
+        success: true,
+        message: `Authenticated`
+      });
+    } else {
+      throw new Error("Error: user id does not exist or inactive user");
+    }
+  } catch (error) {
+    return res.status(error.message.includes("Error") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,
@@ -55,44 +52,23 @@ exports.registerUser = async (req, res, next) => {
   }
 };
 
-exports.loginUser = async (req, res, next) => {
+exports.getAuthorised = async (req, res, next) => {
   try {
-    console.log("request body:", req.body);
+    console.log("request:", req.body);
+    const response = await this.checkGroup(req.user.id, req.body.authorisedGroup);
+    console.log("response: ", response);
 
-    const { username, password } = req.body;
-
-    // check username and password
-    if (!username || !password) throw new Error("Invalid username or password");
-
-    const [row, fields] = await connection.query("SELECT id, password FROM accounts WHERE username = ?;", username);
-
-    if (row.length === 1) {
-      // valid user -> check password
-      const isCorrectPassword = await bcrypt.compare(password, row[0].password);
-
-      if (isCorrectPassword) {
-        // valid password and user -> create jwt token
-        const token = jwt.sign({ id: row[0].id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRY });
-
-        return res.status(200).json({
-          success: true,
-          message: `Login successful.`,
-          results: {
-            id: row[0].id,
-            username,
-            token
-          }
-        });
-      } else {
-        // invalid password
-        throw new Error("Invalid username or password");
-      }
+    if (response) {
+      console.log("response", response);
+      res.status(200).json({
+        success: true,
+        message: "User is authorised"
+      });
     } else {
-      // invalid user
-      throw new Error("Invalid username or password");
+      throw new Error("Error: User is not authorised");
     }
   } catch (error) {
-    return res.status(error.message === "Invalid username or password" ? 400 : 500).json({
+    return res.status(error.message.includes("Error") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,

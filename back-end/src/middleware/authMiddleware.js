@@ -1,10 +1,7 @@
 const connection = require("../utils/database");
 const jwt = require("jsonwebtoken");
 
-async function checkGroup(userid, groupName) {
-  const [row, fields] = await connection.query("SELECT `groups` FROM accounts WHERE id = ?;", userid);
-  console.log(row);
-}
+const { checkGroup } = require("../controllers/authController");
 
 exports.isAuthenticated = async (req, res, next) => {
   try {
@@ -44,15 +41,26 @@ exports.isAuthenticated = async (req, res, next) => {
   }
 };
 
-exports.isAuthorised = async (...authorisedGroups) => {
-  try {
-    next();
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      error,
-      message: error.message,
-      stack: error.stack
-    });
-  }
+exports.isAuthorised = (...authorisedGroup) => {
+  return async (req, res, next) => {
+    try {
+      let response;
+      for (let i = 0; i < authorisedGroup.length; i++) {
+        response = await checkGroup(req.user.id, authorisedGroup[i]);
+        // if user has one of the authorised group
+        if (response) return next();
+        if (i === authorisedGroup.length - 1) {
+          // if user does not have any of the authorised group
+          throw new Error("Error: User is not authorised");
+        }
+      }
+    } catch (error) {
+      return res.status(error.message.includes("Error") ? 400 : 500).json({
+        success: false,
+        error,
+        message: error.message,
+        stack: error.stack
+      });
+    }
+  };
 };

@@ -3,18 +3,17 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 function checkPassword(password) {
-  if (password.length < 8 && password.length < 10) throw new Error("Password has to be between 8 to 10 characters");
-  if (password.search(/[^a-zA-Z0-9]/g) < 0) throw new Error("Password should contain special characters.");
-  if (password.search(/[a-zA-Z]/g) < 0) throw new Error("Password should contain letters.");
-  if (password.search(/[0-9]/g) < 0) throw new Error("Password should contain numbers.");
+  if (password.length < 8 && password.length < 10) throw new Error("Error: Password has to be between 8 to 10 characters");
+  if (password.search(/[^a-zA-Z0-9]/g) < 0) throw new Error("Error: Password should contain special characters.");
+  if (password.search(/[a-zA-Z]/g) < 0) throw new Error("Error: Password should contain letters.");
+  if (password.search(/[0-9]/g) < 0) throw new Error("Error: Password should contain numbers.");
 }
 
-exports.registerUser = async (req, res, next) => {
+exports.createUser = async (req, res, next) => {
   try {
     console.log("request body:", req.body);
 
     checkPassword(req.body.password);
-
     const password = await bcrypt.hash(req.body.password, 10);
 
     results = {
@@ -44,7 +43,7 @@ exports.registerUser = async (req, res, next) => {
     }
 
     //not sql error
-    return res.status(error.message.toLowerCase().includes("password") ? 400 : 500).json({
+    return res.status(error.message.includes("Error") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,
@@ -60,7 +59,7 @@ exports.loginUser = async (req, res, next) => {
     const { username, password } = req.body;
 
     // check username and password
-    if (!username || !password) throw new Error("Invalid username or password");
+    if (!username || !password) throw new Error("Error: Invalid username or password");
 
     const [row, fields] = await connection.query("SELECT id, password FROM accounts WHERE username = ?;", username);
 
@@ -83,14 +82,14 @@ exports.loginUser = async (req, res, next) => {
         });
       } else {
         // invalid password
-        throw new Error("Invalid username or password");
+        throw new Error("Error: Invalid username or password");
       }
     } else {
       // invalid user
-      throw new Error("Invalid username or password");
+      throw new Error("Error: Invalid username or password");
     }
   } catch (error) {
-    return res.status(error.message === "Invalid username or password" ? 400 : 500).json({
+    return res.status(error.message.includes("Error") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,
@@ -104,7 +103,7 @@ exports.loginUser = async (req, res, next) => {
 exports.getUsers = async (req, res, next) => {
   try {
     const [row, fields] = await connection.query("SELECT * FROM accounts", null);
-    console.log(row);
+    console.log("row:", row);
 
     return res.status(200).json({
       success: true,
@@ -128,7 +127,7 @@ exports.getOwnUser = async (req, res, next) => {
     console.log("request body:", req.user);
 
     const [row, fields] = await connection.query("SELECT `id`, `username`, `email`, `groups`, `active` FROM accounts WHERE id = ?", req.user.id);
-    console.log(row);
+    console.log("row", row);
 
     if (row.length === 1) {
       return res.status(200).json({
@@ -137,7 +136,7 @@ exports.getOwnUser = async (req, res, next) => {
         results: row[0]
       });
     } else {
-      throw new Error("User cannot be found");
+      throw new Error("Error: User cannot be found");
     }
   } catch (error) {
     return res.status(500).json({
@@ -154,25 +153,29 @@ exports.createGroup = async (req, res, next) => {
     console.log("request body:", req.body);
 
     const group = req.body.group;
-    if (!group) throw new Error("Group is blank");
+    if (!group) throw new Error("Error: Group is blank");
 
-    const [row, fields] = await connection.query("SELECT * FROM `usergroup` WHERE `groupname` = ?;", group);
-    console.log(row);
+    if (group.includes(",")) throw new Error("Error: Group should not contain comma.");
 
-    if (row.length === 0) {
-      const response = await connection.query("INSERT INTO `usergroup` VALUES (?);", group);
-      console.log(response);
+    const response = await connection.query("INSERT INTO `usergroup` VALUES (?);", group);
+    console.log("response", response);
 
-      return res.status(200).json({
-        success: true,
-        message: `Group created`,
-        results: { group }
-      });
-    } else {
-      throw new Error("Group already exists");
-    }
+    return res.status(200).json({
+      success: true,
+      message: `Group created`,
+      results: { group }
+    });
   } catch (error) {
-    return res.status(error.message.toLowerCase().includes === "group" ? 400 : 500).json({
+    //sql errors
+    if (error.code == "ER_DUP_ENTRY") {
+      return res.status(400).json({
+        success: false,
+        error,
+        message: "Error: Group already exists",
+        stack: error.stack
+      });
+    }
+    return res.status(error.message.includes("Error") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,
@@ -181,19 +184,85 @@ exports.createGroup = async (req, res, next) => {
   }
 };
 
-exports.updateUser = async (req, res, next) => {
-  //assumed that isAuthenticated has already ran
-  console.log("request body:", req.user);
+exports.updateUserforAdmin = async (req, res, next) => {
+  try {
+    //assumed that isAuthenticated and isAuthorised has already ran
+    console.log("request body:", req.body);
+
+    let sqlBuilder = "UPDATE `accounts` SET `email` = ?, `groups` = ?, `active` = ?";
+
+    let results = {
+      email: req.body.email,
+      groups: req.body.groups,
+      active: req.body.active
+    };
+
+    //check for password changes
+    if (req.body.password) {
+      checkPassword(req.body.password);
+      results.password = await bcrypt.hash(req.body.password, 10);
+      sqlBuilder = sqlBuilder + ", `password` = ?";
+    }
+
+    results.id = req.body.id;
+
+    //update user details
+    sqlBuilder = sqlBuilder + " WHERE `id` = ?;";
+    console.log(sqlBuilder);
+    const response = await connection.query(sqlBuilder, Object.values(results));
+    console.log("response", response);
+
+    return res.status(200).json({
+      success: true,
+      message: "User updated",
+      results
+    });
+  } catch (error) {
+    //sql errors
+    if ((error.code = "ER_BAD_NULL_ERROR")) {
+      return res.status(400).json({
+        success: false,
+        error,
+        message: "Error: Active or ID is a mandatory field",
+        stack: error.stack
+      });
+    }
+    return res.status(error.message.includes("Error") ? 400 : 500).json({
+      success: false,
+      error,
+      message: error.message,
+      stack: error.stack
+    });
+  }
+};
+
+exports.updateUserforUser = async (req, res, next) => {
   console.log("request body:", req.body);
 
-  if (req.body.password === null) throw new Error("Password is mandatory.");
-  if (req.body.active === null) throw new Error("Active is mandatory.");
+  let sqlBuilder = "UPDATE `accounts` SET `email` = ?";
 
-  //note: username cannot be updated, password is separated
-  //get updated user details
-  results = {
-    email: req.body.email == req.user.email ? req.user.email : req.body.email,
-    groups: req.body.groups == req.user.groups ? req.user.groups : req.body.groups,
-    active: req.body.active == req.user.active ? req.user.active : req.body.active
+  let results = {
+    email: req.body.email
   };
+
+  //check for password changes
+  if (req.body.password) {
+    checkPassword(req.body.password);
+    results.password = await bcrypt.hash(req.body.password, 10);
+    sqlBuilder = sqlBuilder + ", `password` = ?";
+  }
+
+  results.id = req.user.id;
+
+  //update user details
+  sqlBuilder = sqlBuilder + " WHERE `id` = ?;";
+  console.log(sqlBuilder);
+  const response = await connection.query(sqlBuilder, Object.values(results));
+  console.log("response", response);
+
+  return res.status(200).json({
+    success: true,
+    message: "User updated",
+    results
+  });
 };

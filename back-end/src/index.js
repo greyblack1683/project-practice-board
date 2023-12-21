@@ -12,22 +12,29 @@ const port = process.env.PORT || 3000;
 var jsonParser = bodyParser.json();
 
 /* Middlewares*/
-const { isAuthenticated } = require("./middleware/authMiddleware");
+const { isAuthenticated, isAuthorised } = require("./middleware/authMiddleware");
 
 // enable API to be access by another domain
 app.use(cors());
 app.use(jsonParser);
 
 // controllers
-const { registerUser, loginUser, getUsers, getOwnUser, createGroup } = require("./controllers/userController");
-//const { registerUser, loginUser } = require("./controllers/authController");
+const { createUser, loginUser, getUsers, getOwnUser, createGroup, updateUserforAdmin, updateUserforUser } = require("./controllers/userController");
+const { getAuthenticiated, getAuthorised } = require("./controllers/authController");
 
 // routes
-app.post("/users/all", getUsers);
-app.post("/register", registerUser);
+app.post("/users/create", createUser);
+app.get("/users/all", isAuthenticated, isAuthorised("admin"), getUsers);
+app.post("/users/update", isAuthenticated, isAuthorised("admin"), updateUserforAdmin);
+
 app.post("/login", loginUser);
-app.post("/profile/:id", isAuthenticated, getOwnUser);
-app.post("/groups/create", isAuthenticated, createGroup);
+app.get("/authenticate", getAuthenticiated);
+app.get("/authorize", isAuthenticated, getAuthorised);
+app.post("/groups/create", isAuthenticated, isAuthorised("admin"), createGroup);
+
+//may need to change
+app.post("/profile", isAuthenticated, getOwnUser);
+app.post("/profile/update", isAuthenticated, updateUserforUser);
 
 // app listening on port
 app.listen(port, () => {
