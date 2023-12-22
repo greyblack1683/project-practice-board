@@ -27,10 +27,11 @@ exports.isAuthenticated = async (req, res, next) => {
       //valid user
       req.user = row[0];
       req.isAuthenticated = true;
-      next();
+      console.log("done");
     } else {
       throw new Error("Token's user id does not exist or inactive user");
     }
+    next();
   } catch (error) {
     return res.status(error.message.includes("token") ? 400 : 500).json({
       success: false,

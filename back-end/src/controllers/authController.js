@@ -2,6 +2,7 @@ const connection = require("../utils/database");
 const jwt = require("jsonwebtoken");
 
 exports.checkGroup = async (userId, groupName) => {
+  console.log(groupName);
   const [row, fields] = await connection.query("SELECT `groups` FROM accounts WHERE id = ?;", userId);
 
   let groupArray = row[0].groups.split(", ");
@@ -21,9 +22,9 @@ exports.getAuthenticiated = async (req, res, next) => {
     if (token && token.startsWith("Bearer")) {
       token = token.split(" ")[1];
 
-      if (!token) throw new Error("Error: Session expired");
+      if (!token) throw new Error("Session expired");
     } else {
-      throw new Error("Error: Session expired");
+      throw new Error("Session expired");
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -40,10 +41,10 @@ exports.getAuthenticiated = async (req, res, next) => {
         message: `Authenticated`
       });
     } else {
-      throw new Error("Error: user id does not exist or inactive user");
+      throw new Error("Session user id does not exist or inactive user");
     }
   } catch (error) {
-    return res.status(error.message.includes("Error") ? 400 : 500).json({
+    return res.status(error.message.includes("Session") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,
@@ -54,7 +55,7 @@ exports.getAuthenticiated = async (req, res, next) => {
 
 exports.getAuthorised = async (req, res, next) => {
   try {
-    console.log("request:", req.body);
+    console.log("request:", req);
     const response = await this.checkGroup(req.user.id, req.body.authorisedGroup);
     console.log("response: ", response);
 
@@ -65,10 +66,11 @@ exports.getAuthorised = async (req, res, next) => {
         message: "User is authorised"
       });
     } else {
-      throw new Error("Error: User is not authorised");
+      throw new Error("User is not authorised");
     }
   } catch (error) {
-    return res.status(error.message.includes("Error") ? 400 : 500).json({
+    console.log("error", error);
+    return res.status(error.message.includes("User") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,

@@ -3,10 +3,10 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 function checkPassword(password) {
-  if (password.length < 8 && password.length < 10) throw new Error("Error: Password has to be between 8 to 10 characters");
-  if (password.search(/[^a-zA-Z0-9]/g) < 0) throw new Error("Error: Password should contain special characters.");
-  if (password.search(/[a-zA-Z]/g) < 0) throw new Error("Error: Password should contain letters.");
-  if (password.search(/[0-9]/g) < 0) throw new Error("Error: Password should contain numbers.");
+  if (password.length < 8 && password.length < 10) throw new Error("Password has to be between 8 to 10 characters");
+  if (password.search(/[^a-zA-Z0-9]/g) < 0) throw new Error("Password should contain special characters.");
+  if (password.search(/[a-zA-Z]/g) < 0) throw new Error("Password should contain letters.");
+  if (password.search(/[0-9]/g) < 0) throw new Error("Password should contain numbers.");
 }
 
 exports.createUser = async (req, res, next) => {
@@ -43,7 +43,7 @@ exports.createUser = async (req, res, next) => {
     }
 
     //not sql error
-    return res.status(error.message.includes("Error") ? 400 : 500).json({
+    return res.status(error.message.includes("Password") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,
@@ -59,7 +59,7 @@ exports.loginUser = async (req, res, next) => {
     const { username, password } = req.body;
 
     // check username and password
-    if (!username || !password) throw new Error("Error: Invalid username or password");
+    if (!username || !password) throw new Error("Invalid username or password");
 
     const [row, fields] = await connection.query("SELECT id, password FROM accounts WHERE username = ?;", username);
 
@@ -82,14 +82,14 @@ exports.loginUser = async (req, res, next) => {
         });
       } else {
         // invalid password
-        throw new Error("Error: Invalid username or password");
+        throw new Error("Invalid username or password");
       }
     } else {
       // invalid user
-      throw new Error("Error: Invalid username or password");
+      throw new Error("Invalid username or password");
     }
   } catch (error) {
-    return res.status(error.message.includes("Error") ? 400 : 500).json({
+    return res.status(error.message.includes("Invalid username or password") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,
@@ -136,10 +136,10 @@ exports.getOwnUser = async (req, res, next) => {
         results: row[0]
       });
     } else {
-      throw new Error("Error: User cannot be found");
+      throw new Error("User cannot be found");
     }
   } catch (error) {
-    return res.status(500).json({
+    return res.status(error.message.includes("User") ? 400: 500).json({
       success: false,
       error,
       message: error.message,
@@ -153,9 +153,9 @@ exports.createGroup = async (req, res, next) => {
     console.log("request body:", req.body);
 
     const group = req.body.group;
-    if (!group) throw new Error("Error: Group is blank");
+    if (!group) throw new Error("Group is blank");
 
-    if (group.includes(",")) throw new Error("Error: Group should not contain comma.");
+    if (group.includes(",")) throw new Error("Group should not contain comma.");
 
     const response = await connection.query("INSERT INTO `usergroup` VALUES (?);", group);
     console.log("response", response);
@@ -171,11 +171,11 @@ exports.createGroup = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         error,
-        message: "Error: Group already exists",
+        message: "Group already exists",
         stack: error.stack
       });
     }
-    return res.status(error.message.includes("Error") ? 400 : 500).json({
+    return res.status(error.message.includes("Group") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,
@@ -223,11 +223,11 @@ exports.updateUserforAdmin = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         error,
-        message: "Error: Active or ID is a mandatory field",
+        message: "Active or ID is a mandatory field",
         stack: error.stack
       });
     }
-    return res.status(error.message.includes("Error") ? 400 : 500).json({
+    return res.status(error.message.includes("mandatory") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,
@@ -237,6 +237,7 @@ exports.updateUserforAdmin = async (req, res, next) => {
 };
 
 exports.updateUserforUser = async (req, res, next) => {
+ try {
   console.log("request body:", req.body);
 
   let sqlBuilder = "UPDATE `accounts` SET `email` = ?";
@@ -265,4 +266,13 @@ exports.updateUserforUser = async (req, res, next) => {
     message: "User updated",
     results
   });
+ } catch (error) {
+  return res.status(500).json({
+    success: false,
+    error,
+    message: error.message,
+    stack: error.stack
+  });
+}
+ }
 };

@@ -29,7 +29,7 @@ app.post("/users/update", isAuthenticated, isAuthorised("admin"), updateUserforA
 
 app.post("/login", loginUser);
 app.get("/authenticate", getAuthenticiated);
-app.get("/authorize", isAuthenticated, getAuthorised);
+app.post("/authorize", isAuthenticated, getAuthorised);
 app.post("/groups/create", isAuthenticated, isAuthorised("admin"), createGroup);
 
 //may need to change
