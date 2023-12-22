@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Box, TextField, Button } from "@mui/material";
+import { Box, TextField, Button, Paper } from "@mui/material";
 import logo from "../../public/tms_logo.png";
 import GlobalContext from "../components/GlobalContext";
 import axios from "axios";
@@ -27,11 +27,11 @@ function LoginPage() {
         handleAlerts("Login successful", true);
       } else {
         console.log(response.data.message);
-        handleAlerts(`Error: ${error.response.data.message}`, false);
+        handleAlerts(`${error.response.data.message}`, false);
       }
     } catch (error) {
       console.log(error.response.data.message);
-      handleAlerts(`Error: ${error.response.data.message}`, false);
+      handleAlerts(`${error.response.data.message}`, false);
     }
   };
   return (

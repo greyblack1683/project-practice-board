@@ -36,6 +36,13 @@ app.post("/groups/create", isAuthenticated, isAuthorised("admin"), createGroup);
 app.post("/profile", isAuthenticated, getOwnUser);
 app.post("/profile/update", isAuthenticated, updateUserforUser);
 
+app.all("*", (req, res, next) => {
+  res.status(500).json({
+    success: false,
+    message: `${req.originalUrl} not found`
+  });
+});
+
 // app listening on port
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port} in ${process.env.NODE_ENV}`);

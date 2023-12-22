@@ -139,7 +139,7 @@ exports.getOwnUser = async (req, res, next) => {
       throw new Error("User cannot be found");
     }
   } catch (error) {
-    return res.status(error.message.includes("User") ? 400: 500).json({
+    return res.status(error.message.includes("User") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,
@@ -237,42 +237,41 @@ exports.updateUserforAdmin = async (req, res, next) => {
 };
 
 exports.updateUserforUser = async (req, res, next) => {
- try {
-  console.log("request body:", req.body);
+  try {
+    console.log("request body:", req.body);
 
-  let sqlBuilder = "UPDATE `accounts` SET `email` = ?";
+    let sqlBuilder = "UPDATE `accounts` SET `email` = ?";
 
-  let results = {
-    email: req.body.email
-  };
+    let results = {
+      email: req.body.email
+    };
 
-  //check for password changes
-  if (req.body.password) {
-    checkPassword(req.body.password);
-    results.password = await bcrypt.hash(req.body.password, 10);
-    sqlBuilder = sqlBuilder + ", `password` = ?";
+    //check for password changes
+    if (req.body.password) {
+      checkPassword(req.body.password);
+      results.password = await bcrypt.hash(req.body.password, 10);
+      sqlBuilder = sqlBuilder + ", `password` = ?";
+    }
+
+    results.id = req.user.id;
+
+    //update user details
+    sqlBuilder = sqlBuilder + " WHERE `id` = ?;";
+    console.log(sqlBuilder);
+    const response = await connection.query(sqlBuilder, Object.values(results));
+    console.log("response", response);
+
+    return res.status(200).json({
+      success: true,
+      message: "User updated",
+      results
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error,
+      message: error.message,
+      stack: error.stack
+    });
   }
-
-  results.id = req.user.id;
-
-  //update user details
-  sqlBuilder = sqlBuilder + " WHERE `id` = ?;";
-  console.log(sqlBuilder);
-  const response = await connection.query(sqlBuilder, Object.values(results));
-  console.log("response", response);
-
-  return res.status(200).json({
-    success: true,
-    message: "User updated",
-    results
-  });
- } catch (error) {
-  return res.status(500).json({
-    success: false,
-    error,
-    message: error.message,
-    stack: error.stack
-  });
-}
- }
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -13,12 +13,16 @@ import GlobalContext from "./components/GlobalContext";
 import Header from "./routes/Header";
 import DefaultPage from "./routes/DefaultPage";
 import LoginPage from "./routes/LoginPage";
+import HomePage from "./routes/HomePage";
+import ProfilePage from "./routes/ProfilePage";
+import UserMgmtPage from "./routes/UserMgmtPage";
 
 axios.defaults.baseURL = "http://localhost:8080";
 
 function Main() {
   //states
   const [loggedIn, setLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   //handlers
   const handleAlerts = (msg, success) => {
@@ -32,8 +36,9 @@ function Main() {
   const handleCookie = token => {
     if (token) {
       //if handleCookie is called with a value
-      if (!Cookies.get("token")) Cookies.set("token", token, { expires: 7, path: "" });
+      if (Cookies.get("token") !== token) Cookies.set("token", token, { expires: 7, path: "" });
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      console.log("set login to true");
       setLoggedIn(true);
     } else {
       Cookies.remove("token");
@@ -45,8 +50,29 @@ function Main() {
   //useEffect
   useEffect(() => {
     //on first render, check if there are existing unexpired cookies with token in browser for auto login
+    console.log("Running useEffect to read token");
     const tokenVal = Cookies.get("token");
-    if (tokenVal) handleCookie(tokenVal);
+
+    async function checkToken(token) {
+      try {
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        const response = await axios.get("/authenticate");
+        if (response) {
+          console.log(response);
+          if (response.data.success === true) {
+            handleCookie(tokenVal);
+          } else {
+            throw new Error("Internal Server Error");
+          }
+        }
+      } catch (error) {
+        console.log(error);
+        handleAlerts(error.message, false);
+      }
+    }
+    if (tokenVal) {
+      checkToken(tokenVal);
+    }
   }, []);
 
   return (
@@ -56,8 +82,12 @@ function Main() {
 
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={loggedIn ? <Header /> : <LoginPage />} />
             <Route path="*" element={<DefaultPage />} />
+            <Route path="/" element={loggedIn ? <Header setIsAdmin={setIsAdmin} /> : <LoginPage />}>
+              <Route path="" element={<HomePage />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="usermgmt" element={<UserMgmtPage />} />
+            </Route>
           </Routes>
         </BrowserRouter>
       </GlobalContext.Provider>
