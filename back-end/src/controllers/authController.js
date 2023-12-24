@@ -5,6 +5,8 @@ exports.checkGroup = async (userId, groupName) => {
   console.log(groupName);
   const [row, fields] = await connection.query("SELECT `groups` FROM accounts WHERE id = ?;", userId);
 
+  if (row.length === 0) return false;
+
   let groupArray = row[0].groups.split(", ");
   console.log(groupArray);
 
@@ -55,22 +57,17 @@ exports.getAuthenticiated = async (req, res, next) => {
 
 exports.getAuthorised = async (req, res, next) => {
   try {
-    console.log("request:", req);
+    console.log("request:", req.body);
     const response = await this.checkGroup(req.user.id, req.body.authorisedGroup);
     console.log("response: ", response);
 
-    if (response) {
-      console.log("response", response);
-      res.status(200).json({
-        success: true,
-        message: "User is authorised"
-      });
-    } else {
-      throw new Error("User is not authorised");
-    }
+    return res.status(200).json({
+      success: response,
+      message: response ? "User is authorised" : "User is not authorised"
+    });
   } catch (error) {
-    console.log("error", error);
-    return res.status(error.message.includes("User") ? 400 : 500).json({
+    console.log("error: ", error);
+    return res.status(500).json({
       success: false,
       error,
       message: error.message,

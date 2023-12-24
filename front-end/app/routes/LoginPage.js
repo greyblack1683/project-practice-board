@@ -1,10 +1,12 @@
 import React, { useContext, useState } from "react";
-import { Box, TextField, Button, Paper } from "@mui/material";
+import { Box, TextField, Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import logo from "../../public/tms_logo.png";
 import GlobalContext from "../components/GlobalContext";
 import axios from "axios";
 
 function LoginPage() {
+  const navigate = useNavigate();
   const { handleAlerts, handleCookie } = useContext(GlobalContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -25,6 +27,7 @@ function LoginPage() {
         setUsername("");
         setPassword("");
         handleAlerts("Login successful", true);
+        navigate("/");
       } else {
         console.log(response.data.message);
         handleAlerts(`${error.response.data.message}`, false);

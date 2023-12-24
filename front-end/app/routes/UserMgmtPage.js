@@ -1,13 +1,14 @@
 import React from "react";
-import { Box, TextField, Button, Paper } from "@mui/material";
+import { Box, TextField, Button, Paper, Typography } from "@mui/material";
+import Page from "../components/Page";
 
 function UserMgmtPage() {
   return (
-    <>
-      <Box display="flex" sx={{ bgcolor: "#cfe8fc", height: "100vh", justifyContent: "center", alignItems: "center" }}>
-        <div>bo</div>
-      </Box>
-    </>
+    <Page title="Manage Users">
+      <Typography variant="h4" sx={{ m: "1rem", textAlign: "left" }}>
+        User Management
+      </Typography>
+    </Page>
   );
 }
 

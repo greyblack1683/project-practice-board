@@ -7,9 +7,9 @@ import axios from "axios";
 import GlobalContext from "../components/GlobalContext";
 import logo from "../../public/tms_logo.png";
 
-function Header(setIsAdmin) {
+function Header({ setIsAdmin }) {
   const navigate = useNavigate();
-  const { handleAlerts, handleCookie } = useContext(GlobalContext);
+  const { handleAlerts, handleCookie, isAdmin } = useContext(GlobalContext);
 
   //useEffect to check if it's admin
   useEffect(() => {
@@ -20,17 +20,8 @@ function Header(setIsAdmin) {
         const response = await axios.post("/authorize", {
           authorisedGroup
         });
-
-        if (response) {
-          console.log(response);
-          if (response.data.success === true) {
-            setIsAdmin(true);
-          } else {
-            throw new Error("Internal Server Error");
-          }
-        }
-
         console.log(response);
+        setIsAdmin(response.data.success);
       } catch (error) {
         console.log(error);
         handleAlerts(error.message, false);
@@ -54,9 +45,11 @@ function Header(setIsAdmin) {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {""}
           </Typography>
-          <Button onClick={() => navigate("/usermgmt")} variant="text" sx={{ mr: "1rem", color: "white", "&:hover": { backgroundColor: "#2e5cb8" } }}>
-            User Management
-          </Button>
+          {isAdmin && (
+            <Button onClick={() => navigate("/usermgmt")} variant="text" sx={{ mr: "1rem", color: "white", "&:hover": { backgroundColor: "#2e5cb8" } }}>
+              User Management
+            </Button>
+          )}
           <Button onClick={() => navigate("/profile")} variant="text" sx={{ mr: "1rem", color: "white", "&:hover": { backgroundColor: "#2e5cb8" } }}>
             My Profile
           </Button>

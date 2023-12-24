@@ -1,7 +1,9 @@
 import React from "react";
-import { Box, Typography, Paper } from "@mui/material";
-import logo from "../../public/tms_logo.png";
 import Page from "../components/Page";
+
+import { Box, Typography } from "@mui/joy";
+
+import logo from "../../public/tms_logo.png";
 
 function HomePage() {
   return (
@@ -9,13 +11,10 @@ function HomePage() {
       <Box display="flex" sx={{ justifyContent: "center", alignItems: "center", height: "85vh" }}>
         <Box flex-direction="column">
           <Box display="flex" sx={{ justifyContent: "center", alignItems: "center" }}>
-            <img src={logo} width={150} height={150} alt="Logo" />
+            <img src={logo} width={80} height={80} alt="Logo" />
           </Box>
-          <Typography variant="h2" sx={{ textAlign: "center", m: "2rem" }}>
-            Task Management
-          </Typography>
-          <Typography variant="h2" sx={{ textAlign: "center", m: "2rem" }}>
-            System
+          <Typography level="body-lg" sx={{ textAlign: "center", m: "2rem" }}>
+            Task Management System
           </Typography>
         </Box>
       </Box>

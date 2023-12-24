@@ -5,7 +5,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 //styling
-import CssBaseline from "@mui/material/CssBaseline";
+import { CssVarsProvider } from "@mui/joy/styles";
+import CssBaseline from "@mui/joy/CssBaseline";
 import { Slide, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -16,12 +17,13 @@ import LoginPage from "./routes/LoginPage";
 import HomePage from "./routes/HomePage";
 import ProfilePage from "./routes/ProfilePage";
 import UserMgmtPage from "./routes/UserMgmtPage";
+import LoadingPage from "./routes/LoadingPage";
 
 axios.defaults.baseURL = "http://localhost:8080";
 
 function Main() {
   //states
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState("pending");
   const [isAdmin, setIsAdmin] = useState(false);
 
   //handlers
@@ -78,18 +80,20 @@ function Main() {
   return (
     <>
       <GlobalContext.Provider value={{ handleAlerts, handleCookie, isAdmin }}>
-        <CssBaseline enableColorScheme />
+        <CssVarsProvider>
+          <CssBaseline disableColorScheme />
 
-        <BrowserRouter>
-          <Routes>
-            <Route path="*" element={<DefaultPage />} />
-            <Route path="/" element={loggedIn ? <Header setIsAdmin={setIsAdmin} /> : <LoginPage />}>
-              <Route path="" element={<HomePage />} />
-              <Route path="profile" element={<ProfilePage />} />
-              <Route path="usermgmt" element={<UserMgmtPage />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
+          <BrowserRouter>
+            <Routes>
+              <Route path="*" element={<DefaultPage />} />
+              <Route path="/" element={loggedIn == "pending" ? <LoadingPage /> : loggedIn ? <Header setIsAdmin={setIsAdmin} /> : <LoginPage />}>
+                <Route path="" element={<HomePage />} />
+                <Route path="profile" element={<ProfilePage />} />
+                <Route path="usermgmt" element={<UserMgmtPage />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </CssVarsProvider>
       </GlobalContext.Provider>
       <ToastContainer position="top-center" autoClose={1000} transition={Slide} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="colored" />
     </>

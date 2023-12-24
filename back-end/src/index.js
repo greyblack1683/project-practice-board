@@ -33,7 +33,7 @@ app.post("/authorize", isAuthenticated, getAuthorised);
 app.post("/groups/create", isAuthenticated, isAuthorised("admin"), createGroup);
 
 //may need to change
-app.post("/profile", isAuthenticated, getOwnUser);
+app.get("/profile", isAuthenticated, getOwnUser);
 app.post("/profile/update", isAuthenticated, updateUserforUser);
 
 app.all("*", (req, res, next) => {
