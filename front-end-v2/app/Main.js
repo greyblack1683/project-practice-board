@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -74,19 +74,21 @@ function Main() {
     }
     if (tokenVal) {
       checkToken(tokenVal);
+    } else {
+      setLoggedIn(false);
     }
   }, []);
 
   return (
     <>
-      <GlobalContext.Provider value={{ handleAlerts, handleCookie, isAdmin }}>
+      <GlobalContext.Provider value={{ handleAlerts, handleCookie, isAdmin, setIsAdmin }}>
         <CssVarsProvider>
           <CssBaseline disableColorScheme />
 
           <BrowserRouter>
             <Routes>
               <Route path="*" element={<DefaultPage />} />
-              <Route path="/" element={loggedIn == "pending" ? <LoadingPage /> : loggedIn ? <Header setIsAdmin={setIsAdmin} /> : <LoginPage />}>
+              <Route path="/" element={loggedIn == "pending" ? <LoadingPage /> : loggedIn ? <Header /> : <LoginPage />}>
                 <Route path="" element={<HomePage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="usermgmt" element={<UserMgmtPage />} />

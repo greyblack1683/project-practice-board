@@ -9,10 +9,10 @@ import GlobalContext from "../components/GlobalContext";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 
-function Header({ setIsAdmin }) {
+function Header() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { handleAlerts, handleCookie, isAdmin } = useContext(GlobalContext);
+  const { handleAlerts, handleCookie, isAdmin, setIsAdmin } = useContext(GlobalContext);
 
   //useEffect to check if it's admin
   useEffect(() => {

@@ -61,11 +61,13 @@ function ProfilePage() {
     const [helperMsg, setHelperMsg] = useState("");
 
     const checkPassword = password => {
-      setNewPassword(password);
-      if (password.length < 8 || password.length > 10) {
-        setHelperMsg("Password should be between 8 to 10 characters.");
-      } else {
-        setHelperMsg("");
+      if (password) {
+        setNewPassword(password);
+        if (password.length < 8 || password.length > 10) {
+          setHelperMsg("Password should be between 8 to 10 characters.");
+        } else {
+          setHelperMsg("");
+        }
       }
     };
 

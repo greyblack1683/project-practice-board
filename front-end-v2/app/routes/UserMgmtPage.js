@@ -1,57 +1,239 @@
-import React from "react";
-import Page from "../components/Page";
+import React, { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-import { Typography, Table, Sheet, Box, Button } from "@mui/joy";
+import Page from "../components/Page";
+import GlobalContext from "../components/GlobalContext";
+
+import { Typography, Table, Sheet, Box, Button, Input, IconButton, Autocomplete, Select, Option } from "@mui/joy";
+
+import CancelIcon from "@mui/icons-material/Cancel";
 
 function UserMgmtPage() {
-  const rows = [("1", 159, 6.0, 24, 4.0), ("2", 237, 9.0, 37, 4.3), ("3", 262, 16.0, 24, 6.0), ("4", 305, 3.7, 67, 4.3)];
+  const { handleAlerts, setIsAdmin } = useContext(GlobalContext);
+  const navigate = useNavigate();
+
+  const [allGroups, setAllGroups] = useState([]);
+  const [addGroupRequest, setAddGroupRequest] = useState(0);
+  const [newGroup, setNewGroup] = useState("");
+
+  const [allUsers, setAllUsers] = useState([]);
+  const [editUserRequest, setEditUserRequest] = useState(0);
+  const [editRowId, setEditRowId] = useState(0);
+
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [groups, setGroups] = useState("");
+  const [active, setActive] = useState("");
+
+  const [newUsername, setNewUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newUserGroups, setNewUserGroups] = useState("");
+
+  useEffect(() => {
+    async function getGroups() {
+      try {
+        const response = await axios.get("/groups/all");
+
+        console.log(response);
+
+        if (response.data) {
+          console.log(response.data);
+          setAllGroups(response.data.results);
+        } else {
+          console.log(response.data.message);
+          throw new Error(error.response.data.message);
+        }
+      } catch (error) {
+        console.log(error.response.data.message);
+        handleUserNotAuthorised(error.response.data.message);
+        handleAlerts(`${error.response.data.message}`, false);
+      }
+    }
+    getGroups();
+  }, [addGroupRequest]);
+
+  useEffect(() => {
+    async function getUsers() {
+      try {
+        const response = await axios.get("/users/all");
+
+        console.log(response);
+
+        if (response.data) {
+          console.log(response.data);
+          setAllUsers(response.data.results);
+        } else {
+          console.log(response.data.message);
+          throw new Error(error.response.data.message);
+        }
+      } catch (error) {
+        console.log(error.response.data.message);
+        handleUserNotAuthorised(error.response.data.message);
+        handleAlerts(`${error.response.data.message}`, false);
+      }
+    }
+    getUsers();
+  }, [editUserRequest]);
+
+  const handleUserNotAuthorised = message => {
+    if (message.includes("not authorised")) {
+      setIsAdmin(false);
+      navigate("/");
+    }
+  };
+
+  const handleAddGroup = async () => {
+    try {
+      const response = await axios.post("/groups/create", {
+        group: newGroup
+      });
+
+      if (response.data) {
+        console.log(response.data);
+        setNewGroup("");
+        handleAlerts(`Added ${newGroup} as a new group`, true);
+        setAddGroupRequest(prev => prev + 1);
+      } else {
+        console.log(response.data.message);
+        throw new Error(error.response.data.message);
+      }
+    } catch (error) {
+      console.log(error.response.data.message);
+      handleUserNotAuthorised(error.response.data.message);
+      handleAlerts(`${error.response.data.message}`, false);
+    }
+  };
+
+  const handleEditUser = async () => {
+    let groupsData = groups ? groups.join(", ") : "";
+
+    try {
+      const response = await axios.post("/users/update", {
+        email,
+        password,
+        groups: groupsData,
+        active,
+        id: editRowId
+      });
+
+      if (response) {
+        console.log(response);
+        handleAlerts(`Edited user with ID ${editRowId}`, true);
+        setEditRowId(0);
+        setEditUserRequest(prev => prev + 1);
+      } else {
+        console.log(response.data.message);
+        throw new Error(error.response.data.message);
+      }
+    } catch (error) {
+      console.log(error.response.data.message);
+      handleUserNotAuthorised(error.response.data.message);
+      handleAlerts(`${error.response.data.message}`, false);
+    }
+  };
+
+  function UserRow(row) {
+    const handleCancel = () => {
+      setEditRowId(0);
+    };
+    const handleEditRow = () => {
+      setPassword("");
+      setEmail(row.email);
+      setGroups(row.groups == "" ? "none" : row.groups.split(", "));
+      setActive(row.active);
+      setEditRowId(row.id);
+    };
+    return (
+      <tr key={row.id}>
+        <td>{row.id}</td>
+        <td>{row.username}</td>
+        <td>{row.id === editRowId ? <Input variant="soft" color="primary" size="sm" value={password} onChange={e => setPassword(e.target.value)} type="password" /> : "********"}</td>
+        <td>{row.id === editRowId ? <Input variant="soft" color="primary" size="sm" value={email} onChange={e => setEmail(e.target.value)} /> : row.email}</td>
+        <td>{row.id === editRowId ? groups === "none" ? <Autocomplete variant="outlined" color="primary" multiple options={allGroups} onChange={(e, newValue) => setGroups(newValue)} /> : <Autocomplete variant="outlined" color="primary" value={groups} multiple options={allGroups} onChange={(e, newValue) => setGroups(newValue)} /> : row.groups}</td>
+        <td>
+          {row.id === editRowId ? (
+            <Select variant="soft" color="primary" size="sm" defaultValue={active} onChange={(e, newValue) => setActive(newValue)}>
+              <Option value="true">Enable</Option>
+              <Option value="false">Disable</Option>
+            </Select>
+          ) : row.active == "true" ? (
+            "Enable"
+          ) : (
+            "Disable"
+          )}
+        </td>
+        <td>
+          {row.id === editRowId ? (
+            <Box sx={{ display: "flex", gap: 0.5, justifyContent: "center", alignItems: "center" }}>
+              <Button onClick={handleEditUser} type="submit" size="sm" variant="soft" color="success">
+                Save
+              </Button>
+              <IconButton onClick={handleCancel} size="sm" variant="plain" color="danger" sx={{ borderRadius: "50%" }}>
+                <CancelIcon />
+              </IconButton>
+            </Box>
+          ) : (
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Button onClick={handleEditRow} size="sm" variant="soft">
+                Edit
+              </Button>
+            </Box>
+          )}
+        </td>
+      </tr>
+    );
+  }
 
   return (
     <Page title="Manage Users">
-      <Typography level="h3" sx={{ m: "2rem", textAlign: "left" }}>
-        User Management
-      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          m: "2rem",
+          maxWidth: "80rem"
+        }}
+      >
+        <Typography level="h3" sx={{ textAlign: "left", flexGrow: 1 }}>
+          User Management
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 1.5,
+            alignItems: "center"
+          }}
+        >
+          <Input value={newGroup} onChange={e => setNewGroup(e.target.value)} variant="soft" size="sm" color="primary" />
+          <Button onClick={handleAddGroup} variant="outlined" size="sm">
+            Add Group
+          </Button>
+        </Box>
+      </Box>
       <Sheet
         variant="outlined"
         sx={{
           m: "2rem",
           borderRadius: "sm",
-          "--TableCell-height": "40px",
-          // the number is the amount of the header rows.
-          "--TableHeader-height": "calc(1 * var(--TableCell-height))",
-          "--Table-firstColumnWidth": "80px",
-          "--Table-lastColumnWidth": "144px",
+          maxWidth: "80rem",
+          "--Table-firstColumnWidth": "50px",
+          "--Table-lastColumnWidth": "105px",
           // background needs to have transparency to show the scrolling shadows
           "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
           "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
           overflow: "auto",
-          background: theme =>
-            `linear-gradient(to right, ${theme.vars.palette.background.surface} 30%, rgba(255, 255, 255, 0)),
-            linear-gradient(to right, rgba(255, 255, 255, 0), ${theme.vars.palette.background.surface} 70%) 0 100%,
-            radial-gradient(
-              farthest-side at 0 50%,
-              rgba(0, 0, 0, 0.12),
-              rgba(0, 0, 0, 0)
-            ),
-            radial-gradient(
-                farthest-side at 100% 50%,
-                rgba(0, 0, 0, 0.12),
-                rgba(0, 0, 0, 0)
-              )
-              0 100%`,
-          backgroundSize: "40px calc(100% - var(--TableCell-height)), 40px calc(100% - var(--TableCell-height)), 14px calc(100% - var(--TableCell-height)), 14px calc(100% - var(--TableCell-height))",
-          backgroundRepeat: "no-repeat",
-          backgroundAttachment: "local, local, scroll, scroll",
-          backgroundPosition: "var(--Table-firstColumnWidth) var(--TableCell-height), calc(100% - var(--Table-lastColumnWidth)) var(--TableCell-height), var(--Table-firstColumnWidth) var(--TableCell-height), calc(100% - var(--Table-lastColumnWidth)) var(--TableCell-height)",
           backgroundColor: "background.surface"
         }}
       >
         <Table
           borderAxis="bothBetween"
-          stripe="odd"
-          hoverRow
+          stickyHeader
           sx={{
-            "& tr > *:first-child": {
+            "& tr > *:first-of-type": {
               position: "sticky",
               left: 0,
               boxShadow: "1px 0 var(--TableCell-borderColor)",
@@ -61,40 +243,23 @@ function UserMgmtPage() {
               position: "sticky",
               right: 0,
               bgcolor: "var(--TableCell-headBackground)"
-            }
+            },
+            whiteSpace: "normal",
+            wordWrap: "break-word"
           }}
         >
           <thead>
             <tr>
-              <th style={{ width: "var(--Table-firstColumnWidth)" }}>Row</th>
-              <th style={{ width: 200 }}>Calories</th>
-              <th style={{ width: 200 }}>Fat&nbsp;(g)</th>
-              <th style={{ width: 200 }}>Carbs&nbsp;(g)</th>
-              <th style={{ width: 200 }}>Protein&nbsp;(g)</th>
+              <th style={{ width: "var(--Table-firstColumnWidth)" }}>ID</th>
+              <th>Username</th>
+              <th>Password</th>
+              <th>Email</th>
+              <th style={{ width: 200 }}>Groups</th>
+              <th style={{ width: 110 }}>Activity</th>
               <th aria-label="last" style={{ width: "var(--Table-lastColumnWidth)" }} />
             </tr>
           </thead>
-          <tbody>
-            {rows.map(row => (
-              <tr key={row.name}>
-                <td>{row.name}</td>
-                <td>{row.calories}</td>
-                <td>{row.fat}</td>
-                <td>{row.carbs}</td>
-                <td>{row.protein}</td>
-                <td>
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <Button size="sm" variant="plain" color="neutral">
-                      Edit
-                    </Button>
-                    <Button size="sm" variant="soft" color="danger">
-                      Delete
-                    </Button>
-                  </Box>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+          <tbody>{allUsers && allUsers.map(row => UserRow(row))}</tbody>
         </Table>
       </Sheet>
     </Page>

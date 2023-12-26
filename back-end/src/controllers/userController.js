@@ -102,13 +102,13 @@ exports.loginUser = async (req, res, next) => {
 //note: to revisit when authen as admin is done
 exports.getUsers = async (req, res, next) => {
   try {
-    const [row, fields] = await connection.query("SELECT * FROM accounts", null);
+    const [row, fields] = await connection.query("SELECT `id`, `username`, `email`, `groups`, `active` FROM accounts", null);
     console.log("row:", row);
 
     return res.status(200).json({
       success: true,
       message: "Retrieved all users",
-      row
+      results: row
     });
   } catch (error) {
     return res.status(500).json({
@@ -140,42 +140,6 @@ exports.getOwnUser = async (req, res, next) => {
     }
   } catch (error) {
     return res.status(error.message.includes("User") ? 400 : 500).json({
-      success: false,
-      error,
-      message: error.message,
-      stack: error.stack
-    });
-  }
-};
-
-exports.createGroup = async (req, res, next) => {
-  try {
-    console.log("request body:", req.body);
-
-    const group = req.body.group;
-    if (!group) throw new Error("Group is blank");
-
-    if (group.includes(",")) throw new Error("Group should not contain comma.");
-
-    const response = await connection.query("INSERT INTO `usergroup` VALUES (?);", group);
-    console.log("response", response);
-
-    return res.status(200).json({
-      success: true,
-      message: `Group created`,
-      results: { group }
-    });
-  } catch (error) {
-    //sql errors
-    if (error.code == "ER_DUP_ENTRY") {
-      return res.status(400).json({
-        success: false,
-        error,
-        message: "Group already exists",
-        stack: error.stack
-      });
-    }
-    return res.status(error.message.includes("Group") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,
@@ -218,16 +182,7 @@ exports.updateUserforAdmin = async (req, res, next) => {
       results
     });
   } catch (error) {
-    //sql errors
-    if ((error.code = "ER_BAD_NULL_ERROR")) {
-      return res.status(400).json({
-        success: false,
-        error,
-        message: "Active or ID is a mandatory field",
-        stack: error.stack
-      });
-    }
-    return res.status(error.message.includes("mandatory") ? 400 : 500).json({
+    return res.status(error.message.toLowerCase().includes("password") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,

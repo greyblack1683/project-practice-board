@@ -19,8 +19,9 @@ app.use(cors());
 app.use(jsonParser);
 
 // controllers
-const { createUser, loginUser, getUsers, getOwnUser, createGroup, updateUserforAdmin, updateUserforUser } = require("./controllers/userController");
+const { createUser, loginUser, getUsers, getOwnUser, updateUserforAdmin, updateUserforUser } = require("./controllers/userController");
 const { getAuthenticiated, getAuthorised } = require("./controllers/authController");
+const { createGroup, getGroups } = require("./controllers/groupController");
 
 // routes
 app.post("/users/create", createUser);
@@ -30,6 +31,8 @@ app.post("/users/update", isAuthenticated, isAuthorised("admin"), updateUserforA
 app.post("/login", loginUser);
 app.get("/authenticate", getAuthenticiated);
 app.post("/authorize", isAuthenticated, getAuthorised);
+
+app.get("/groups/all", isAuthenticated, isAuthorised("admin"), getGroups);
 app.post("/groups/create", isAuthenticated, isAuthorised("admin"), createGroup);
 
 //may need to change
