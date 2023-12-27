@@ -2,12 +2,15 @@ import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import Page from "../components/Page";
 import GlobalContext from "../components/GlobalContext";
 
-import { Typography, Table, Sheet, Box, Button, Input, IconButton, Autocomplete, Select, Option } from "@mui/joy";
+import Page from "../components/Page";
+import CreateUser from "../components/CreateUser";
+
+import { Typography, Table, Sheet, Box, Button, Input, IconButton, Autocomplete, Select, Option, Chip } from "@mui/joy";
 
 import CancelIcon from "@mui/icons-material/Cancel";
+import Close from "@mui/icons-material/Close";
 
 function UserMgmtPage() {
   const { handleAlerts, setIsAdmin } = useContext(GlobalContext);
@@ -26,11 +29,6 @@ function UserMgmtPage() {
   const [groups, setGroups] = useState("");
   const [active, setActive] = useState("");
 
-  const [newUsername, setNewUsername] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  const [newUserGroups, setNewUserGroups] = useState("");
-
   useEffect(() => {
     async function getGroups() {
       try {
@@ -43,7 +41,7 @@ function UserMgmtPage() {
           setAllGroups(response.data.results);
         } else {
           console.log(response.data.message);
-          throw new Error(error.response.data.message);
+          throw new Error(response.data.message);
         }
       } catch (error) {
         console.log(error.response.data.message);
@@ -66,7 +64,7 @@ function UserMgmtPage() {
           setAllUsers(response.data.results);
         } else {
           console.log(response.data.message);
-          throw new Error(error.response.data.message);
+          throw new Error(response.data.message);
         }
       } catch (error) {
         console.log(error.response.data.message);
@@ -97,7 +95,7 @@ function UserMgmtPage() {
         setAddGroupRequest(prev => prev + 1);
       } else {
         console.log(response.data.message);
-        throw new Error(error.response.data.message);
+        throw new Error(response.data.message);
       }
     } catch (error) {
       console.log(error.response.data.message);
@@ -125,7 +123,7 @@ function UserMgmtPage() {
         setEditUserRequest(prev => prev + 1);
       } else {
         console.log(response.data.message);
-        throw new Error(error.response.data.message);
+        throw new Error(response.data.message);
       }
     } catch (error) {
       console.log(error.response.data.message);
@@ -135,13 +133,14 @@ function UserMgmtPage() {
   };
 
   function UserRow(row) {
+    let groupList = row.groups == null || row.groups == "" ? undefined : row.groups.split(", ").sort();
     const handleCancel = () => {
       setEditRowId(0);
     };
     const handleEditRow = () => {
       setPassword("");
       setEmail(row.email);
-      setGroups(row.groups == "" ? "none" : row.groups.split(", "));
+      setGroups(groupList);
       setActive(row.active);
       setEditRowId(row.id);
     };
@@ -151,7 +150,33 @@ function UserMgmtPage() {
         <td>{row.username}</td>
         <td>{row.id === editRowId ? <Input variant="soft" color="primary" size="sm" value={password} onChange={e => setPassword(e.target.value)} type="password" /> : "********"}</td>
         <td>{row.id === editRowId ? <Input variant="soft" color="primary" size="sm" value={email} onChange={e => setEmail(e.target.value)} /> : row.email}</td>
-        <td>{row.id === editRowId ? groups === "none" ? <Autocomplete variant="outlined" color="primary" multiple options={allGroups} onChange={(e, newValue) => setGroups(newValue)} /> : <Autocomplete variant="outlined" color="primary" value={groups} multiple options={allGroups} onChange={(e, newValue) => setGroups(newValue)} /> : row.groups}</td>
+        <td>
+          {row.id === editRowId ? (
+            <Autocomplete
+              variant="outlined"
+              color="primary"
+              value={groups}
+              size="sm"
+              multiple
+              options={allGroups}
+              onChange={(e, newValue) => setGroups(newValue)}
+              renderTags={(tags, getTagProps) =>
+                tags.map((item, index) => (
+                  <Chip variant="soft" size="sm" color="primary" endDecorator={<Close fontSize="sm" />} {...getTagProps({ index })}>
+                    {item}
+                  </Chip>
+                ))
+              }
+            />
+          ) : (
+            groupList &&
+            groupList.map(group => (
+              <Chip variant="outlined" size="sm" sx={{ mr: "0.2rem" }}>
+                {group}
+              </Chip>
+            ))
+          )}
+        </td>
         <td>
           {row.id === editRowId ? (
             <Select variant="soft" color="primary" size="sm" defaultValue={active} onChange={(e, newValue) => setActive(newValue)}>
@@ -214,10 +239,14 @@ function UserMgmtPage() {
           </Button>
         </Box>
       </Box>
+      <CreateUser allGroups={allGroups} handleUserNotAuthorised={handleUserNotAuthorised} setEditUserRequest={setEditUserRequest} />
       <Sheet
         variant="outlined"
         sx={{
-          m: "2rem",
+          ml: "2rem",
+          mr: "2rem",
+          mt: "1rem",
+          mb: "1rem",
           borderRadius: "sm",
           maxWidth: "80rem",
           "--Table-firstColumnWidth": "50px",
@@ -230,8 +259,9 @@ function UserMgmtPage() {
         }}
       >
         <Table
-          borderAxis="bothBetween"
+          borderAxis="xBetween"
           stickyHeader
+          hoverRow
           sx={{
             "& tr > *:first-of-type": {
               position: "sticky",
@@ -254,7 +284,7 @@ function UserMgmtPage() {
               <th>Username</th>
               <th>Password</th>
               <th>Email</th>
-              <th style={{ width: 200 }}>Groups</th>
+              <th>Groups</th>
               <th style={{ width: 110 }}>Activity</th>
               <th aria-label="last" style={{ width: "var(--Table-lastColumnWidth)" }} />
             </tr>

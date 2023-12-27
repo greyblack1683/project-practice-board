@@ -108,7 +108,7 @@ function ProfilePage() {
             </FormControl>
           </Box>
           <Box display="flex" sx={{ justifyContent: "center", alignItems: "center", mt: "3rem" }}>
-            <Button variant="solid" type="submit" sx={{ mr: "1rem" }}>
+            <Button variant="solid" color="success" type="submit" sx={{ mr: "1rem" }}>
               Save
             </Button>
             <Button onClick={() => setIsEditing(false)} variant="solid" color="danger">

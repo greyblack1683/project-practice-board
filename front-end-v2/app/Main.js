@@ -8,7 +8,6 @@ import Cookies from "js-cookie";
 import { CssVarsProvider } from "@mui/joy/styles";
 import CssBaseline from "@mui/joy/CssBaseline";
 import { Slide, ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 import GlobalContext from "./components/GlobalContext";
 import Header from "./routes/Header";

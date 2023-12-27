@@ -16,14 +16,32 @@ exports.createUser = async (req, res, next) => {
     checkPassword(req.body.password);
     const password = await bcrypt.hash(req.body.password, 10);
 
+    let sqlBuilder = "INSERT INTO `accounts` (`username`, `password`";
+    let sqlValuesBuilder = ") VALUES (?,?";
+
     results = {
       username: req.body.username,
-      password,
-      email: req.body.email,
-      groups: req.body.groups ? req.body.groups : "user"
+      password
     };
 
-    const response = await connection.query("INSERT INTO `accounts` (`username`, `password`, `email`, `groups`) VALUES (?,?,?,?);", Object.values(results));
+    if (req.body.email) {
+      results.email = req.body.email;
+      sqlBuilder = sqlBuilder + ", `email`";
+      sqlValuesBuilder = sqlValuesBuilder + ", ?";
+    }
+
+    if (req.body.groups) {
+      results.groups = req.body.groups;
+      sqlBuilder = sqlBuilder + ", `groups`";
+      sqlValuesBuilder = sqlValuesBuilder + ", ?";
+    }
+
+    sqlBuilder = sqlBuilder + sqlValuesBuilder + ");";
+
+    console.log("sqlBuilder", sqlBuilder, "sqlValuesBuilder: ", sqlValuesBuilder);
+    console.log(Object.values(results));
+
+    const response = await connection.query(sqlBuilder, Object.values(results));
     console.log(response);
 
     return res.status(201).json({

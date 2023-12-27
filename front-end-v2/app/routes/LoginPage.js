@@ -53,10 +53,10 @@ function LoginPage() {
   return (
     <>
       <Box display="flex" sx={{ bgcolor: "#cfe8fc", height: "100vh", justifyContent: "center", alignItems: "center" }}>
-        <Sheet sx={{ height: "60vh", width: "40vh", padding: "2rem", justifyContent: "center", alignItems: "center", borderRadius: "2%" }}>
+        <Sheet sx={{ height: "65vh", width: "40vh", padding: "2rem", justifyContent: "center", alignItems: "center", borderRadius: "2%" }}>
           <Box flex-direction="column">
-            <Box display="flex" sx={{ justifyContent: "center", alignItems: "center", m: "3rem" }}>
-              <img src={logo} width={120} height={120} alt="Logo" />
+            <Box display="flex" sx={{ justifyContent: "center", alignItems: "center", m: "2rem" }}>
+              <img src={logo} width={100} height={100} alt="Logo" />
             </Box>
             <form onSubmit={handleSubmit}>
               <Box display="flex" sx={{ "& .MuiTextField-root": { m: "0.5rem", width: "15rem" }, flexDirection: "column" }} noValidate autoComplete="off">
