@@ -2,12 +2,11 @@ import React, { useContext, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
-import { Stack, Box, IconButton, Button, Typography } from "@mui/joy";
+import { Stack, Box, IconButton, Button, Typography, Avatar } from "@mui/joy";
 
 import GlobalContext from "../components/GlobalContext";
 
 import LogoutIcon from "@mui/icons-material/Logout";
-import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 
 function Header() {
   const navigate = useNavigate();
@@ -16,18 +15,24 @@ function Header() {
 
   //useEffect to check if it's admin
   useEffect(() => {
-    console.log("Running useEffect to check if user is admin");
+    console.log("Running useEffect to check if user is admin and active");
     async function checkGroup(authorisedGroup) {
       try {
         //to be fixed later
         const response = await axios.post("/authorize", {
           authorisedGroup
         });
-        console.log(response);
-        setIsAdmin(response.data.success);
+        if (response) {
+          console.log(response);
+
+          setIsAdmin(response.data.success);
+        } else {
+          console.log(response.data.message);
+          throw new Error(response.data.message);
+        }
       } catch (error) {
-        console.log(error);
-        handleAlerts(error.message, false);
+        console.log(error.response.data.message);
+        handleAlerts(`${error.response.data.message}`, false);
       }
     }
 
@@ -53,8 +58,10 @@ function Header() {
         }}
       >
         <Stack direction="row" justifyContent="center" alignItems="center" spacing={1}>
-          <IconButton onClick={() => navigate("/")} size="md" variant="outlined" color="neutral" sx={{ borderRadius: "50%" }}>
-            <LanguageRoundedIcon />
+          <IconButton onClick={() => navigate("/")} size="md" variant="soft" color="primary" sx={{ borderRadius: "50%", width: "34px" }}>
+            <Avatar onClick={() => navigate("/")} size="sm" variant="soft" color="primary" alt="TMS">
+              TMS
+            </Avatar>
           </IconButton>
           <Typography level="body-md" component="div" sx={{ flexGrow: 1 }}>
             Task Management System

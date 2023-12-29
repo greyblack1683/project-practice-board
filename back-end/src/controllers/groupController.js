@@ -2,15 +2,13 @@ const connection = require("../utils/database");
 
 exports.createGroup = async (req, res, next) => {
   try {
-    console.log("request body:", req.body);
-
     const group = req.body.group;
-    if (!group) throw new Error("Group is blank");
+    console.log(`Creating group with group name: ${group}`);
+    if (!group) throw new Error("Error: Group is blank");
 
-    if (group.includes(",")) throw new Error("Group should not contain comma.");
+    if (group.includes(",")) throw new Error("Error: Group should not contain comma.");
 
     const response = await connection.query("INSERT INTO `usergroup` VALUES (?);", group);
-    console.log("response", response);
 
     return res.status(200).json({
       success: true,
@@ -18,16 +16,16 @@ exports.createGroup = async (req, res, next) => {
       results: { group }
     });
   } catch (error) {
-    //sql errors
+    //sql duplicate errors
     if (error.code == "ER_DUP_ENTRY") {
       return res.status(400).json({
         success: false,
         error,
-        message: "Group already exists",
+        message: "Error: Group already exists",
         stack: error.stack
       });
     }
-    return res.status(error.message.includes("Group") ? 400 : 500).json({
+    return res.status(error.message.includes("Error") ? 400 : 500).json({
       success: false,
       error,
       message: error.message,
@@ -38,9 +36,8 @@ exports.createGroup = async (req, res, next) => {
 
 exports.getGroups = async (req, res, next) => {
   try {
+    console.log("Getting all groups");
     const [row, fields] = await connection.query("SELECT * FROM `usergroup`");
-
-    console.log("row", row);
 
     if (row.length > 0) {
       let results = [];
@@ -53,7 +50,7 @@ exports.getGroups = async (req, res, next) => {
         results
       });
     } else {
-      throw new Error("Usergroup table cannot be found");
+      throw new Error("Error: Usergroup table cannot be found");
     }
   } catch (error) {
     return res.status(500).json({

@@ -1,31 +1,29 @@
 const express = require("express");
 
-//middlewares
-const bodyParser = require("body-parser");
+/* External Middlewares */
 const cors = require("cors");
 require("dotenv").config();
+const bodyParser = require("body-parser");
+const jsonParser = bodyParser.json(); // create application/json parser
 
+/* Start a server */
 const app = express();
-const port = process.env.PORT || 3000;
 
-// create application/json parser
-var jsonParser = bodyParser.json();
-
-/* Middlewares*/
+/* Middlewares - Implementation */
 const { isAuthenticated, isAuthorised } = require("./middleware/authMiddleware");
 
-// enable API to be access by another domain
-app.use(cors());
-app.use(jsonParser);
+//WIP - WHITELIST
+app.use(cors()); // enable API to be accessed by another domain
+app.use(jsonParser); // read JSON req body
 
-// controllers
+/* Controllers */
 const { createUser, loginUser, getUsers, getOwnUser, updateUserforAdmin, updateUserforUser } = require("./controllers/userController");
 const { getAuthenticiated, getAuthorised } = require("./controllers/authController");
 const { createGroup, getGroups } = require("./controllers/groupController");
 
-// routes
-app.post("/users/create", createUser);
+/* Routes */
 app.get("/users/all", isAuthenticated, isAuthorised("admin"), getUsers);
+app.post("/users/create", isAuthenticated, isAuthorised("admin"), createUser);
 app.post("/users/update", isAuthenticated, isAuthorised("admin"), updateUserforAdmin);
 
 app.post("/login", loginUser);
@@ -35,7 +33,6 @@ app.post("/authorize", isAuthenticated, getAuthorised);
 app.get("/groups/all", isAuthenticated, isAuthorised("admin"), getGroups);
 app.post("/groups/create", isAuthenticated, isAuthorised("admin"), createGroup);
 
-//may need to change
 app.get("/profile", isAuthenticated, getOwnUser);
 app.post("/profile/update", isAuthenticated, updateUserforUser);
 
@@ -46,7 +43,8 @@ app.all("*", (req, res, next) => {
   });
 });
 
-// app listening on port
+/* Listen on Port */
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port} in ${process.env.NODE_ENV}`);
 });

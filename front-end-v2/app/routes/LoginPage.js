@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import GlobalContext from "../components/GlobalContext";
 import axios from "axios";
 
-import { Box, FormControl, FormLabel, Input, FormHelperText, Button, Sheet } from "@mui/joy";
-import logo from "../../public/tms_logo.png";
+import { Box, FormControl, FormLabel, Input, FormHelperText, Button, Sheet, Avatar } from "@mui/joy";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -35,11 +34,17 @@ function LoginPage() {
 
       if (response.data) {
         console.log(response.data);
-        handleCookie(response.data.results.token);
-        setUsername("");
-        setPassword("");
-        handleAlerts("Login successful", true);
-        navigate("/");
+        if (response.data.results.active === "true") {
+          handleCookie(response.data.results.token);
+          setUsername("");
+          setPassword("");
+          handleAlerts("Login successful", true);
+          navigate("/");
+        } else {
+          setUsername("");
+          setPassword("");
+          handleAlerts("User is inactive", false);
+        }
       } else {
         console.log(response.data.message);
         handleAlerts(`${error.response.data.message}`, false);
@@ -56,7 +61,17 @@ function LoginPage() {
         <Sheet sx={{ height: "65vh", width: "40vh", padding: "2rem", justifyContent: "center", alignItems: "center", borderRadius: "2%" }}>
           <Box flex-direction="column">
             <Box display="flex" sx={{ justifyContent: "center", alignItems: "center", m: "2rem" }}>
-              <img src={logo} width={100} height={100} alt="Logo" />
+              <Avatar
+                size="lg"
+                variant="soft"
+                color="primary"
+                alt="TMS"
+                sx={{
+                  "--Avatar-size": "100px"
+                }}
+              >
+                TMS
+              </Avatar>
             </Box>
             <form onSubmit={handleSubmit}>
               <Box display="flex" sx={{ "& .MuiTextField-root": { m: "0.5rem", width: "15rem" }, flexDirection: "column" }} noValidate autoComplete="off">

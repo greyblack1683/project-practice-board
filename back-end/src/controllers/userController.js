@@ -11,7 +11,7 @@ function checkPassword(password) {
 
 exports.createUser = async (req, res, next) => {
   try {
-    console.log("request body:", req.body);
+    console.log("Creating user");
 
     checkPassword(req.body.password);
     const password = await bcrypt.hash(req.body.password, 10);
@@ -79,7 +79,7 @@ exports.loginUser = async (req, res, next) => {
     // check username and password
     if (!username || !password) throw new Error("Invalid username or password");
 
-    const [row, fields] = await connection.query("SELECT id, password FROM accounts WHERE username = ?;", username);
+    const [row, fields] = await connection.query("SELECT id, password, active FROM accounts WHERE username = ?;", username);
 
     if (row.length === 1) {
       // valid user -> check password
@@ -95,7 +95,8 @@ exports.loginUser = async (req, res, next) => {
           results: {
             id: row[0].id,
             username,
-            token
+            token,
+            active: row[0].active
           }
         });
       } else {

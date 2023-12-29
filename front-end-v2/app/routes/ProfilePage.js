@@ -26,8 +26,8 @@ function ProfilePage() {
           throw new Error("Internal Server Error");
         }
       } catch (error) {
-        console.log(error);
-        handleAlerts(error.message, false);
+        console.log(error.response.data.message);
+        handleAlerts(error.response.data.message, false);
       }
     }
 
@@ -108,11 +108,11 @@ function ProfilePage() {
             </FormControl>
           </Box>
           <Box display="flex" sx={{ justifyContent: "center", alignItems: "center", mt: "3rem" }}>
-            <Button variant="solid" color="success" type="submit" sx={{ mr: "1rem" }}>
-              Save
-            </Button>
-            <Button onClick={() => setIsEditing(false)} variant="solid" color="danger">
+            <Button onClick={() => setIsEditing(false)} variant="solid" color="danger" sx={{ mr: "1rem" }}>
               Cancel
+            </Button>
+            <Button variant="solid" color="success" type="submit">
+              Save
             </Button>
           </Box>
         </Box>

@@ -67,8 +67,9 @@ function Main() {
           }
         }
       } catch (error) {
-        console.log(error);
-        handleAlerts(error.message, false);
+        console.log(error.response.data.message);
+        setLoggedIn(false);
+        handleAlerts(error.response.data.message, false);
       }
     }
     if (tokenVal) {
