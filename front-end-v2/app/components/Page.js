@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { Box } from "@mui/joy";
 
 function Page(props) {
   useEffect(() => {

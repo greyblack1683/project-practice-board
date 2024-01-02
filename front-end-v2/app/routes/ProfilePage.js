@@ -17,17 +17,19 @@ function ProfilePage() {
     console.log("Running useEffect to get profile");
     async function getProfile() {
       try {
-        const response = await axios.get("/profile");
-        console.log(response.data.results);
-        if (response.data.results) {
-          setUsername(response.data.results.username);
-          setEmail(response.data.results.email ? response.data.results.email : "");
-        } else {
-          throw new Error("Internal Server Error");
-        }
+        await axios
+          .get("/profile")
+          .then(response => {
+            setUsername(response.data.results.username);
+            setEmail(response.data.results.email ? response.data.results.email : "");
+          })
+          .catch(error => {
+            console.log(error.response.data.message);
+            handleAlerts(error.response.data.message, false);
+          });
       } catch (error) {
-        console.log(error.response.data.message);
-        handleAlerts(error.response.data.message, false);
+        console.log(error);
+        handleAlerts("Error: Internal Server Error", false);
       }
     }
 
@@ -41,7 +43,8 @@ function ProfilePage() {
           <FormControl>
             <FormLabel>Email</FormLabel>
             <Input variant="solid" disabled value={email} />
-
+          </FormControl>
+          <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Password</FormLabel>
             <Input variant="solid" disabled value="password" type="password" />
           </FormControl>
@@ -63,33 +66,31 @@ function ProfilePage() {
     const checkPassword = password => {
       if (password) {
         setNewPassword(password);
-        if (password.length < 8 || password.length > 10) {
-          setHelperMsg("Password should be between 8 to 10 characters.");
-        } else {
-          setHelperMsg("");
-        }
+        setHelperMsg(password.length < 8 || password.length > 10 ? "Password should be between 8 to 10 characters." : "");
       }
     };
 
     const handleSubmit = async e => {
       e.preventDefault();
       try {
-        const response = await axios.post("/profile/update", {
-          email: newEmail,
-          password: newPassword
-        });
-        console.log(response);
-        if (response.data) {
-          handleAlerts("Email and/or password is updated!", true);
-          setEditRequest(prev => prev + 1);
-          setIsEditing(false);
-        } else {
-          throw new Error(response.data.message);
-        }
+        await axios
+          .post("/profile/update", {
+            email: newEmail,
+            password: newPassword
+          })
+          .then(response => {
+            handleAlerts("Email and/or password is updated!", true);
+            setEditRequest(prev => prev + 1);
+            setIsEditing(false);
+          })
+          .catch(error => {
+            console.log(error.response.data.message);
+            if (error.response.data.message.toLowerCase().includes("password")) setHelperMsg(error.response.data.message);
+            handleAlerts(error.response.data.message, false);
+          });
       } catch (error) {
         console.log(error);
-        if (error.response.data.message.toLowerCase().includes("password")) setHelperMsg(error.response.data.message);
-        handleAlerts(error.response.data.message, false);
+        handleAlerts("Error: Internal Server Error", false);
       }
     };
 

@@ -18,21 +18,16 @@ function Header() {
     console.log("Running useEffect to check if user is admin and active");
     async function checkGroup(authorisedGroup) {
       try {
-        //to be fixed later
-        const response = await axios.post("/authorize", {
-          authorisedGroup
-        });
-        if (response) {
-          console.log(response);
-
-          setIsAdmin(response.data.success);
-        } else {
-          console.log(response.data.message);
-          throw new Error(response.data.message);
-        }
+        await axios
+          .post("/authorize", { authorisedGroup })
+          .then(response => setIsAdmin(response.data.success))
+          .catch(error => {
+            console.log(error.response.data.message);
+            handleAlerts(`${error.response.data.message}`, false);
+          });
       } catch (error) {
-        console.log(error.response.data.message);
-        handleAlerts(`${error.response.data.message}`, false);
+        console.log(error);
+        handleAlerts("Error: Internal Server Error", false);
       }
     }
 

@@ -15,43 +15,34 @@ function LoginPage() {
 
   const checkPassword = password => {
     setPassword(password);
-    if (password.length < 8 || password.length > 10) {
-      setHelperMsg("Password should be between 8 to 10 characters.");
-    } else {
-      setHelperMsg("");
-    }
+    setHelperMsg(password.length < 8 || password.length > 10 ? "Password should be between 8 to 10 characters." : "");
   };
 
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      const response = await axios.post("/login", {
-        username,
-        password
-      });
-
-      console.log(response);
-
-      if (response.data) {
-        console.log(response.data);
-        if (response.data.results.active === "true") {
-          handleCookie(response.data.results.token);
-          setUsername("");
-          setPassword("");
-          handleAlerts("Login successful", true);
-          navigate("/");
-        } else {
-          setUsername("");
-          setPassword("");
-          handleAlerts("User is inactive", false);
-        }
-      } else {
-        console.log(response.data.message);
-        handleAlerts(`${error.response.data.message}`, false);
-      }
+      await axios
+        .post("/login", { username, password })
+        .then(response => {
+          if (response.data.results.active === "true") {
+            handleCookie(response.data.results.token);
+            setUsername("");
+            setPassword("");
+            handleAlerts("Login successful", true);
+            navigate("/");
+          } else {
+            setUsername("");
+            setPassword("");
+            handleAlerts("User is inactive", false);
+          }
+        })
+        .catch(error => {
+          console.log(error.response.data.message);
+          handleAlerts(`${error.response.data.message}`, false);
+        });
     } catch (error) {
-      console.log(error.response.data.message);
-      handleAlerts(`${error.response.data.message}`, false);
+      console.log(error);
+      handleAlerts("Error: Internal Server Error", false);
     }
   };
 

@@ -22,31 +22,30 @@ function CreateUser({ allGroups, handleUserNotAuthorised, setEditUserRequest }) 
     async function registerUser() {
       let groupsData = newUserGroups ? newUserGroups.join(", ") : null;
       try {
-        const response = await axios.post("/users/create", {
-          username: newUsername.trim(),
-          password: newPassword,
-          email: newEmail.trim(),
-          groups: groupsData
-        });
-
-        console.log(response);
-
-        if (response) {
-          console.log(response);
-          setNewUsername("");
-          setNewPassword("");
-          setNewEmail("");
-          setNewUserGroups(undefined);
-          setRerenderAC(!rerenderAC);
-          setEditUserRequest(prev => prev + 1);
-        } else {
-          console.log(response.data.message);
-          throw new Error(response.data.message);
-        }
+        await axios
+          .post("/users/create", {
+            username: newUsername.trim(),
+            password: newPassword,
+            email: newEmail.trim(),
+            groups: groupsData
+          })
+          .then(response => {
+            console.log(response);
+            setNewUsername("");
+            setNewPassword("");
+            setNewEmail("");
+            setNewUserGroups(undefined);
+            setRerenderAC(!rerenderAC);
+            setEditUserRequest(prev => prev + 1);
+          })
+          .catch(error => {
+            console.log(error.response.data.message);
+            handleUserNotAuthorised(error.response.data.message);
+            handleAlerts(`${error.response.data.message}`, false);
+          });
       } catch (error) {
-        console.log(error.response.data.message);
-        handleUserNotAuthorised(error.response.data.message);
-        handleAlerts(`${error.response.data.message}`, false);
+        console.log(error);
+        handleAlerts("Error: Internal Server Error", false);
       }
     }
     registerUser();

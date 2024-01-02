@@ -57,19 +57,20 @@ function Main() {
     async function checkToken(token) {
       try {
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        const response = await axios.get("/authenticate");
-        if (response) {
-          console.log(response);
-          if (response.data.success === true) {
-            handleCookie(tokenVal);
-          } else {
-            throw new Error("Internal Server Error");
-          }
-        }
+        await axios
+          .get("/authenticate")
+          .then(response => {
+            if (response.data.success === true) handleCookie(tokenVal);
+          })
+          .catch(error => {
+            console.log(error.response.data.message);
+            setLoggedIn(false);
+            handleAlerts(error.response.data.message, false);
+          });
       } catch (error) {
-        console.log(error.response.data.message);
+        console.log(error);
         setLoggedIn(false);
-        handleAlerts(error.response.data.message, false);
+        handleAlerts("Error: Internal Server Error", false);
       }
     }
     if (tokenVal) {

@@ -5,11 +5,19 @@ import { Box, Button, Input, IconButton, Autocomplete, Select, Option, Chip } fr
 import CancelIcon from "@mui/icons-material/Cancel";
 import Close from "@mui/icons-material/Close";
 
-function UserRow({ row, handleCancel, handleEditRow, handleEditUser, setPassword, setEmail, setGroups, setActive, editRowId }) {
+function UserRow({ row, handleCancel, handleEditUser, setPassword, setEmail, setGroups, setActive, editRowId, setEditRowId, password, email }) {
   let groupList = row.groups == null || row.groups == "" ? undefined : row.groups.split(", ").sort();
 
+  const handleEditRow = (row, groupList) => {
+    setPassword("");
+    setEmail(row.email);
+    setGroups(groupList);
+    setActive(row.active);
+    setEditRowId(row.id);
+  };
+
   return (
-    <tr key={row.id}>
+    <tr>
       <td>{row.id}</td>
       <td>{row.username}</td>
       <td>{row.id === editRowId ? <Input variant="soft" color="primary" size="sm" value={password} onChange={e => setPassword(e.target.value)} type="password" /> : "********"}</td>
@@ -26,7 +34,7 @@ function UserRow({ row, handleCancel, handleEditRow, handleEditUser, setPassword
             onChange={(e, newValue) => setGroups(newValue)}
             renderTags={(tags, getTagProps) =>
               tags.map((item, index) => (
-                <Chip variant="soft" size="sm" color="primary" endDecorator={<Close fontSize="sm" />} {...getTagProps({ index })}>
+                <Chip key={index} variant="soft" size="sm" color="primary" endDecorator={<Close fontSize="sm" />} {...getTagProps({ index })}>
                   {item}
                 </Chip>
               ))
@@ -35,7 +43,7 @@ function UserRow({ row, handleCancel, handleEditRow, handleEditUser, setPassword
         ) : (
           groupList &&
           groupList.map(group => (
-            <Chip variant="outlined" size="sm" sx={{ mr: "0.2rem" }}>
+            <Chip key={group} variant="outlined" size="sm" sx={{ mr: "0.2rem" }}>
               {group}
             </Chip>
           ))
@@ -65,7 +73,7 @@ function UserRow({ row, handleCancel, handleEditRow, handleEditUser, setPassword
           </Box>
         ) : (
           <Box sx={{ display: "flex", justifyContent: "center" }}>
-            <Button onClick={handleEditRow} size="sm" variant="soft">
+            <Button onClick={handleEditRow(row, groupList)} size="sm" variant="soft">
               Edit
             </Button>
           </Box>
