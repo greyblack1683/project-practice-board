@@ -1,5 +1,5 @@
 # project-practice-board
-##Front End
+## Front End
 
 Main.js
 - UseEffect to check if there is token and validity of token
@@ -7,9 +7,9 @@ Main.js
 1. (*) Default Page
 2. (/) Loading Page / Header / Login Page (Depending on log in)
 3. (/) Header's children
-3a. (/) Home Page
-3b. (/profile) Profile Page
-3c. (/usermgmt) User Mgmt Page
+a. (/) Home Page
+b. (/profile) Profile Page
+c. (/usermgmt) User Mgmt Page
 3c1. Create User
 3c2. UserRow
 
