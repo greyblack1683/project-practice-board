@@ -9,6 +9,7 @@ import CreateUser from "../components/CreateUser";
 
 import { Typography, Table, Sheet, Box, Button, Input, IconButton, Autocomplete, Select, Option, Chip } from "@mui/joy";
 
+import GroupsIcon from "@mui/icons-material/Groups";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Close from "@mui/icons-material/Close";
 
@@ -53,10 +54,7 @@ function UserMgmtPage() {
       try {
         await axios
           .get("/users/all")
-          .then(response => {
-            console.log(response.data.results);
-            setAllUsers(response.data.results);
-          })
+          .then(response => setAllUsers(response.data.results))
           .catch(error => {
             console.log(error.response.data.message);
             handleUserNotAuthorised(error.response.data.message);
@@ -125,7 +123,7 @@ function UserMgmtPage() {
     }
   };
 
-  function UserRow({ row }) {
+  function UserRow(row) {
     let groupList = row.groups == null || row.groups == "" ? undefined : row.groups.split(", ").sort();
 
     const handleCancel = () => {
@@ -230,6 +228,7 @@ function UserMgmtPage() {
                 alignItems: "center"
               }}
             >
+              <GroupsIcon />
               <Input placeholder="group name" value={newGroup} onChange={e => setNewGroup(e.target.value)} variant="soft" size="sm" color="primary" />
               <Button onClick={handleAddGroup} variant="outlined" size="sm">
                 Add Group
@@ -286,7 +285,7 @@ function UserMgmtPage() {
                   <th aria-label="last" style={{ width: "var(--Table-lastColumnWidth)" }} />
                 </tr>
               </thead>
-              <tbody>{allUsers && allUsers.map(row => <UserRow row={row} />)}</tbody>
+              <tbody>{allUsers && allUsers.map(row => UserRow(row))}</tbody>
             </Table>
           </Sheet>
         </Box>

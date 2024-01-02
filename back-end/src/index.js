@@ -12,8 +12,18 @@ const app = express();
 /* Middlewares - Implementation */
 const { isAuthenticated, isAuthorised } = require("./middleware/authMiddleware");
 
-//WIP - WHITELIST
-app.use(cors()); // enable API to be accessed by another domain
+// whitelist for specific domains to be able to access this API
+const whitelist = ["http://localhost:3000"];
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin !== -1)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  }
+};
+app.use(cors(corsOptions));
 app.use(jsonParser); // read JSON req body
 
 /* Controllers */
