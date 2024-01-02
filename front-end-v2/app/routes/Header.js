@@ -78,7 +78,7 @@ function Header() {
           <Button onClick={() => navigate("/profile")} variant="plain" color="neutral" aria-pressed={location.pathname === "/profile" ? "true" : "false"} size="sm">
             My Profile
           </Button>
-          <Button onClick={handleLogOut} variant="soft" color="danger" size="sm" startDecorator={<LogoutIcon />}>
+          <Button onClick={handleLogOut} variant="plain" color="danger" size="sm" startDecorator={<LogoutIcon />}>
             Logout
           </Button>
         </Box>

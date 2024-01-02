@@ -31,6 +31,7 @@ function UserMgmtPage() {
   const [active, setActive] = useState("");
 
   useEffect(() => {
+    const controller = new AbortController();
     async function getGroups() {
       try {
         await axios
@@ -47,9 +48,12 @@ function UserMgmtPage() {
       }
     }
     getGroups();
+
+    return controller.abort();
   }, [addGroupRequest]);
 
   useEffect(() => {
+    const controller = new AbortController();
     async function getUsers() {
       try {
         await axios
@@ -66,6 +70,8 @@ function UserMgmtPage() {
       }
     }
     getUsers();
+
+    return controller.abort();
   }, [editUserRequest]);
 
   const handleUserNotAuthorised = message => {
@@ -214,7 +220,7 @@ function UserMgmtPage() {
               flexDirection: "row",
               alignItems: "center",
               m: "2rem",
-              maxWidth: "80rem"
+              maxWidth: "70rem"
             }}
           >
             <Typography level="h3" sx={{ textAlign: "left", flexGrow: 1 }}>
@@ -244,7 +250,7 @@ function UserMgmtPage() {
               mt: "1rem",
               mb: "1rem",
               borderRadius: "sm",
-              maxWidth: "80rem",
+              maxWidth: "70rem",
               "--Table-firstColumnWidth": "50px",
               "--Table-lastColumnWidth": "105px",
               // background needs to have transparency to show the scrolling shadows

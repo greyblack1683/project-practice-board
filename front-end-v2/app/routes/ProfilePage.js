@@ -15,6 +15,7 @@ function ProfilePage() {
 
   useEffect(() => {
     console.log("Running useEffect to get profile");
+    const controller = new AbortController();
     async function getProfile() {
       try {
         await axios
@@ -34,6 +35,8 @@ function ProfilePage() {
     }
 
     getProfile();
+
+    return controller.abort();
   }, [editRequest]);
 
   function ProfileView() {
