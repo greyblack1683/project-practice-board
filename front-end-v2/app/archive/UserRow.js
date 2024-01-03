@@ -1,29 +1,71 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 
 import { Box, Button, Input, IconButton, Autocomplete, Select, Option, Chip } from "@mui/joy";
 
 import CancelIcon from "@mui/icons-material/Cancel";
 import Close from "@mui/icons-material/Close";
 
-function UserRow({ row, handleCancel, handleEditUser, setPassword, setEmail, setGroups, setActive, editRowId, setEditRowId, password, email }) {
+function UserRow({ row, allGroups, handleAlerts, handleUserNotAuthorised, setEditUserRequest }) {
   let groupList = row.groups == null || row.groups == "" ? undefined : row.groups.split(", ").sort();
 
-  const handleEditRow = (row, groupList) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [groups, setGroups] = useState("");
+  const [isActive, setIsActive] = useState("");
+
+  const handleEditUser = async () => {
+    try {
+      await axios
+        .post("/users/update", {
+          email,
+          password,
+          groups: groups ? groups.join(", ") : "",
+          isactive: isActive,
+          username: row.username
+        })
+        .then(response => {
+          console.log(response);
+          handleAlerts(`Edited user ${row.username}`, true);
+          handleCancel();
+          setEditUserRequest(prev => prev + 1);
+        })
+        .catch(error => {
+          console.log(error);
+          handleUserNotAuthorised(error.response.data.message);
+          handleAlerts(`${error.response.data.message}`, false);
+        });
+    } catch (error) {
+      console.log(error);
+      handleAlerts("Error: Internal Server Error", false);
+    }
+  };
+
+  const handleCancel = () => {
+    setPassword("");
+    setEmail("");
+    setGroups("");
+    setIsActive("");
+    setIsEditing(false);
+  };
+
+  const handleEditRow = () => {
     setPassword("");
     setEmail(row.email);
     setGroups(groupList);
-    setActive(row.active);
-    setEditRowId(row.id);
+    setIsActive(row.isactive);
+    setIsEditing(true);
   };
 
   return (
-    <tr>
+    <tr key={row.username}>
       <td>{row.id}</td>
       <td>{row.username}</td>
-      <td>{row.id === editRowId ? <Input variant="soft" color="primary" size="sm" value={password} onChange={e => setPassword(e.target.value)} type="password" /> : "********"}</td>
-      <td>{row.id === editRowId ? <Input variant="soft" color="primary" size="sm" value={email} onChange={e => setEmail(e.target.value)} /> : row.email}</td>
+      <td>{isEditing ? <Input variant="soft" color="primary" size="sm" value={password} onChange={e => setPassword(e.target.value)} type="password" /> : "********"}</td>
+      <td>{isEditing ? <Input variant="soft" color="primary" size="sm" value={email} onChange={e => setEmail(e.target.value)} /> : row.email}</td>
       <td>
-        {row.id === editRowId ? (
+        {isEditing ? (
           <Autocomplete
             variant="outlined"
             color="primary"
@@ -50,19 +92,19 @@ function UserRow({ row, handleCancel, handleEditUser, setPassword, setEmail, set
         )}
       </td>
       <td>
-        {row.id === editRowId ? (
-          <Select variant="soft" color="primary" size="sm" defaultValue={active} onChange={(e, newValue) => setActive(newValue)}>
+        {isEditing ? (
+          <Select variant="soft" color="primary" size="sm" defaultValue={isActive} onChange={(e, newValue) => setIsActive(newValue)}>
             <Option value="true">Enable</Option>
             <Option value="false">Disable</Option>
           </Select>
-        ) : row.active == "true" ? (
+        ) : row.isactive == "true" ? (
           "Enable"
         ) : (
           "Disable"
         )}
       </td>
       <td>
-        {row.id === editRowId ? (
+        {isEditing ? (
           <Box sx={{ display: "flex", gap: 0.5, justifyContent: "center", alignItems: "center" }}>
             <Button onClick={handleEditUser} type="submit" size="sm" variant="soft" color="success">
               Save
@@ -73,7 +115,7 @@ function UserRow({ row, handleCancel, handleEditUser, setPassword, setEmail, set
           </Box>
         ) : (
           <Box sx={{ display: "flex", justifyContent: "center" }}>
-            <Button onClick={handleEditRow(row, groupList)} size="sm" variant="soft">
+            <Button onClick={handleEditRow} size="sm" variant="soft">
               Edit
             </Button>
           </Box>

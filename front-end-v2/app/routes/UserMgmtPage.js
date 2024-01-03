@@ -6,12 +6,11 @@ import GlobalContext from "../components/GlobalContext";
 
 import Page from "../components/Page";
 import CreateUser from "../components/CreateUser";
+import UserRow from "../archive/UserRow";
 
-import { Typography, Table, Sheet, Box, Button, Input, IconButton, Autocomplete, Select, Option, Chip } from "@mui/joy";
+import { Typography, Table, Sheet, Box, Button, Input } from "@mui/joy";
 
 import GroupsIcon from "@mui/icons-material/Groups";
-import CancelIcon from "@mui/icons-material/Cancel";
-import Close from "@mui/icons-material/Close";
 
 function UserMgmtPage() {
   const { handleAlerts, setIsAdmin, handleCookie } = useContext(GlobalContext);
@@ -23,12 +22,6 @@ function UserMgmtPage() {
 
   const [allUsers, setAllUsers] = useState([]);
   const [editUserRequest, setEditUserRequest] = useState(0);
-  const [editRowUserName, setEditRowUserName] = useState(0);
-
-  const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
-  const [groups, setGroups] = useState("");
-  const [isActive, setIsActive] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -104,116 +97,6 @@ function UserMgmtPage() {
     }
   };
 
-  const handleEditUser = async () => {
-    let groupsData = groups ? groups.join(", ") : "";
-
-    try {
-      await axios
-        .post("/users/update", {
-          email,
-          password,
-          groups: groupsData,
-          isactive: isActive,
-          username: editRowUserName
-        })
-        .then(response => {
-          console.log(response);
-          handleAlerts(`Edited user ${editRowUserName}`, true);
-          setEditRowUserName(0);
-          setEditUserRequest(prev => prev + 1);
-        })
-        .catch(error => {
-          console.log(error.response.data.message);
-          handleUserNotAuthorised(error.response.data.message);
-          handleAlerts(`${error.response.data.message}`, false);
-        });
-    } catch (error) {
-      console.log(error);
-      handleAlerts("Error: Internal Server Error", false);
-    }
-  };
-
-  function UserRow(row) {
-    let groupList = row.groups == null || row.groups == "" ? undefined : row.groups.split(", ").sort();
-
-    const handleCancel = () => {
-      setEditRowUserName(0);
-    };
-
-    const handleEditRow = () => {
-      setPassword("");
-      setEmail(row.email);
-      setGroups(groupList);
-      setIsActive(row.isactive);
-      setEditRowUserName(row.username);
-    };
-
-    return (
-      <tr key={row.username}>
-        <td>{row.id}</td>
-        <td>{row.username}</td>
-        <td>{row.username === editRowUserName ? <Input variant="soft" color="primary" size="sm" value={password} onChange={e => setPassword(e.target.value)} type="password" /> : "********"}</td>
-        <td>{row.username === editRowUserName ? <Input variant="soft" color="primary" size="sm" value={email} onChange={e => setEmail(e.target.value)} /> : row.email}</td>
-        <td>
-          {row.username === editRowUserName ? (
-            <Autocomplete
-              variant="outlined"
-              color="primary"
-              value={groups}
-              size="sm"
-              multiple
-              options={allGroups}
-              onChange={(e, newValue) => setGroups(newValue)}
-              renderTags={(tags, getTagProps) =>
-                tags.map((item, index) => (
-                  <Chip key={index} variant="soft" size="sm" color="primary" endDecorator={<Close fontSize="sm" />} {...getTagProps({ index })}>
-                    {item}
-                  </Chip>
-                ))
-              }
-            />
-          ) : (
-            groupList &&
-            groupList.map(group => (
-              <Chip key={group} variant="outlined" size="sm" sx={{ mr: "0.2rem" }}>
-                {group}
-              </Chip>
-            ))
-          )}
-        </td>
-        <td>
-          {row.username === editRowUserName ? (
-            <Select variant="soft" color="primary" size="sm" defaultValue={isActive} onChange={(e, newValue) => setIsActive(newValue)}>
-              <Option value="true">Enable</Option>
-              <Option value="false">Disable</Option>
-            </Select>
-          ) : row.isactive == "true" ? (
-            "Enable"
-          ) : (
-            "Disable"
-          )}
-        </td>
-        <td>
-          {row.username === editRowUserName ? (
-            <Box sx={{ display: "flex", gap: 0.5, justifyContent: "center", alignItems: "center" }}>
-              <Button onClick={handleEditUser} type="submit" size="sm" variant="soft" color="success">
-                Save
-              </Button>
-              <IconButton onClick={handleCancel} size="sm" variant="plain" color="danger" sx={{ borderRadius: "50%" }}>
-                <CancelIcon />
-              </IconButton>
-            </Box>
-          ) : (
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
-              <Button onClick={handleEditRow} size="sm" variant="soft">
-                Edit
-              </Button>
-            </Box>
-          )}
-        </td>
-      </tr>
-    );
-  }
   return (
     <Page title="Manage Users">
       <Box display="flex" justifyContent="center">
@@ -295,7 +178,7 @@ function UserMgmtPage() {
                   <th aria-label="last" style={{ width: "var(--Table-lastColumnWidth)" }} />
                 </tr>
               </thead>
-              <tbody>{allUsers && allUsers.map(row => UserRow(row))}</tbody>
+              <tbody>{allUsers && allUsers.map(row => <UserRow key={row.username} row={row} allGroups={allGroups} handleAlerts={handleAlerts} handleUserNotAuthorised={handleUserNotAuthorised} setEditUserRequest={setEditUserRequest} />)}</tbody>
             </Table>
           </Sheet>
         </Box>
