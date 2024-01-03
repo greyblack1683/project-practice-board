@@ -24,7 +24,7 @@ function LoginPage() {
       await axios
         .post("/login", { username, password })
         .then(response => {
-          if (response.data.results.active === "true") {
+          if (response.data.results.isactive === "true") {
             handleCookie(response.data.results.token);
             setUsername("");
             setPassword("");

@@ -10,11 +10,15 @@ exports.createGroup = async (req, res, next) => {
 
     const response = await connection.query("INSERT INTO `usergroup` VALUES (?);", group);
 
-    return res.status(200).json({
-      success: true,
-      message: `Group created`,
-      results: { group }
-    });
+    if (response) {
+      return res.status(200).json({
+        success: true,
+        message: `Group created`,
+        results: { group }
+      });
+    } else {
+      throw new "Error: Failed to receive SQL response"();
+    }
   } catch (error) {
     //sql duplicate errors
     if (error.code == "ER_DUP_ENTRY") {

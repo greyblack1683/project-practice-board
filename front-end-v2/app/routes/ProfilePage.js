@@ -7,7 +7,7 @@ import Page from "../components/Page";
 import { Box, Input, FormControl, FormLabel, FormHelperText, Typography, Button, Avatar } from "@mui/joy";
 
 function ProfilePage() {
-  const { handleAlerts } = useContext(GlobalContext);
+  const { handleAlerts, handleCookie } = useContext(GlobalContext);
   const [isEditing, setIsEditing] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -27,6 +27,9 @@ function ProfilePage() {
           .catch(error => {
             console.log(error.response.data.message);
             handleAlerts(error.response.data.message, false);
+            if (error.response.data.message.toLowerCase().includes("inactive")) {
+              handleCookie();
+            }
           });
       } catch (error) {
         console.log(error);

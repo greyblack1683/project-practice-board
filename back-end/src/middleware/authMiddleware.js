@@ -6,10 +6,10 @@ exports.isAuthenticated = async (req, res, next) => {
 
     const row = await checkToken(token);
 
-    // if there is one user and the id matches with the request
+    // if there is one user and the username matches with the request
     if (row.length === 1) {
       // valid user
-      if (row[0].active === "true") {
+      if (row[0].isactive === "true") {
         // active user
         req.user = row[0];
         req.isAuthenticated = true;
@@ -36,7 +36,7 @@ exports.isAuthorised = (...authorisedGroup) => {
     try {
       let response;
       for (let i = 0; i < authorisedGroup.length; i++) {
-        response = await checkGroup(req.user.id, authorisedGroup[i]);
+        response = await checkGroup(req.user.username, authorisedGroup[i]);
         // if user has one of the authorised group
         if (response) return next();
         if (i === authorisedGroup.length - 1) {

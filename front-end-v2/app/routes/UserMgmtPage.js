@@ -14,7 +14,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import Close from "@mui/icons-material/Close";
 
 function UserMgmtPage() {
-  const { handleAlerts, setIsAdmin } = useContext(GlobalContext);
+  const { handleAlerts, setIsAdmin, handleCookie } = useContext(GlobalContext);
   const navigate = useNavigate();
 
   const [allGroups, setAllGroups] = useState([]);
@@ -23,12 +23,12 @@ function UserMgmtPage() {
 
   const [allUsers, setAllUsers] = useState([]);
   const [editUserRequest, setEditUserRequest] = useState(0);
-  const [editRowId, setEditRowId] = useState(0);
+  const [editRowUserName, setEditRowUserName] = useState(0);
 
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [groups, setGroups] = useState("");
-  const [active, setActive] = useState("");
+  const [isActive, setIsActive] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -58,7 +58,7 @@ function UserMgmtPage() {
       try {
         await axios
           .get("/users/all")
-          .then(response => setAllUsers(response.data.results))
+          .then(response => setAllUsers(response.data.results.sort((a, b) => a.id - b.id)))
           .catch(error => {
             console.log(error.response.data.message);
             handleUserNotAuthorised(error.response.data.message);
@@ -78,6 +78,9 @@ function UserMgmtPage() {
     if (message.includes("not authorised")) {
       setIsAdmin(false);
       navigate("/");
+    }
+    if (message.toLowerCase().includes("inactive")) {
+      handleCookie();
     }
   };
 
@@ -110,12 +113,13 @@ function UserMgmtPage() {
           email,
           password,
           groups: groupsData,
-          active,
-          id: editRowId
+          isactive: isActive,
+          username: editRowUserName
         })
         .then(response => {
-          handleAlerts(`Edited user with ID ${editRowId}`, true);
-          setEditRowId(0);
+          console.log(response);
+          handleAlerts(`Edited user ${editRowUserName}`, true);
+          setEditRowUserName(0);
           setEditUserRequest(prev => prev + 1);
         })
         .catch(error => {
@@ -133,25 +137,25 @@ function UserMgmtPage() {
     let groupList = row.groups == null || row.groups == "" ? undefined : row.groups.split(", ").sort();
 
     const handleCancel = () => {
-      setEditRowId(0);
+      setEditRowUserName(0);
     };
 
     const handleEditRow = () => {
       setPassword("");
       setEmail(row.email);
       setGroups(groupList);
-      setActive(row.active);
-      setEditRowId(row.id);
+      setIsActive(row.isactive);
+      setEditRowUserName(row.username);
     };
 
     return (
-      <tr>
+      <tr key={row.username}>
         <td>{row.id}</td>
         <td>{row.username}</td>
-        <td>{row.id === editRowId ? <Input variant="soft" color="primary" size="sm" value={password} onChange={e => setPassword(e.target.value)} type="password" /> : "********"}</td>
-        <td>{row.id === editRowId ? <Input variant="soft" color="primary" size="sm" value={email} onChange={e => setEmail(e.target.value)} /> : row.email}</td>
+        <td>{row.username === editRowUserName ? <Input variant="soft" color="primary" size="sm" value={password} onChange={e => setPassword(e.target.value)} type="password" /> : "********"}</td>
+        <td>{row.username === editRowUserName ? <Input variant="soft" color="primary" size="sm" value={email} onChange={e => setEmail(e.target.value)} /> : row.email}</td>
         <td>
-          {row.id === editRowId ? (
+          {row.username === editRowUserName ? (
             <Autocomplete
               variant="outlined"
               color="primary"
@@ -178,19 +182,19 @@ function UserMgmtPage() {
           )}
         </td>
         <td>
-          {row.id === editRowId ? (
-            <Select variant="soft" color="primary" size="sm" defaultValue={active} onChange={(e, newValue) => setActive(newValue)}>
+          {row.username === editRowUserName ? (
+            <Select variant="soft" color="primary" size="sm" defaultValue={isActive} onChange={(e, newValue) => setIsActive(newValue)}>
               <Option value="true">Enable</Option>
               <Option value="false">Disable</Option>
             </Select>
-          ) : row.active == "true" ? (
+          ) : row.isactive == "true" ? (
             "Enable"
           ) : (
             "Disable"
           )}
         </td>
         <td>
-          {row.id === editRowId ? (
+          {row.username === editRowUserName ? (
             <Box sx={{ display: "flex", gap: 0.5, justifyContent: "center", alignItems: "center" }}>
               <Button onClick={handleEditUser} type="submit" size="sm" variant="soft" color="success">
                 Save
@@ -282,7 +286,7 @@ function UserMgmtPage() {
             >
               <thead>
                 <tr>
-                  <th style={{ width: "var(--Table-firstColumnWidth)" }}>ID</th>
+                  <th style={{ width: "var(--Table-firstColumnWidth)" }}>No.</th>
                   <th>Username</th>
                   <th>Password</th>
                   <th>Email</th>

@@ -1,10 +1,10 @@
 const connection = require("../utils/database");
 const jwt = require("jsonwebtoken");
 
-exports.checkGroup = async (userId, groupName) => {
-  console.log(`Checking if ${userId} is in ${groupName}`);
+exports.checkGroup = async (username, groupName) => {
+  console.log(`Checking if ${username} is in ${groupName}`);
 
-  const [row, fields] = await connection.query("SELECT `groups` FROM accounts WHERE id = ?;", userId);
+  const [row, fields] = await connection.query("SELECT `groups` FROM accounts WHERE `username` = ?;", username);
 
   if (row.length === 0) return false;
 
@@ -30,7 +30,7 @@ exports.checkToken = async token => {
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
   console.log(decoded);
 
-  const [row, fields] = await connection.query("SELECT `id`, `username`, `email`, `groups`, `active` FROM accounts WHERE id = ?;", decoded.id);
+  const [row, fields] = await connection.query("SELECT `username`, `email`, `groups`, `isactive` FROM accounts WHERE `username` = ?;", decoded.username);
   console.log(row);
 
   return row;
@@ -42,15 +42,15 @@ exports.getAuthenticiated = async (req, res, next) => {
 
     const row = await this.checkToken(token);
 
-    //if there is one user and the id matches with the request
-    if (row.length === 1 && row[0].active === "true") {
+    //if there is one user and the username matches with the request
+    if (row.length === 1 && row[0].isactive === "true") {
       //valid user
       return res.status(200).json({
         success: true,
         message: `Authenticated`
       });
     } else {
-      throw new Error("Error: Session user id does not exist or inactive user");
+      throw new Error("Error: Session user username does not exist or inactive user");
     }
   } catch (error) {
     return res.status(error.message.includes("Error") ? 400 : 500).json({
@@ -64,7 +64,7 @@ exports.getAuthenticiated = async (req, res, next) => {
 
 exports.getAuthorised = async (req, res, next) => {
   try {
-    const response = await this.checkGroup(req.user.id, req.body.authorisedGroup);
+    const response = await this.checkGroup(req.user.username, req.body.authorisedGroup);
 
     return res.status(200).json({
       success: response,

@@ -16,19 +16,14 @@ exports.createUser = async (req, res, next) => {
     checkPassword(req.body.password);
     const password = await bcrypt.hash(req.body.password, 10);
 
-    let sqlBuilder = "INSERT INTO `accounts` (`username`, `password`";
-    let sqlValuesBuilder = ") VALUES (?,?";
+    let sqlBuilder = "INSERT INTO `accounts` (`username`, `password`, `email`";
+    let sqlValuesBuilder = ") VALUES (?,?,?";
 
     results = {
       username: req.body.username,
-      password
+      password,
+      group: req.body.group ? req.body.group : ""
     };
-
-    if (req.body.email) {
-      results.email = req.body.email;
-      sqlBuilder = sqlBuilder + ", `email`";
-      sqlValuesBuilder = sqlValuesBuilder + ", ?";
-    }
 
     if (req.body.groups) {
       results.groups = req.body.groups;
@@ -79,7 +74,7 @@ exports.loginUser = async (req, res, next) => {
     // check username and password
     if (!username || !password) throw new Error("Invalid username or password");
 
-    const [row, fields] = await connection.query("SELECT id, password, active FROM accounts WHERE username = ?;", username);
+    const [row, fields] = await connection.query("SELECT username, password, isactive FROM accounts WHERE username = ?;", username);
 
     if (row.length === 1) {
       // valid user -> check password
@@ -87,16 +82,15 @@ exports.loginUser = async (req, res, next) => {
 
       if (isCorrectPassword) {
         // valid password and user -> create jwt token
-        const token = jwt.sign({ id: row[0].id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRY });
+        const token = jwt.sign({ username: row[0].username }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRY });
 
         return res.status(200).json({
           success: true,
           message: `Login successful.`,
           results: {
-            id: row[0].id,
             username,
             token,
-            active: row[0].active
+            isactive: row[0].isactive
           }
         });
       } else {
@@ -121,7 +115,7 @@ exports.loginUser = async (req, res, next) => {
 //note: to revisit when authen as admin is done
 exports.getUsers = async (req, res, next) => {
   try {
-    const [row, fields] = await connection.query("SELECT `id`, `username`, `email`, `groups`, `active` FROM accounts", null);
+    const [row, fields] = await connection.query("SELECT `id`, `username`, `email`, `groups`, `isactive` FROM accounts", null);
     console.log("row:", row);
 
     return res.status(200).json({
@@ -145,7 +139,7 @@ exports.getOwnUser = async (req, res, next) => {
   try {
     console.log("request body:", req.user);
 
-    const [row, fields] = await connection.query("SELECT `id`, `username`, `email`, `groups`, `active` FROM accounts WHERE id = ?", req.user.id);
+    const [row, fields] = await connection.query("SELECT `id`, `username`, `email`, `groups`, `isactive` FROM accounts WHERE username = ?", req.user.username);
     console.log("row", row);
 
     if (row.length === 1) {
@@ -172,12 +166,12 @@ exports.updateUserforAdmin = async (req, res, next) => {
     //assumed that isAuthenticated and isAuthorised has already ran
     console.log("request body:", req.body);
 
-    let sqlBuilder = "UPDATE `accounts` SET `email` = ?, `groups` = ?, `active` = ?";
+    let sqlBuilder = "UPDATE `accounts` SET `email` = ?, `groups` = ?, `isactive` = ?";
 
     let results = {
       email: req.body.email,
       groups: req.body.groups,
-      active: req.body.active
+      isactive: req.body.isactive
     };
 
     //check for password changes
@@ -187,10 +181,10 @@ exports.updateUserforAdmin = async (req, res, next) => {
       sqlBuilder = sqlBuilder + ", `password` = ?";
     }
 
-    results.id = req.body.id;
+    results.username = req.body.username;
 
     //update user details
-    sqlBuilder = sqlBuilder + " WHERE `id` = ?;";
+    sqlBuilder = sqlBuilder + " WHERE `username` = ?;";
     console.log(sqlBuilder);
     const response = await connection.query(sqlBuilder, Object.values(results));
     console.log("response", response);
@@ -227,10 +221,10 @@ exports.updateUserforUser = async (req, res, next) => {
       sqlBuilder = sqlBuilder + ", `password` = ?";
     }
 
-    results.id = req.user.id;
+    results.username = req.user.username;
 
     //update user details
-    sqlBuilder = sqlBuilder + " WHERE `id` = ?;";
+    sqlBuilder = sqlBuilder + " WHERE `username` = ?;";
     console.log(sqlBuilder);
     const response = await connection.query(sqlBuilder, Object.values(results));
     console.log("response", response);
