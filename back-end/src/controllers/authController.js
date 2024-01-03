@@ -64,12 +64,25 @@ exports.getAuthenticiated = async (req, res, next) => {
 
 exports.getAuthorised = async (req, res, next) => {
   try {
-    const response = await this.checkGroup(req.user.username, req.body.authorisedGroup);
+    const grouping = req.body.authorisedGroup.split(",");
+    if (Array.isArray(grouping)) {
+      let results = {};
+      for (let i = 0; i < grouping.length; i++) {
+        const response = await this.checkGroup(req.user.username, grouping[i].trim());
+        results[grouping[i].trim()] = response;
+      }
+      return res.status(200).json({
+        success: true,
+        results
+      });
+    } else {
+      const response = await this.checkGroup(req.user.username, req.body.authorisedGroup);
 
-    return res.status(200).json({
-      success: response,
-      message: response ? "User is authorised" : "User is not authorised"
-    });
+      return res.status(200).json({
+        success: response,
+        message: response ? "User is authorised" : "User is not authorised"
+      });
+    }
   } catch (error) {
     console.log("Error: ", error);
     return res.status(500).json({
