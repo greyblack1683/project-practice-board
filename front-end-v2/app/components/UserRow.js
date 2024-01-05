@@ -60,7 +60,6 @@ function UserRow({ row, allGroups, handleAlerts, handleUserNotAuthorised, setEdi
 
   return (
     <tr key={row.username}>
-      <td>{row.id}</td>
       <td>{row.username}</td>
       <td>{isEditing ? <Input variant="soft" color="primary" size="sm" value={password} onChange={e => setPassword(e.target.value)} type="password" /> : "********"}</td>
       <td>{isEditing ? <Input variant="soft" color="primary" size="sm" value={email} onChange={e => setEmail(e.target.value)} /> : row.email}</td>

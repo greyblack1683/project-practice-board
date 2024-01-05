@@ -37,6 +37,7 @@ function CreateUser({ allGroups, handleUserNotAuthorised, setEditUserRequest }) 
             setNewUserGroups(undefined);
             setRerenderAC(!rerenderAC);
             setEditUserRequest(prev => prev + 1);
+            handleAlerts(`Created new user ${newUsername.trim()}`, true);
           })
           .catch(error => {
             console.log(error.response.data.message);

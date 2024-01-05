@@ -6,7 +6,7 @@ import GlobalContext from "../components/GlobalContext";
 
 import Page from "../components/Page";
 import CreateUser from "../components/CreateUser";
-import UserRow from "../archive/UserRow";
+import UserRow from "../components/UserRow";
 
 import { Typography, Table, Sheet, Box, Button, Input } from "@mui/joy";
 
@@ -51,7 +51,7 @@ function UserMgmtPage() {
       try {
         await axios
           .get("/users/all")
-          .then(response => setAllUsers(response.data.results.sort((a, b) => a.id - b.id)))
+          .then(response => setAllUsers(response.data.results))
           .catch(error => {
             console.log(error.response.data.message);
             handleUserNotAuthorised(error.response.data.message);
@@ -138,7 +138,7 @@ function UserMgmtPage() {
               mb: "1rem",
               borderRadius: "sm",
               maxWidth: "70rem",
-              "--Table-firstColumnWidth": "50px",
+              "--Table-firstColumnWidth": "120px",
               "--Table-lastColumnWidth": "105px",
               // background needs to have transparency to show the scrolling shadows
               "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
@@ -169,8 +169,7 @@ function UserMgmtPage() {
             >
               <thead>
                 <tr>
-                  <th style={{ width: "var(--Table-firstColumnWidth)" }}>No.</th>
-                  <th>Username</th>
+                  <th style={{ width: "var(--Table-firstColumnWidth)" }}>Username</th>
                   <th>Password</th>
                   <th>Email</th>
                   <th>Groups</th>

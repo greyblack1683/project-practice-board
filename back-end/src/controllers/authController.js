@@ -1,10 +1,10 @@
 const connection = require("../utils/database");
 const jwt = require("jsonwebtoken");
 
-exports.checkGroup = async (username, groupName) => {
-  console.log(`Checking if ${username} is in ${groupName}`);
+exports.Checkgroup = async (userid, groupName) => {
+  console.log(`Checking if ${userid} is in ${groupName}`);
 
-  const [row, fields] = await connection.query("SELECT `groups` FROM accounts WHERE `username` = ?;", username);
+  const [row, fields] = await connection.query("SELECT `groups` FROM accounts WHERE `username` = ?;", userid);
 
   if (row.length === 0) return false;
 
@@ -64,11 +64,12 @@ exports.getAuthenticiated = async (req, res, next) => {
 
 exports.getAuthorised = async (req, res, next) => {
   try {
-    const grouping = req.body.authorisedGroup.split(",");
+    let grouping = req.body.authorisedGroup;
+    if (grouping.includes(",")) grouping = grouping.split(",");
     if (Array.isArray(grouping)) {
       let results = {};
       for (let i = 0; i < grouping.length; i++) {
-        const response = await this.checkGroup(req.user.username, grouping[i].trim());
+        const response = await this.Checkgroup(req.user.username, grouping[i].trim());
         results[grouping[i].trim()] = response;
       }
       return res.status(200).json({
@@ -76,7 +77,7 @@ exports.getAuthorised = async (req, res, next) => {
         results
       });
     } else {
-      const response = await this.checkGroup(req.user.username, req.body.authorisedGroup);
+      const response = await this.Checkgroup(req.user.username, req.body.authorisedGroup);
 
       return res.status(200).json({
         success: response,

@@ -1,4 +1,4 @@
-const { checkGroup, checkToken } = require("../controllers/authController");
+const { Checkgroup, checkToken } = require("../controllers/authController");
 
 exports.isAuthenticated = async (req, res, next) => {
   try {
@@ -36,7 +36,7 @@ exports.isAuthorised = (...authorisedGroup) => {
     try {
       let response;
       for (let i = 0; i < authorisedGroup.length; i++) {
-        response = await checkGroup(req.user.username, authorisedGroup[i]);
+        response = await Checkgroup(req.user.username, authorisedGroup[i]);
         // if user has one of the authorised group
         if (response) return next();
         if (i === authorisedGroup.length - 1) {

@@ -64,7 +64,7 @@ function Main() {
           })
           .catch(error => {
             console.log(error.response.data.message);
-            setLoggedIn(false);
+            handleCookie();
             handleAlerts(error.response.data.message, false);
           });
       } catch (error) {

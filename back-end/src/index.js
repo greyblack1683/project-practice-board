@@ -13,7 +13,7 @@ const app = express();
 const { isAuthenticated, isAuthorised } = require("./middleware/authMiddleware");
 
 // whitelist for specific domains to be able to access this API
-const whitelist = ["http://stengg.com"];
+const whitelist = ["http://localhost:3000"];
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin !== -1)) {
