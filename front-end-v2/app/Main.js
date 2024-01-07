@@ -17,6 +17,7 @@ import HomePage from "./routes/HomePage";
 import ProfilePage from "./routes/ProfilePage";
 import UserMgmtPage from "./routes/UserMgmtPage";
 import LoadingPage from "./routes/LoadingPage";
+import { LightMode } from "@mui/icons-material";
 
 axios.defaults.baseURL = "http://localhost:8080";
 
@@ -24,6 +25,7 @@ function Main() {
   //states
   const [loggedIn, setLoggedIn] = useState("pending");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLightMode, setIsLightMode] = useState(true);
 
   //handlers
   const handleAlerts = (msg, success) => {
@@ -46,6 +48,13 @@ function Main() {
       axios.defaults.headers.common["Authorization"] = "";
       setLoggedIn(false);
     }
+  };
+
+  const handleTheme = () => {
+    let currentMode = isLightMode;
+    console.log(currentMode);
+    setIsLightMode(!currentMode);
+    localStorage.setItem("joy-mode", currentMode === true ? "dark" : "light");
   };
 
   //useEffect
@@ -80,6 +89,11 @@ function Main() {
     }
   }, []);
 
+  useEffect(() => {
+    console.log("Running useEffect to check mode");
+    setIsLightMode(localStorage.getItem("joy-mode") === "light" ? true : false);
+  }, []);
+
   return (
     <>
       <GlobalContext.Provider value={{ handleAlerts, handleCookie, isAdmin, setIsAdmin }}>
@@ -89,7 +103,7 @@ function Main() {
           <BrowserRouter>
             <Routes>
               <Route path="*" element={<DefaultPage />} />
-              <Route path="/" element={loggedIn == "pending" ? <LoadingPage /> : loggedIn ? <Header /> : <LoginPage />}>
+              <Route path="/" element={loggedIn == "pending" ? <LoadingPage /> : loggedIn ? <Header handleTheme={handleTheme} isLightMode={isLightMode} /> : <LoginPage />}>
                 <Route path="" element={<HomePage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="usermgmt" element={<UserMgmtPage />} />

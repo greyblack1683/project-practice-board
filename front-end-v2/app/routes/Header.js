@@ -8,7 +8,7 @@ import GlobalContext from "../components/GlobalContext";
 
 import LogoutIcon from "@mui/icons-material/Logout";
 
-function Header() {
+function Header({ handleTheme, isLightMode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { handleAlerts, handleCookie, isAdmin, setIsAdmin } = useContext(GlobalContext);
@@ -70,6 +70,11 @@ function Header() {
             alignItems: "center"
           }}
         >
+          <IconButton onClick={handleTheme} size="md" variant="soft" color="primary" sx={{ borderRadius: "50%", width: "34px" }}>
+            <Avatar onClick={handleTheme} size="sm" variant="soft" color="primary" alt="TMS">
+              TMS
+            </Avatar>
+          </IconButton>
           {isAdmin && (
             <Button onClick={() => navigate("/usermgmt")} variant="plain" color="neutral" aria-pressed={location.pathname === "/usermgmt" ? "true" : "false"} size="sm">
               User Management
