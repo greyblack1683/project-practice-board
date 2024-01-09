@@ -16,13 +16,14 @@ exports.createUser = async (req, res, next) => {
     checkPassword(req.body.password);
     const password = await bcrypt.hash(req.body.password, 10);
 
-    let sqlBuilder = "INSERT INTO `accounts` (`username`, `password`, `email`";
-    let sqlValuesBuilder = ") VALUES (?,?,?";
+    let sqlBuilder = "INSERT INTO `accounts` (`username`, `password`, `email`, `isactive`";
+    let sqlValuesBuilder = ") VALUES (?,?,?,?";
 
     results = {
       username: req.body.username,
       password,
-      group: req.body.group ? req.body.group : ""
+      group: req.body.group ? req.body.group : "",
+      isactive: req.body.isactive
     };
 
     if (req.body.groups) {
