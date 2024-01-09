@@ -3,7 +3,7 @@ import axios from "axios";
 
 import GlobalContext from "../components/GlobalContext";
 
-import { Box, Button, Input, Autocomplete, Chip } from "@mui/joy";
+import { Box, Button, Input, Autocomplete, Chip, Select, Option } from "@mui/joy";
 
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Close from "@mui/icons-material/Close";
@@ -14,6 +14,7 @@ function CreateUser({ allGroups, handleUserNotAuthorised, setEditUserRequest }) 
   const [newPassword, setNewPassword] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newUserGroups, setNewUserGroups] = useState(undefined);
+  const [newIsActive, setNewIsActive] = useState("true");
   const [rerenderAC, setRerenderAC] = useState(false);
 
   const handleSubmit = e => {
@@ -27,7 +28,8 @@ function CreateUser({ allGroups, handleUserNotAuthorised, setEditUserRequest }) 
             username: newUsername.trim(),
             password: newPassword,
             email: newEmail.trim(),
-            groups: groupsData
+            groups: groupsData,
+            isactive: newIsActive
           })
           .then(response => {
             console.log(response);
@@ -35,6 +37,7 @@ function CreateUser({ allGroups, handleUserNotAuthorised, setEditUserRequest }) 
             setNewPassword("");
             setNewEmail("");
             setNewUserGroups(undefined);
+            setNewIsActive("true");
             setRerenderAC(!rerenderAC);
             setEditUserRequest(prev => prev + 1);
             handleAlerts(`Created new user ${newUsername.trim()}`, true);
@@ -104,6 +107,10 @@ function CreateUser({ allGroups, handleUserNotAuthorised, setEditUserRequest }) 
           alignItems: "center"
         }}
       >
+        <Select variant="soft" color="primary" size="sm" defaultValue={newIsActive} onChange={(e, newValue) => setNewIsActive(newValue)}>
+          <Option value="true">Enable</Option>
+          <Option value="false">Disable</Option>
+        </Select>
         <Button onClick={handleSubmit} variant="outlined" size="sm">
           Add User
         </Button>
