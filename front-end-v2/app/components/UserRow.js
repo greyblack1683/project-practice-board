@@ -7,7 +7,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import Close from "@mui/icons-material/Close";
 
 function UserRow({ row, allGroups, handleAlerts, handleUserNotAuthorised, setEditUserRequest }) {
-  let groupList = row.groups == null || row.groups == "" ? undefined : row.groups.split(", ").sort();
+  let groupList = row.groupname == null || row.groupname == "" ? undefined : row.groupname.split(", ").sort();
 
   const [isEditing, setIsEditing] = useState(false);
   const [password, setPassword] = useState("");

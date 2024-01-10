@@ -28,7 +28,7 @@ exports.createUser = async (req, res, next) => {
 
     if (req.body.groups) {
       results.groups = req.body.groups;
-      sqlBuilder = sqlBuilder + ", `groups`";
+      sqlBuilder = sqlBuilder + ", `groupname`";
       sqlValuesBuilder = sqlValuesBuilder + ", ?";
     }
 
@@ -116,7 +116,7 @@ exports.loginUser = async (req, res, next) => {
 //note: to revisit when authen as admin is done
 exports.getUsers = async (req, res, next) => {
   try {
-    const [row, fields] = await connection.query("SELECT `id`, `username`, `email`, `groups`, `isactive` FROM accounts", null);
+    const [row, fields] = await connection.query("SELECT `id`, `username`, `email`, `groupname`, `isactive` FROM accounts", null);
     console.log("row:", row);
 
     return res.status(200).json({
@@ -140,7 +140,7 @@ exports.getOwnUser = async (req, res, next) => {
   try {
     console.log("request body:", req.user);
 
-    const [row, fields] = await connection.query("SELECT `id`, `username`, `email`, `groups`, `isactive` FROM accounts WHERE username = ?", req.user.username);
+    const [row, fields] = await connection.query("SELECT `id`, `username`, `email`, `groupname`, `isactive` FROM accounts WHERE username = ?", req.user.username);
     console.log("row", row);
 
     if (row.length === 1) {
@@ -167,7 +167,7 @@ exports.updateUserforAdmin = async (req, res, next) => {
     //assumed that isAuthenticated and isAuthorised has already ran
     console.log("request body:", req.body);
 
-    let sqlBuilder = "UPDATE `accounts` SET `email` = ?, `groups` = ?, `isactive` = ?";
+    let sqlBuilder = "UPDATE `accounts` SET `email` = ?, `groupname` = ?, `isactive` = ?";
 
     let results = {
       email: req.body.email,

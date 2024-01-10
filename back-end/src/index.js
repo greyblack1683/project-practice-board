@@ -23,13 +23,20 @@ const corsOptions = {
     }
   }
 };
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    optionsSuccessStatus: 200
+  })
+);
 app.use(jsonParser); // read JSON req body
 
 /* Controllers */
 const { createUser, loginUser, getUsers, getOwnUser, updateUserforAdmin, updateUserforUser } = require("./controllers/userController");
 const { getAuthenticiated, getAuthorised } = require("./controllers/authController");
 const { createGroup, getGroups } = require("./controllers/groupController");
+const { getApps, createApp, updateApp } = require("./controllers/appController");
+const { getPlans, getPlansOfApp, createPlan, updatePlan } = require("./controllers/planController");
 
 /* Routes */
 app.get("/users/all", isAuthenticated, isAuthorised("admin"), getUsers);
@@ -45,6 +52,15 @@ app.post("/groups/create", isAuthenticated, isAuthorised("admin"), createGroup);
 
 app.get("/profile", isAuthenticated, getOwnUser);
 app.post("/profile/update", isAuthenticated, updateUserforUser);
+
+app.get("/apps/all", isAuthenticated, getApps);
+app.post("/apps/create", isAuthenticated, isAuthorised("projectlead"), createApp);
+app.post("/apps/update", isAuthenticated, isAuthorised("projectlead"), updateApp);
+
+// app.get("/plans/all", isAuthenticated, getPlans);
+app.post("/plans/selected", isAuthenticated, getPlansOfApp);
+app.post("/plans/create", isAuthenticated, createPlan);
+app.post("/plans/update", isAuthenticated, updatePlan);
 
 app.all("*", (req, res, next) => {
   res.status(500).json({

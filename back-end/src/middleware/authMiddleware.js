@@ -12,7 +12,7 @@ exports.isAuthenticated = async (req, res, next) => {
       if (row[0].isactive === "true") {
         // active user
         req.user = row[0];
-        req.isAuthenticated = true;
+        //req.isAuthenticated = true;
       } else {
         // inactive user
         throw new Error("Error: Inactive user");

@@ -4,11 +4,11 @@ const jwt = require("jsonwebtoken");
 exports.Checkgroup = async (userid, groupName) => {
   console.log(`Checking if ${userid} is in ${groupName}`);
 
-  const [row, fields] = await connection.query("SELECT `groups` FROM accounts WHERE `username` = ?;", userid);
+  const [row, fields] = await connection.query("SELECT `groupname` FROM accounts WHERE `username` = ?;", userid);
 
   if (row.length === 0) return false;
 
-  let groupArray = row[0].groups.split(", ");
+  let groupArray = row[0].groupname.split(", ");
   console.log(groupArray);
 
   for (let i = 0; i < groupArray.length; i++) {
@@ -30,7 +30,7 @@ exports.checkToken = async token => {
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
   console.log(decoded);
 
-  const [row, fields] = await connection.query("SELECT `username`, `email`, `groups`, `isactive` FROM accounts WHERE `username` = ?;", decoded.username);
+  const [row, fields] = await connection.query("SELECT `username`, `email`, `groupname`, `isactive` FROM accounts WHERE `username` = ?;", decoded.username);
   console.log(row);
 
   return row;

@@ -20,7 +20,7 @@ exports.createGroup = async (req, res, next) => {
         results: { group }
       });
     } else {
-      throw new "Error: Failed to receive SQL response"();
+      throw new Error("Error: Failed to receive SQL response");
     }
   } catch (error) {
     //sql duplicate errors
