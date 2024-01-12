@@ -80,7 +80,7 @@ function AppsPage() {
               }}
             >
               {isPL && (
-                <Button variant="outlined" size="sm" onClick={() => navigate(`/apps/create`)}>
+                <Button variant="solid" size="sm" onClick={() => navigate(`/apps/create`)}>
                   Add Application
                 </Button>
               )}

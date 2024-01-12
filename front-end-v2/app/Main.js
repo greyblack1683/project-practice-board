@@ -23,6 +23,7 @@ import AppCreatePage from "./routes/AppCreatePage";
 import AppDetailsPage from "./routes/AppDetailsPage";
 
 import PlansPage from "./routes/PlansPage";
+import PlanCreatePage from "./routes/PlanCreatePage";
 
 axios.defaults.baseURL = "http://localhost:8080";
 
@@ -101,6 +102,7 @@ function Main() {
                 <Route path="apps/create" element={<AppCreatePage />} />
                 <Route path="apps/:appid" element={<AppDetailsPage />} />
                 <Route path="apps/:appid/plans" element={<PlansPage />} />
+                <Route path="apps/:appid/plans/create" element={<PlanCreatePage />} />
                 <Route path="apps/:appid/plans/:planid" element={<HomePage />} />
                 <Route path="apps/:appid/plans/:planid/tasks" element={<HomePage />} />
                 <Route path="apps/:appid/plans/:planid/tasks/:taskid" element={<HomePage />} />

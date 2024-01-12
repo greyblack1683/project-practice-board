@@ -27,7 +27,7 @@ function BCContainer({ appid = null, planid = null, taskid = null, control = 0, 
           )}
           {/* control = 1 */}
           {control >= 1 && (
-            <Link color="neutral" onClick={() => navigate(`/apps/${appid}/plans`)} disabled={control === 1 ? true : false}>
+            <Link color="neutral" onClick={() => navigate(`/apps/${appid}/plans`)} disabled={control === 1 && create === false ? true : false}>
               Plans
             </Link>
           )}

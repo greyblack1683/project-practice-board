@@ -41,7 +41,7 @@ exports.isAuthorised = (...authorisedGroup) => {
         if (response) return next();
         if (i === authorisedGroup.length - 1) {
           // if user does not have any of the authorised group
-          throw new Error("Error: User is not authorised");
+          throw new Error("User is not authorised");
         }
       }
     } catch (error) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useOutletContext } from "react-router-dom";
 import axios from "axios";
 
 import GlobalContext from "../components/GlobalContext";
@@ -12,7 +12,8 @@ import { Typography, Table, Sheet, Box, Button } from "@mui/joy";
 function PlansPage() {
   const { appid } = useParams();
   const [allApps, setAllPlans] = useState([]);
-  //   const [isPL, setIsPL] = useState(false);
+  const [handleUserNotAuthorised, checkGroup, checkPermission] = useOutletContext();
+  const [isPM, setIsPM] = useState(false);
   const navigate = useNavigate();
 
   const { handleAlerts } = useContext(GlobalContext);
@@ -40,25 +41,15 @@ function PlansPage() {
     return controller.abort();
   }, []);
 
-  // useEffect(() => {
-  //   console.log("Running useEffect to check if user is project lead");
-  //   async function checkGroup(authorisedGroup) {
-  //     try {
-  //       await axios
-  //         .post("/authorize", { authorisedGroup })
-  //         .then(response => setIsPL(response.data.success))
-  //         .catch(error => {
-  //           console.log(error.response.data.message);
-  //           handleAlerts(`${error.response.data.message}`, false);
-  //         });
-  //     } catch (error) {
-  //       console.log(error);
-  //       handleAlerts("Error: Internal Server Error", false);
-  //     }
-  //   }
-
-  //   checkGroup("projectlead");
-  // }, []);
+  useEffect(() => {
+    console.log("Running useEffect to check if user is of project manager");
+    async function check() {
+      const response = await checkPermission("plans_create", appid, false);
+      console.log(response);
+      if (response) setIsPM(true);
+    }
+    check();
+  }, []);
   return (
     <Page title="Plans">
       <Box display="flex" justifyContent="center">
@@ -84,8 +75,13 @@ function PlansPage() {
                 alignItems: "center"
               }}
             >
-              <Button variant="outlined" size="sm">
-                Add Plan
+              {isPM && (
+                <Button variant="solid" size="sm" onClick={() => navigate(`/apps/${appid}/plans/create`)}>
+                  Add Plan
+                </Button>
+              )}
+              <Button size="sm" variant="outlined" color="primary" onClick={() => navigate(`/apps/${appid}/plans/null/tasks`)}>
+                Tasks Without Plan
               </Button>
             </Box>
           </Box>
@@ -99,7 +95,7 @@ function PlansPage() {
               borderRadius: "sm",
               maxWidth: "70rem",
               "--Table-firstColumnWidth": "250px",
-              "--Table-lastColumnWidth": "150px",
+              "--Table-lastColumnWidth": "180px",
               // background needs to have transparency to show the scrolling shadows
               "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
               "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
@@ -129,7 +125,7 @@ function PlansPage() {
             >
               <thead>
                 <tr>
-                  <th style={{ width: "var(--Table-firstColumnWidth)" }}>Acronym</th>
+                  <th style={{ width: "var(--Table-firstColumnWidth)" }}>Plan Name</th>
                   <th>Start Date</th>
                   <th>End Date</th>
                   <th aria-label="last" style={{ width: "var(--Table-lastColumnWidth)" }} />

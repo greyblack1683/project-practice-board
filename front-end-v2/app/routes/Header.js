@@ -30,6 +30,28 @@ function Header() {
     }
   }
 
+  async function checkPermission(permitFor, appAcronym, showAlert) {
+    try {
+      const response = await axios
+        .post("/checkpermissions", {
+          permitFor,
+          app_acronym: appAcronym
+        })
+        .catch(error => {
+          console.log(error.response.data.message);
+          if (showAlert) handleAlerts(`${error.response.data.message}`, false);
+        });
+      console.log(response);
+      if (response.data.success == false) {
+        if (showAlert) handleAlerts(`${response.data.message}`, false);
+      }
+      return response.data.success;
+    } catch (error) {
+      console.log(error);
+      handleAlerts("Error: Internal Server Error", false);
+    }
+  }
+
   const handleLogOut = () => {
     handleCookie();
     handleAlerts("Log out successful", true);
@@ -99,7 +121,7 @@ function Header() {
           </Button>
         </Box>
       </Box>
-      <Outlet context={[handleUserNotAuthorised, checkGroup]} />
+      <Outlet context={[handleUserNotAuthorised, checkGroup, checkPermission]} />
     </>
   );
 }

@@ -10,7 +10,6 @@ import { Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete } 
 function AppDetailsPage() {
   const { handleAlerts } = useContext(GlobalContext);
   const [handleUserNotAuthorised, checkGroup] = useOutletContext();
-  const navigate = useNavigate();
   const { appid } = useParams();
 
   const [isPL, setIsPL] = useState(false);
@@ -74,6 +73,23 @@ function AppDetailsPage() {
     }
   };
 
+  const handleEdit = async () => {
+    try {
+      await axios
+        .get("/groups/all")
+        .then(response => setAllGroups(response.data.results))
+        .catch(error => {
+          console.log(error.response.data.message);
+          handleUserNotAuthorised(error.response.data.message);
+          handleAlerts(`${error.response.data.message}`, false);
+        });
+      setIsEditing(true);
+    } catch (error) {
+      console.log(error);
+      handleAlerts("Error: Internal Server Error", false);
+    }
+  };
+
   useEffect(() => {
     async function check() {
       const response = await checkGroup("projectlead", false);
@@ -111,28 +127,6 @@ function AppDetailsPage() {
     check();
     getApp();
   }, []);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    async function getGroups() {
-      try {
-        await axios
-          .get("/groups/all")
-          .then(response => setAllGroups(response.data.results))
-          .catch(error => {
-            console.log(error.response.data.message);
-            handleUserNotAuthorised(error.response.data.message);
-            handleAlerts(`${error.response.data.message}`, false);
-          });
-      } catch (error) {
-        console.log(error);
-        handleAlerts("Error: Internal Server Error", false);
-      }
-    }
-    getGroups();
-
-    return controller.abort();
-  }, [isEditing]);
 
   return (
     <Container title={isEditing ? "Edit App" : "View App"} appid={appid} control={0.5}>
@@ -200,7 +194,7 @@ function AppDetailsPage() {
           </Box>
         ) : (
           <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "center", mt: "5rem" }}>
-            <Button size="sm" variant="solid" color="primary" onClick={() => setIsEditing(true)}>
+            <Button size="sm" variant="solid" color="primary" onClick={handleEdit}>
               Edit
             </Button>
           </Box>

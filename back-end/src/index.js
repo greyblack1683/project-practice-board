@@ -33,7 +33,7 @@ app.use(jsonParser); // read JSON req body
 
 /* Controllers */
 const { createUser, loginUser, getUsers, getOwnUser, updateUserforAdmin, updateUserforUser } = require("./controllers/userController");
-const { getAuthenticiated, getAuthorised } = require("./controllers/authController");
+const { getAuthenticiated, getAuthorised, getAuthorisedforPlansnTasks } = require("./controllers/authController");
 const { createGroup, getGroups } = require("./controllers/groupController");
 const { getApps, getSelectedApp, createApp, updateApp } = require("./controllers/appController");
 const { getPlans, getPlansOfApp, createPlan, updatePlan } = require("./controllers/planController");
@@ -46,6 +46,7 @@ app.post("/users/update", isAuthenticated, isAuthorised("admin"), updateUserforA
 app.post("/login", loginUser);
 app.get("/authenticate", getAuthenticiated);
 app.post("/authorize", isAuthenticated, getAuthorised);
+app.post("/checkpermissions", isAuthenticated, getAuthorisedforPlansnTasks);
 
 app.get("/groups/all", isAuthenticated, isAuthorised("admin", "projectlead"), getGroups);
 app.post("/groups/create", isAuthenticated, isAuthorised("admin"), createGroup);
