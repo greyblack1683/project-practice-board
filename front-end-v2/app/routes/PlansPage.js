@@ -95,7 +95,7 @@ function PlansPage() {
               borderRadius: "sm",
               maxWidth: "70rem",
               "--Table-firstColumnWidth": "250px",
-              "--Table-lastColumnWidth": "180px",
+              "--Table-lastColumnWidth": "150px",
               // background needs to have transparency to show the scrolling shadows
               "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
               "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",

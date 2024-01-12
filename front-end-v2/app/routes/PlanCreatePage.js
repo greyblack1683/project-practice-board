@@ -14,13 +14,46 @@ function PlanCreatePage() {
   const [handleUserNotAuthorised, checkGroup, checkPermission] = useOutletContext();
   const navigate = useNavigate();
 
-  const [acronym, setAcronym] = useState("");
+  const [planName, setPlanName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
   const handleSubmit = async e => {
     e.preventDefault();
+
+    try {
+      await axios
+        .post("/plans/create", {
+          plan_mvp_name: planName,
+          plan_startdate: startDate,
+          plan_enddate: endDate,
+          plan_app_acronym: appid
+        })
+        .then(response => {
+          console.log(response);
+          handleAlerts(`Created application ${planName} successfully`, true);
+          navigate(`/apps/${appid}/plans`);
+        })
+        .catch(error => {
+          console.log(error.response.data.message);
+          handleUserNotAuthorised(error.response.data.message);
+          handleAlerts(`${error.response.data.message}`, false);
+        });
+    } catch (error) {
+      console.log(error);
+      handleAlerts("Error: Internal Server Error", false);
+    }
   };
+
+  useEffect(() => {
+    console.log("Running useEffect to check if user is a project manager");
+    async function check() {
+      const response = await checkPermission("plans_create", appid, true);
+      console.log(response);
+      if (!response) navigate(`/apps/${appid}/plans`);
+    }
+    check();
+  }, []);
 
   return (
     <Container title="Create Plan" appid={appid} create={true} control={1}>
@@ -31,7 +64,7 @@ function PlanCreatePage() {
           </Typography>
           <FormControl>
             <FormLabel>Plan Name</FormLabel>
-            <Input variant="soft" color="primary" value={acronym} onChange={e => setAcronym(e.target.value)} />
+            <Input variant="soft" color="primary" value={planName} onChange={e => setPlanName(e.target.value)} />
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Start Date</FormLabel>
