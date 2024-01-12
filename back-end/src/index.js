@@ -35,7 +35,7 @@ app.use(jsonParser); // read JSON req body
 const { createUser, loginUser, getUsers, getOwnUser, updateUserforAdmin, updateUserforUser } = require("./controllers/userController");
 const { getAuthenticiated, getAuthorised } = require("./controllers/authController");
 const { createGroup, getGroups } = require("./controllers/groupController");
-const { getApps, createApp, updateApp } = require("./controllers/appController");
+const { getApps, getSelectedApp, createApp, updateApp } = require("./controllers/appController");
 const { getPlans, getPlansOfApp, createPlan, updatePlan } = require("./controllers/planController");
 
 /* Routes */
@@ -47,13 +47,14 @@ app.post("/login", loginUser);
 app.get("/authenticate", getAuthenticiated);
 app.post("/authorize", isAuthenticated, getAuthorised);
 
-app.get("/groups/all", isAuthenticated, isAuthorised("admin"), getGroups);
+app.get("/groups/all", isAuthenticated, isAuthorised("admin", "projectlead"), getGroups);
 app.post("/groups/create", isAuthenticated, isAuthorised("admin"), createGroup);
 
 app.get("/profile", isAuthenticated, getOwnUser);
 app.post("/profile/update", isAuthenticated, updateUserforUser);
 
 app.get("/apps/all", isAuthenticated, getApps);
+app.post("/apps/selected", isAuthenticated, getSelectedApp);
 app.post("/apps/create", isAuthenticated, isAuthorised("projectlead"), createApp);
 app.post("/apps/update", isAuthenticated, isAuthorised("projectlead"), updateApp);
 

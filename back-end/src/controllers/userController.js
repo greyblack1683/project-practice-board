@@ -3,10 +3,10 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 function checkPassword(password) {
-  if (password.length < 8 && password.length < 10) throw new Error("Password has to be between 8 to 10 characters");
-  if (password.search(/[^a-zA-Z0-9]/g) < 0) throw new Error("Password should contain special characters.");
-  if (password.search(/[a-zA-Z]/g) < 0) throw new Error("Password should contain letters.");
-  if (password.search(/[0-9]/g) < 0) throw new Error("Password should contain numbers.");
+  if (password.length < 8 && password.length < 10) throw new Error("Error: Password has to be between 8 to 10 characters");
+  if (password.search(/[^a-zA-Z0-9]/g) < 0) throw new Error("Error: Password should contain special characters.");
+  if (password.search(/[a-zA-Z]/g) < 0) throw new Error("Error: Password should contain letters.");
+  if (password.search(/[0-9]/g) < 0) throw new Error("Error: Password should contain numbers.");
 }
 
 exports.createUser = async (req, res, next) => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import axios from "axios";
 
 import GlobalContext from "../components/GlobalContext";
@@ -13,8 +13,8 @@ import { Typography, Table, Sheet, Box, Button, Input } from "@mui/joy";
 import GroupsIcon from "@mui/icons-material/Groups";
 
 function UserMgmtPage() {
-  const { handleAlerts, setIsAdmin, handleCookie } = useContext(GlobalContext);
-  const navigate = useNavigate();
+  const { handleAlerts } = useContext(GlobalContext);
+  const [handleUserNotAuthorised] = useOutletContext();
 
   const [allGroups, setAllGroups] = useState([]);
   const [addGroupRequest, setAddGroupRequest] = useState(0);
@@ -67,16 +67,6 @@ function UserMgmtPage() {
     return controller.abort();
   }, [editUserRequest]);
 
-  const handleUserNotAuthorised = message => {
-    if (message.includes("not authorised")) {
-      setIsAdmin(false);
-      navigate("/");
-    }
-    if (message.toLowerCase().includes("inactive")) {
-      handleCookie();
-    }
-  };
-
   const handleAddGroup = async () => {
     try {
       await axios
@@ -98,7 +88,7 @@ function UserMgmtPage() {
   };
 
   return (
-    <Page title="Manage Users">
+    <Page title="Applications">
       <Box display="flex" justifyContent="center">
         <Box>
           <Box

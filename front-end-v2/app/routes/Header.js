@@ -13,31 +13,47 @@ function Header() {
   const location = useLocation();
   const { handleAlerts, handleCookie, isAdmin, setIsAdmin } = useContext(GlobalContext);
 
-  //useEffect to check if it's admin
-  useEffect(() => {
-    console.log("Running useEffect to check if user is admin and active");
-    async function checkGroup(authorisedGroup) {
-      try {
-        await axios
-          .post("/authorize", { authorisedGroup })
-          .then(response => setIsAdmin(response.data.success))
-          .catch(error => {
-            console.log(error.response.data.message);
-            handleAlerts(`${error.response.data.message}`, false);
-          });
-      } catch (error) {
-        console.log(error);
-        handleAlerts("Error: Internal Server Error", false);
+  async function checkGroup(authorisedGroup, showAlert) {
+    try {
+      const response = await axios.post("/authorize", { authorisedGroup }).catch(error => {
+        console.log(error.response.data.message);
+        if (showAlert) handleAlerts(`${error.response.data.message}`, false);
+      });
+      console.log(response);
+      if (response.data.success == false) {
+        if (showAlert) handleAlerts(`${response.data.message}`, false);
       }
+      return response.data.success;
+    } catch (error) {
+      console.log(error);
+      handleAlerts("Error: Internal Server Error", false);
     }
-
-    checkGroup("admin");
-  }, []);
+  }
 
   const handleLogOut = () => {
     handleCookie();
     handleAlerts("Log out successful", true);
   };
+
+  const handleUserNotAuthorised = message => {
+    if (message.includes("not authorised")) {
+      setIsAdmin(false);
+      navigate("/");
+    }
+    if (message.toLowerCase().includes("inactive")) {
+      handleCookie();
+    }
+  };
+
+  //useEffect to check if it's admin
+  useEffect(() => {
+    console.log("Running useEffect to check if user is admin and active");
+    async function check() {
+      const response = await checkGroup("admin", false);
+      if (response) setIsAdmin(true);
+    }
+    check();
+  }, []);
 
   return (
     <>
@@ -83,7 +99,7 @@ function Header() {
           </Button>
         </Box>
       </Box>
-      <Outlet />
+      <Outlet context={[handleUserNotAuthorised, checkGroup]} />
     </>
   );
 }
