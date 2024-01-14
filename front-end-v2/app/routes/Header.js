@@ -96,9 +96,12 @@ function Header() {
               TMS
             </Avatar>
           </IconButton>
-          <Typography level="body-md" component="div" sx={{ flexGrow: 1 }}>
+          <Typography level="body-md" component="div" sx={{ borderRight: "1px solid", borderColor: "divider", paddingRight: "1rem" }}>
             Task Management System
           </Typography>
+          <Button onClick={() => navigate("/tasks")} variant="plain" color="neutral" aria-pressed={location.pathname === "/tasks" ? "true" : "false"} size="sm" sx={{ flexGrow: 1 }}>
+            Tasks
+          </Button>
         </Stack>
         <Box
           sx={{

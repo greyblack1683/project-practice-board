@@ -24,7 +24,11 @@ exports.getApps = async (req, res, next) => {
         results: row
       });
     } else {
-      throw new Error("Error: Failed to receive SQL response");
+      return res.status(200).json({
+        success: true,
+        message: `No applications found`,
+        results: null
+      });
     }
   } catch (error) {
     return res.status(error.message.includes("Error") ? 400 : 500).json({

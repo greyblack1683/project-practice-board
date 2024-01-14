@@ -97,7 +97,7 @@ function AppCreatePage() {
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Running Number</FormLabel>
-            <Input variant="soft" color="primary" type="number" value={rNum} onChange={e => setRNum(e.target.value)} sx={{ min: "0", max: "100000" }} />
+            <Input variant="soft" color="primary" type="number" value={rNum} onChange={e => setRNum(e.target.value)} />
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>

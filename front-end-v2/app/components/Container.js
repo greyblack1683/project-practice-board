@@ -27,18 +27,16 @@ function Container({ title, control, appid, planid, taskid, create, children }) 
               {title}
             </Typography>
           </Box>
-          <Sheet
-            variant="plain"
+          <Box
             sx={{
               ml: "2rem",
               mr: "2rem",
               maxWidth: "70rem",
-              overflow: "auto",
-              backgroundColor: "background.surface"
+              overflow: "auto"
             }}
           >
             {children}
-          </Sheet>
+          </Box>
         </Box>
       </Box>
     </Page>

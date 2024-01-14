@@ -58,6 +58,7 @@ exports.createPlan = async (req, res, next) => {
   try {
     console.log("request:", req.body);
     //need to check startdate is before enddate in frontend
+    if (!req.body.plan_startdate || !req.body.plan_enddate) throw new Error("Error: Start and end dates are mandatory fields");
     const response = await connection.query("INSERT INTO plans VALUES (?,?,?,?);", [req.body.plan_mvp_name, req.body.plan_startdate, req.body.plan_enddate, req.body.plan_app_acronym]);
 
     return res.status(200).json({

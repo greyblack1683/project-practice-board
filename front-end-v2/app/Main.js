@@ -108,6 +108,7 @@ function Main() {
                 <Route path="apps/:appid/plans/:planid/tasks/:taskid" element={<HomePage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="usermgmt" element={<UserMgmtPage />} />
+                <Route path="tasks" element={<HomePage />} />
               </Route>
             </Routes>
           </BrowserRouter>

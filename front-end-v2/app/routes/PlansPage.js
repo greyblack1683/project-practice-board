@@ -11,7 +11,7 @@ import { Typography, Table, Sheet, Box, Button } from "@mui/joy";
 
 function PlansPage() {
   const { appid } = useParams();
-  const [allApps, setAllPlans] = useState([]);
+  const [allPlans, setAllPlans] = useState([]);
   const [handleUserNotAuthorised, checkGroup, checkPermission] = useOutletContext();
   const [isPM, setIsPM] = useState(false);
   const navigate = useNavigate();
@@ -126,19 +126,19 @@ function PlansPage() {
               <thead>
                 <tr>
                   <th style={{ width: "var(--Table-firstColumnWidth)" }}>Plan Name</th>
-                  <th>Start Date</th>
-                  <th>End Date</th>
+                  <th style={{ textAlign: "center" }}>Start Date</th>
+                  <th style={{ textAlign: "center" }}>End Date</th>
                   <th aria-label="last" style={{ width: "var(--Table-lastColumnWidth)" }} />
                 </tr>
               </thead>
               <tbody>
-                {allApps &&
-                  allApps.map(row => {
+                {allPlans &&
+                  allPlans.map(row => {
                     return (
                       <tr key={row.plan_mvp_name}>
                         <td>{row.plan_mvp_name}</td>
-                        <td>{row.plan_startdate}</td>
-                        <td>{row.plan_enddate}</td>
+                        <td style={{ textAlign: "center" }}>{row.plan_startdate}</td>
+                        <td style={{ textAlign: "center" }}>{row.plan_enddate}</td>
                         <td>
                           {" "}
                           <Box sx={{ display: "flex", gap: 1, justifyContent: "center", alignItems: "center" }}>
@@ -155,7 +155,7 @@ function PlansPage() {
                   })}
               </tbody>
             </Table>
-            {!allApps && (
+            {!allPlans && (
               <Typography level="body-sm" sx={{ textAlign: "center", flexGrow: 1, m: "2rem" }}>
                 There are no plans under this application.
               </Typography>

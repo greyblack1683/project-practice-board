@@ -8,7 +8,7 @@ import Page from "../components/Page";
 
 import { Typography, Table, Sheet, Box, Button } from "@mui/joy";
 
-function AppsPage() {
+function AppsPage2() {
   const [allApps, setAllApps] = useState([]);
   const [isPL, setIsPL] = useState(false);
   const navigate = useNavigate();
@@ -95,7 +95,7 @@ function AppsPage() {
               mb: "1rem",
               borderRadius: "sm",
               maxWidth: "70rem",
-              "--Table-firstColumnWidth": "200px",
+              "--Table-firstColumnWidth": "250px",
               "--Table-lastColumnWidth": "150px",
               // background needs to have transparency to show the scrolling shadows
               "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
@@ -126,27 +126,10 @@ function AppsPage() {
             >
               <thead>
                 <tr>
-                  <th rowSpan={2} style={{ width: "var(--Table-firstColumnWidth)" }}>
-                    Acronym
-                  </th>
-                  <th rowSpan={2} style={{ textAlign: "center" }}>
-                    Start Date
-                  </th>
-                  <th rowSpan={2} style={{ textAlign: "center" }}>
-                    End Date
-                  </th>
-                  <th colSpan={5} style={{ textAlign: "center" }}>
-                    Edit Permissions for Task Status
-                  </th>
-
-                  <th rowSpan={2} aria-label="last" style={{ width: "var(--Table-lastColumnWidth)" }} />
-                </tr>
-                <tr>
-                  <th style={{ textAlign: "center" }}>Create</th>
-                  <th style={{ textAlign: "center" }}>Open</th>
-                  <th style={{ textAlign: "center" }}>To Do</th>
-                  <th style={{ textAlign: "center" }}>Doing</th>
-                  <th style={{ textAlign: "center" }}>Done</th>
+                  <th style={{ width: "var(--Table-firstColumnWidth)" }}>Acronym</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  <th aria-label="last" style={{ width: "var(--Table-lastColumnWidth)" }} />
                 </tr>
               </thead>
               <tbody>
@@ -155,13 +138,8 @@ function AppsPage() {
                     return (
                       <tr key={row.app_acronym}>
                         <td>{row.app_acronym}</td>
-                        <td style={{ textAlign: "center" }}>{row.app_startdate}</td>
-                        <td style={{ textAlign: "center" }}>{row.app_enddate}</td>
-                        <td style={{ textAlign: "center" }}>{row.app_permit_create}</td>
-                        <td style={{ textAlign: "center" }}>{row.app_permit_open}</td>
-                        <td style={{ textAlign: "center" }}>{row.app_permit_todolist}</td>
-                        <td style={{ textAlign: "center" }}>{row.app_permit_doing}</td>
-                        <td style={{ textAlign: "center" }}>{row.app_permit_done}</td>
+                        <td>{row.app_startdate}</td>
+                        <td>{row.app_enddate}</td>
                         <td>
                           {" "}
                           <Box sx={{ display: "flex", gap: 1, justifyContent: "center", alignItems: "center" }}>
@@ -190,4 +168,4 @@ function AppsPage() {
   );
 }
 
-export default AppsPage;
+export default AppsPage2;
