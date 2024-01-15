@@ -6,12 +6,12 @@ import Container from "../components/Container";
 
 import GlobalContext from "../components/GlobalContext";
 
-import { Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete } from "@mui/joy";
+import { Button, Box, Input, FormControl, FormLabel, Typography } from "@mui/joy";
 
 function PlanCreatePage() {
   const { handleAlerts } = useContext(GlobalContext);
   const { appid } = useParams();
-  const [handleUserNotAuthorised, checkGroup, checkPermission] = useOutletContext();
+  const { handleUserNotAuthorised, checkPermission } = useOutletContext();
   const navigate = useNavigate();
 
   const [planName, setPlanName] = useState("");
@@ -31,7 +31,7 @@ function PlanCreatePage() {
         })
         .then(response => {
           console.log(response);
-          handleAlerts(`Created application ${planName} successfully`, true);
+          handleAlerts(`Created plan ${planName} successfully`, true);
           navigate(`/apps/${appid}/plans`);
         })
         .catch(error => {
@@ -56,7 +56,7 @@ function PlanCreatePage() {
   }, []);
 
   return (
-    <Container title="Create Plan" appid={appid} create={true} control={1}>
+    <Container title="Create Plan" appid={appid} control={1}>
       <Box display="flex" justifyContent="center" sx={{ flexDirection: "row", gap: 5 }}>
         <Box sx={{ minWidth: "25rem" }}>
           <Typography level="title-lg" sx={{ mb: "1rem" }}>

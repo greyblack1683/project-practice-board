@@ -7,7 +7,8 @@ function checkRNum(rNum) {
 }
 
 function checkAcronym(acronym) {
-  if (!acronym) throw new Error("Error: App Acronym number should not be blank");
+  if (!acronym) throw new Error("Error: App Acronym should not be blank");
+  if (acronym > 45) throw new Error("Error: App Acronym should be not be more than 45 characters.");
   if (acronym.search(/[^a-zA-Z0-9]/g) > 0) throw new Error("Error: App Acronym should not contain special characters and spaces.");
   if (/^[A-Za-z0-9]*$/.test(acronym) === false) throw new Error("Error: App Acronym should be alphabets or alphanumeric.");
 }

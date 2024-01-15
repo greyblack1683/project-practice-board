@@ -36,7 +36,7 @@ const { createUser, loginUser, getUsers, getOwnUser, updateUserforAdmin, updateU
 const { getAuthenticiated, getAuthorised, getAuthorisedforPlansnTasks } = require("./controllers/authController");
 const { createGroup, getGroups } = require("./controllers/groupController");
 const { getApps, getSelectedApp, createApp, updateApp } = require("./controllers/appController");
-const { getPlans, getPlansOfApp, createPlan, updatePlan } = require("./controllers/planController");
+const { getPlansOfApp, getSelectedPlan, createPlan, updatePlan } = require("./controllers/planController");
 
 /* Routes */
 app.get("/users/all", isAuthenticated, isAuthorised("admin"), getUsers);
@@ -60,7 +60,8 @@ app.post("/apps/create", isAuthenticated, isAuthorised("projectlead"), createApp
 app.post("/apps/update", isAuthenticated, isAuthorised("projectlead"), updateApp);
 
 // app.get("/plans/all", isAuthenticated, getPlans);
-app.post("/plans/selected", isAuthenticated, getPlansOfApp);
+app.post("/plans/forapp", isAuthenticated, getPlansOfApp);
+app.post("/plans/selected", isAuthenticated, getSelectedPlan);
 app.post("/plans/create", isAuthenticated, createPlan);
 app.post("/plans/update", isAuthenticated, updatePlan);
 

@@ -6,11 +6,11 @@ import Container from "../components/Container";
 
 import GlobalContext from "../components/GlobalContext";
 
-import { Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete } from "@mui/joy";
+import { Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete, Textarea } from "@mui/joy";
 
-function AppCreatePage() {
+function AppCreatePage({ setAppChangeRequest, setCreateApp }) {
   const { handleAlerts } = useContext(GlobalContext);
-  const [handleUserNotAuthorised, checkGroup] = useOutletContext();
+  const { handleUserNotAuthorised, checkGroup } = useOutletContext();
   const navigate = useNavigate();
 
   const [allGroups, setAllGroups] = useState([]);
@@ -44,8 +44,9 @@ function AppCreatePage() {
         })
         .then(response => {
           console.log(response);
+          setAppChangeRequest(prev => prev + 1);
+          setCreateApp(false);
           handleAlerts(`Created application ${acronym} successfully`, true);
-          navigate(`/apps`);
         })
         .catch(error => {
           console.log(error.response.data.message);
@@ -85,8 +86,26 @@ function AppCreatePage() {
   }, []);
 
   return (
-    <Container title="Create App" create={true} control={0}>
-      <Box display="flex" justifyContent="center" sx={{ flexDirection: "row", gap: 5 }}>
+    <>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "left",
+          mt: "2rem",
+          ml: "2rem",
+          mr: "2rem",
+          mb: "2rem",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          paddingBottom: "0.7rem"
+        }}
+      >
+        <Typography level="h3" sx={{ textAlign: "left" }}>
+          Create Application
+        </Typography>
+      </Box>
+      <Box display="flex" justifyContent="center" sx={{ flexDirection: "row", gap: 5, m: "2rem" }}>
         <Box sx={{ minWidth: "25rem" }}>
           <Typography level="title-lg" sx={{ mb: "1rem" }}>
             Application Details
@@ -101,7 +120,7 @@ function AppCreatePage() {
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>
-            <Input variant="soft" color="primary" value={desc} onChange={e => setDesc(e.target.value)} />
+            <Textarea variant="soft" minRows={3} maxRows={8} color="primary" value={desc} onChange={e => setDesc(e.target.value)} />
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Start Date</FormLabel>
@@ -112,7 +131,7 @@ function AppCreatePage() {
             <Input type="date" variant="soft" color="primary" value={endDate} onChange={e => setEndDate(e.target.value)} />
           </FormControl>
         </Box>
-        <Box sx={{ minWidth: "25rem" }}>
+        <Box sx={{ minWidth: "20rem" }}>
           <Typography level="title-lg" sx={{ mb: "1rem" }}>
             Permissions
           </Typography>
@@ -138,7 +157,7 @@ function AppCreatePage() {
           </FormControl>
         </Box>
       </Box>
-      <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "center", mt: "5rem" }}>
+      <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "center", mt: "5rem", mb: "2rem" }}>
         <Button size="sm" variant="solid" color="danger" onClick={() => navigate(`/apps`)}>
           Cancel
         </Button>
@@ -146,7 +165,7 @@ function AppCreatePage() {
           Save
         </Button>
       </Box>
-    </Container>
+    </>
   );
 }
 

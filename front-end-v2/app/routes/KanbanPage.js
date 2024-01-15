@@ -1,15 +1,16 @@
 import React, { useEffect, useState, useContext } from "react";
+
 import { useNavigate, useParams, useOutletContext } from "react-router-dom";
 import axios from "axios";
 
 import GlobalContext from "../components/GlobalContext";
 
 import Page from "../components/Page";
-import BCContainer from "../components/BCContainer";
+import PlanRow from "../components/PlanRow";
 
 import { Typography, Table, Sheet, Box, Button } from "@mui/joy";
 
-function PlansPage() {
+function KanbanPage() {
   const { appid } = useParams();
   const [allPlans, setAllPlans] = useState([]);
   const { checkPermission } = useOutletContext();
@@ -54,7 +55,6 @@ function PlansPage() {
     <Page title="Plans">
       <Box display="flex" justifyContent="center">
         <Box>
-          <BCContainer appid={appid} control={1} />
           <Box
             sx={{
               display: "flex",
@@ -128,29 +128,7 @@ function PlansPage() {
                   <th aria-label="last" style={{ width: "var(--Table-lastColumnWidth)" }} />
                 </tr>
               </thead>
-              <tbody>
-                {allPlans &&
-                  allPlans.map(row => {
-                    return (
-                      <tr key={row.plan_mvp_name}>
-                        <td>{row.plan_mvp_name}</td>
-                        <td style={{ textAlign: "center" }}>{row.plan_startdate}</td>
-                        <td style={{ textAlign: "center" }}>{row.plan_enddate}</td>
-                        <td>
-                          {" "}
-                          <Box sx={{ display: "flex", gap: 1, justifyContent: "center", alignItems: "center" }}>
-                            <Button size="sm" variant="plain" color="primary" onClick={() => navigate(`/apps/${row.plan_app_acronym}/plans/${row.plan_mvp_name}`)}>
-                              View
-                            </Button>
-                            <Button size="sm" variant="outlined" color="primary" onClick={() => navigate(`/apps/${row.plan_app_acronym}/plans/${row.plan_mvp_name}/tasks`)} disabled={true}>
-                              Tasks
-                            </Button>
-                          </Box>
-                        </td>
-                      </tr>
-                    );
-                  })}
-              </tbody>
+              <tbody>{allPlans && allPlans.map(row => <PlanRow row={row} key={row.plan_mvp_name} />)}</tbody>
             </Table>
             {!allPlans && (
               <Typography level="body-sm" sx={{ textAlign: "center", flexGrow: 1, m: "2rem" }}>
@@ -164,4 +142,4 @@ function PlansPage() {
   );
 }
 
-export default PlansPage;
+export default KanbanPage;

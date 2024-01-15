@@ -1,16 +1,15 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useNavigate, useParams, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import axios from "axios";
 
 import Container from "../components/Container";
 import GlobalContext from "../components/GlobalContext";
 
-import { Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete } from "@mui/joy";
+import { Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete, Textarea } from "@mui/joy";
 
-function AppDetailsPage() {
+function AppDetailsPage({ appid, setAppChangeRequest, setCreateApp }) {
   const { handleAlerts } = useContext(GlobalContext);
-  const [handleUserNotAuthorised, checkGroup] = useOutletContext();
-  const { appid } = useParams();
+  const { handleUserNotAuthorised, checkGroup } = useOutletContext();
 
   const [isPL, setIsPL] = useState(false);
   const [allGroups, setAllGroups] = useState([]);
@@ -60,6 +59,8 @@ function AppDetailsPage() {
         .then(response => {
           console.log(response);
           setIsEditing(false);
+          setAppChangeRequest(prev => prev + 1);
+          setCreateApp(false);
           handleAlerts(`Updated application ${acronym} successfully`, true);
         })
         .catch(error => {
@@ -117,7 +118,7 @@ function AppDetailsPage() {
           })
           .catch(error => {
             console.log(error.response.data.message);
-            handleAlerts(`${error.response.data.message}`, false);
+            if (error.response.data.message.toLowerCase().includes("does not exist")) handleAlerts(`${error.response.data.message}`, false);
           });
       } catch (error) {
         console.log(error);
@@ -129,8 +130,26 @@ function AppDetailsPage() {
   }, []);
 
   return (
-    <Container title={isEditing ? "Edit App" : "View App"} appid={appid} control={0.5}>
-      <Box display="flex" justifyContent="center" sx={{ flexDirection: "row", gap: 5 }}>
+    <>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "left",
+          mt: "2rem",
+          ml: "2rem",
+          mr: "2rem",
+          mb: "2rem",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          paddingBottom: "0.7rem"
+        }}
+      >
+        <Typography level="h3" sx={{ textAlign: "left" }}>
+          {isEditing ? "Edit Application" : "View Application"}
+        </Typography>
+      </Box>
+      <Box display="flex" justifyContent="center" sx={{ flexDirection: "row", gap: 5, m: "2rem" }}>
         <Box sx={{ minWidth: "25rem" }}>
           <Typography level="title-lg" sx={{ mb: "1rem" }}>
             Application Details
@@ -145,7 +164,7 @@ function AppDetailsPage() {
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>
-            <Input variant={isEditing ? "soft" : "solid"} color="primary" value={desc} onChange={e => setDesc(e.target.value)} disabled={isEditing ? false : true} />
+            <Textarea variant={isEditing ? "soft" : "solid"} minRows={3} color="primary" value={desc} onChange={e => setDesc(e.target.value)} disabled={isEditing ? false : true} />
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Start Date</FormLabel>
@@ -156,7 +175,7 @@ function AppDetailsPage() {
             <Input type="date" variant={isEditing ? "soft" : "solid"} color="primary" value={endDate} onChange={e => setEndDate(e.target.value)} disabled={isEditing ? false : true} />
           </FormControl>
         </Box>
-        <Box sx={{ minWidth: "25rem" }}>
+        <Box sx={{ minWidth: "15rem" }}>
           <Typography level="title-lg" sx={{ mb: "1rem" }}>
             Permissions
           </Typography>
@@ -199,7 +218,7 @@ function AppDetailsPage() {
             </Button>
           </Box>
         ))}
-    </Container>
+    </>
   );
 }
 

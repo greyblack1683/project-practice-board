@@ -5,10 +5,8 @@ exports.createGroup = async (req, res, next) => {
     const group = req.body.group;
     console.log(`Creating group with group name: ${group}`);
     if (!group) throw new Error("Error: Group is blank");
-
-    // if (group.includes(",")) throw new Error("Error: Group should not contain comma.");
+    if (group.length > 45) throw new Error("Error: Group should be not be more than 45 characters.");
     if (group.search(/[^a-zA-Z0-9]/g) > 0) throw new Error("Error: Group should not contain special characters and spaces.");
-    console.log(/^[A-Za-z0-9]*$/.test(group));
     if (/^[A-Za-z0-9]*$/.test(group) === false) throw new Error("Error: Group should be alphabets or alphanumeric.");
 
     const response = await connection.query("INSERT INTO `usergroup` VALUES (?);", group);

@@ -17,7 +17,7 @@ function Container({ title, control, appid, planid, taskid, create, children }) 
               flexDirection: "row",
               alignItems: "left",
               m: "2rem",
-              maxWidth: "70rem",
+              maxWidth: "80rem",
               borderBottom: "1px solid",
               borderColor: "divider",
               paddingBottom: "0.7rem"
@@ -31,7 +31,7 @@ function Container({ title, control, appid, planid, taskid, create, children }) 
             sx={{
               ml: "2rem",
               mr: "2rem",
-              maxWidth: "70rem",
+              maxWidth: "80rem",
               overflow: "auto"
             }}
           >

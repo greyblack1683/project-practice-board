@@ -22,8 +22,11 @@ import AppsPage from "./routes/AppsPage";
 import AppCreatePage from "./routes/AppCreatePage";
 import AppDetailsPage from "./routes/AppDetailsPage";
 
+import KanbanPage from "./routes/KanbanPage";
+
 import PlansPage from "./routes/PlansPage";
 import PlanCreatePage from "./routes/PlanCreatePage";
+import PlanDetailsPage from "./routes/PlanDetailsPage";
 
 axios.defaults.baseURL = "http://localhost:8080";
 
@@ -99,13 +102,11 @@ function Main() {
               <Route path="/" element={loggedIn == "pending" ? <LoadingPage /> : loggedIn ? <Header /> : <LoginPage />}>
                 <Route path="" element={<AppsPage />} />
                 <Route path="apps" element={<AppsPage />} />
-                <Route path="apps/create" element={<AppCreatePage />} />
+
                 <Route path="apps/:appid" element={<AppDetailsPage />} />
-                <Route path="apps/:appid/plans" element={<PlansPage />} />
-                <Route path="apps/:appid/plans/create" element={<PlanCreatePage />} />
-                <Route path="apps/:appid/plans/:planid" element={<HomePage />} />
-                <Route path="apps/:appid/plans/:planid/tasks" element={<HomePage />} />
-                <Route path="apps/:appid/plans/:planid/tasks/:taskid" element={<HomePage />} />
+                <Route path="apps/:appid/kanban" element={<KanbanPage />} />
+                <Route path="apps/:appid/kanban/createtask" element={<HomePage />} />
+                <Route path="apps/:appid/kanban/:taskid" element={<HomePage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="usermgmt" element={<UserMgmtPage />} />
                 <Route path="tasks" element={<HomePage />} />

@@ -6,6 +6,24 @@ import { Breadcrumbs, Link } from "@mui/joy";
 function BCContainer({ appid = null, planid = null, taskid = null, control = 0, create = false }) {
   const navigate = useNavigate();
   // console.log("appid", appid, "planid", planid, "taskid", taskid, "control", control, "create", create);
+
+  let listing = {
+    app: {
+      view: "/apps",
+      viewOne: `/apps/${appid}`
+    },
+    plan: {
+      view: `/apps/${appid}/plans`,
+      viewOne: `/apps/${appid}/plans/${planid}`,
+      create: `/apps/${appid}/plans/create`
+    },
+    task: {
+      view: `/apps/${appid}/tasks`,
+      viewOne: `/apps/${appid}/tasks/${taskid}`,
+      create: `/apps/${appid}/tasks/create`
+    }
+  };
+
   return (
     <>
       {control >= 0 && (
@@ -14,9 +32,13 @@ function BCContainer({ appid = null, planid = null, taskid = null, control = 0, 
           <Link color="neutral" onClick={() => navigate("/apps")}>
             Applications
           </Link>
-          {control === 0 && create === true && (
+          {control === 0 && create === true ? (
             <Link color="neutral" disabled>
               Create
+            </Link>
+          ) : (
+            <Link color="neutral" onClick={() => navigate(`/apps/${appid}`)} disabled={control === 0.5 ? true : false}>
+              {appid}
             </Link>
           )}
           {/* control = 0.5 */}
@@ -26,7 +48,7 @@ function BCContainer({ appid = null, planid = null, taskid = null, control = 0, 
             </Link>
           )}
           {/* control = 1 */}
-          {control >= 1 && (
+          {control == 1 && (
             <Link color="neutral" onClick={() => navigate(`/apps/${appid}/plans`)} disabled={control === 1 && create === false ? true : false}>
               Plans
             </Link>

@@ -13,6 +13,11 @@ exports.createUser = async (req, res, next) => {
   try {
     console.log("Creating user");
 
+    if (!req.body.username) throw new Error("Error: Username is blank");
+    if (req.body.username.length > 45) throw new Error("Error: Username should be not be more than 45 characters.");
+    if (req.body.username.search(/[^a-zA-Z0-9]/g) > 0) throw new Error("Error: Username should not contain special characters and spaces.");
+    if (/^[A-Za-z0-9]*$/.test(req.body.username) === false) throw new Error("Error: Username should be alphabets or alphanumeric.");
+
     checkPassword(req.body.password);
     const password = await bcrypt.hash(req.body.password, 10);
 

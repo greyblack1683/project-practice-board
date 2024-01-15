@@ -14,7 +14,7 @@ import GroupsIcon from "@mui/icons-material/Groups";
 
 function UserMgmtPage() {
   const { handleAlerts } = useContext(GlobalContext);
-  const [handleUserNotAuthorised] = useOutletContext();
+  const { handleUserNotAuthorised } = useOutletContext();
 
   const [allGroups, setAllGroups] = useState([]);
   const [addGroupRequest, setAddGroupRequest] = useState(0);
