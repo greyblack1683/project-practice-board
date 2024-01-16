@@ -44,7 +44,7 @@ function CreateUser({ allGroups, handleUserNotAuthorised, setEditUserRequest }) 
           })
           .catch(error => {
             console.log(error.response.data.message);
-            handleUserNotAuthorised(error.response.data.message);
+            handleUserNotAuthorised(error.response.data.message, "admin");
             handleAlerts(`${error.response.data.message}`, false);
           });
       } catch (error) {
@@ -111,7 +111,7 @@ function CreateUser({ allGroups, handleUserNotAuthorised, setEditUserRequest }) 
           <Option value="true">Enable</Option>
           <Option value="false">Disable</Option>
         </Select>
-        <Button onClick={handleSubmit} variant="outlined" size="sm">
+        <Button onClick={handleSubmit} variant="outlined" size="sm" sx={{ width: "90px" }}>
           Add User
         </Button>
       </Box>

@@ -57,10 +57,23 @@ function Header() {
     handleAlerts("Log out successful", true);
   };
 
-  const handleUserNotAuthorised = message => {
+  const handleUserNotAuthorised = (message, level, appid = null) => {
     if (message.includes("not authorised")) {
-      setIsAdmin(false);
-      navigate("/");
+      switch (level) {
+        case "admin":
+          setIsAdmin(false);
+          navigate("/");
+          break;
+        case "pl_app":
+          navigate("/");
+          break;
+        default:
+          if (appid) {
+            navigate(`/apps/${appid}/kanban`);
+          } else {
+            navigate("/");
+          }
+      }
     }
     if (message.toLowerCase().includes("inactive")) {
       handleCookie();

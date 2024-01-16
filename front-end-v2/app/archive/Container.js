@@ -1,6 +1,6 @@
 import React from "react";
 
-import Page from "./Page";
+import Page from "../components/Page";
 import BCContainer from "./BCContainer";
 
 import { Typography, Box, Sheet } from "@mui/joy";

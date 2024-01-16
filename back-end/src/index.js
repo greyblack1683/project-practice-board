@@ -10,7 +10,7 @@ const jsonParser = bodyParser.json(); // create application/json parser
 const app = express();
 
 /* Middlewares - Implementation */
-const { isAuthenticated, isAuthorised } = require("./middleware/authMiddleware");
+const { isAuthenticated, isAuthorised, isPermitted } = require("./middleware/authMiddleware");
 
 // whitelist for specific domains to be able to access this API
 const whitelist = ["http://localhost:3000"];
@@ -37,6 +37,7 @@ const { getAuthenticiated, getAuthorised, getAuthorisedforPlansnTasks } = requir
 const { createGroup, getGroups } = require("./controllers/groupController");
 const { getApps, getSelectedApp, createApp, updateApp } = require("./controllers/appController");
 const { getPlansOfApp, getSelectedPlan, createPlan, updatePlan } = require("./controllers/planController");
+const { getTasksOfApp, createTask, updateOpenTask } = require("./controllers/taskController");
 
 /* Routes */
 app.get("/users/all", isAuthenticated, isAuthorised("admin"), getUsers);
@@ -62,8 +63,12 @@ app.post("/apps/update", isAuthenticated, isAuthorised("projectlead"), updateApp
 // app.get("/plans/all", isAuthenticated, getPlans);
 app.post("/plans/forapp", isAuthenticated, getPlansOfApp);
 app.post("/plans/selected", isAuthenticated, getSelectedPlan);
-app.post("/plans/create", isAuthenticated, createPlan);
-app.post("/plans/update", isAuthenticated, updatePlan);
+app.post("/plans/create", isAuthenticated, isPermitted("open"), createPlan);
+app.post("/plans/update", isAuthenticated, isPermitted("open"), updatePlan);
+
+app.get("/tasks/forapp", isAuthenticated, getTasksOfApp);
+app.post("/tasks/create", isAuthenticated, isPermitted("create"), createTask);
+app.post("/tasks/updateOpen", isAuthenticated, isPermitted("open"), updateOpenTask);
 
 app.all("*", (req, res, next) => {
   res.status(500).json({

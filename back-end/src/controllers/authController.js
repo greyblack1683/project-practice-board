@@ -37,6 +37,44 @@ exports.checkToken = async token => {
   return row;
 };
 
+exports.checkPermits = async (permit, appAcronym) => {
+  console.log(`Getting usergroup with ${permit} for the application ${appAcronym}`);
+  let sqlBuilder = "SELECT ";
+  switch (permit) {
+    case "create":
+      sqlBuilder = sqlBuilder + `app_permit_create`;
+      break;
+    case "open":
+      sqlBuilder = sqlBuilder + `app_permit_open`;
+      break;
+    case "todo":
+      sqlBuilder = sqlBuilder + `app_permit_todolist`;
+      break;
+    case "doing":
+      sqlBuilder = sqlBuilder + `app_permit_doing`;
+      break;
+    case "done":
+      sqlBuilder = sqlBuilder + `app_permit_done`;
+      break;
+    default:
+      throw new Error("Error: Error in request body");
+  }
+
+  sqlBuilder = sqlBuilder + ` FROM applications WHERE app_acronym = ?`;
+
+  //check for the usergroup that has the right permission
+  const [row, fields] = await connection.query(sqlBuilder, appAcronym);
+
+  console.log(row);
+
+  if (row.length === 1) {
+    const groupname = Object.values(row[0]);
+    return groupname[0];
+  } else {
+    throw new Error("Error: There is no group defined for the permission requested for this application");
+  }
+};
+
 exports.getAuthenticiated = async (req, res, next) => {
   try {
     let token = req.get("authorization");
@@ -99,30 +137,15 @@ exports.getAuthorised = async (req, res, next) => {
 exports.getAuthorisedforPlansnTasks = async (req, res, next) => {
   try {
     console.log(req.body);
-    let sqlBuilder, sqlValues;
-    switch (req.body.permitFor) {
-      case "plans_create":
-        sqlBuilder = `SELECT app_permit_open FROM applications WHERE app_acronym = ?`;
-        sqlValues = req.body.app_acronym;
-        break;
 
-      default:
-        throw new Error("Error: Error in request body");
-    }
-
-    //check for the usergroup that has the right permission
-    const [row, fields] = await connection.query(sqlBuilder, sqlValues);
-    const searchTerms = Object.values(row[0]);
-    if (row.length > 0) {
-      const response = await this.Checkgroup(req.user.username, searchTerms[0]);
-      console.log("checkgroup:", response);
-      return res.status(200).json({
-        success: response,
-        message: response ? "User is authorised" : "User is not authorised"
-      });
-    } else {
-      throw new Error("Error: There is no group defined for the permission requested for this application");
-    }
+    const groupname = await this.checkPermits(req.body.permitFor, req.body.app_acronym);
+    console.log("checkpermit:", groupname);
+    const response = await this.Checkgroup(req.user.username, groupname);
+    console.log("checkgroup:", response);
+    return res.status(200).json({
+      success: response,
+      message: response ? "User is authorised" : "User is not authorised"
+    });
   } catch (error) {
     console.log("Error: ", error);
     return res.status(500).json({

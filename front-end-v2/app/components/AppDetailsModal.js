@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import axios from "axios";
-
-import Container from "../components/Container";
-import GlobalContext from "../components/GlobalContext";
+import GlobalContext from "./GlobalContext";
 
 import { Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete, Textarea } from "@mui/joy";
 
-function AppDetailsPage({ appid, setAppChangeRequest, setCreateApp }) {
+function AppDetailsModal({ appid, setAppChangeRequest, setCreateApp }) {
   const { handleAlerts } = useContext(GlobalContext);
   const { handleUserNotAuthorised, checkGroup } = useOutletContext();
 
@@ -65,7 +63,7 @@ function AppDetailsPage({ appid, setAppChangeRequest, setCreateApp }) {
         })
         .catch(error => {
           console.log(error.response.data.message);
-          handleUserNotAuthorised(error.response.data.message);
+          handleUserNotAuthorised(error.response.data.message, "pl_app");
           handleAlerts(`${error.response.data.message}`, false);
         });
     } catch (error) {
@@ -81,7 +79,7 @@ function AppDetailsPage({ appid, setAppChangeRequest, setCreateApp }) {
         .then(response => setAllGroups(response.data.results))
         .catch(error => {
           console.log(error.response.data.message);
-          handleUserNotAuthorised(error.response.data.message);
+          handleUserNotAuthorised(error.response.data.message, "pl_app");
           handleAlerts(`${error.response.data.message}`, false);
         });
       setIsEditing(true);
@@ -164,7 +162,7 @@ function AppDetailsPage({ appid, setAppChangeRequest, setCreateApp }) {
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>
-            <Textarea variant={isEditing ? "soft" : "solid"} minRows={3} color="primary" value={desc} onChange={e => setDesc(e.target.value)} disabled={isEditing ? false : true} />
+            <Textarea variant={isEditing ? "soft" : "solid"} minRows={4} maxRows={4} color="primary" value={desc} onChange={e => setDesc(e.target.value)} disabled={isEditing ? false : true} />
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Start Date</FormLabel>
@@ -204,7 +202,7 @@ function AppDetailsPage({ appid, setAppChangeRequest, setCreateApp }) {
       {isPL &&
         (isEditing ? (
           <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "center", mt: "5rem" }}>
-            <Button size="sm" variant="solid" color="danger" onClick={handleCancel}>
+            <Button size="sm" variant="plain" color="danger" onClick={handleCancel}>
               Cancel
             </Button>
             <Button size="sm" variant="solid" color="success" onClick={handleSubmit}>
@@ -222,4 +220,4 @@ function AppDetailsPage({ appid, setAppChangeRequest, setCreateApp }) {
   );
 }
 
-export default AppDetailsPage;
+export default AppDetailsModal;

@@ -32,7 +32,7 @@ function UserMgmtPage() {
           .then(response => setAllGroups(response.data.results))
           .catch(error => {
             console.log(error.response.data.message);
-            handleUserNotAuthorised(error.response.data.message);
+            handleUserNotAuthorised(error.response.data.message, "admin");
             handleAlerts(`${error.response.data.message}`, false);
           });
       } catch (error) {
@@ -54,7 +54,7 @@ function UserMgmtPage() {
           .then(response => setAllUsers(response.data.results))
           .catch(error => {
             console.log(error.response.data.message);
-            handleUserNotAuthorised(error.response.data.message);
+            handleUserNotAuthorised(error.response.data.message, "admin");
             handleAlerts(`${error.response.data.message}`, false);
           });
       } catch (error) {
@@ -78,7 +78,7 @@ function UserMgmtPage() {
         })
         .catch(error => {
           console.log(error.response.data.message);
-          handleUserNotAuthorised(error.response.data.message);
+          handleUserNotAuthorised(error.response.data.message, "admin");
           handleAlerts(`${error.response.data.message}`, false);
         });
     } catch (error) {

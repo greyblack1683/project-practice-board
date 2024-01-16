@@ -33,7 +33,7 @@ function UserRow({ row, allGroups, handleAlerts, handleUserNotAuthorised, setEdi
         })
         .catch(error => {
           console.log(error);
-          handleUserNotAuthorised(error.response.data.message);
+          handleUserNotAuthorised(error.response.data.message, "admin");
           handleAlerts(`${error.response.data.message}`, false);
         });
     } catch (error) {

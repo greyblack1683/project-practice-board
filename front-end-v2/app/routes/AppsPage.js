@@ -5,8 +5,8 @@ import axios from "axios";
 import GlobalContext from "../components/GlobalContext";
 
 import Page from "../components/Page";
-import AppCreatePage from "./AppCreatePage";
-import AppDetailsPage from "./AppDetailsPage";
+import AppCreateModal from "../components/AppCreateModal";
+import AppDetailsModal from "../components/AppDetailsModal";
 
 import { Typography, Table, Sheet, Box, Button, Modal, ModalClose } from "@mui/joy";
 
@@ -76,7 +76,7 @@ function AppsPage() {
               flexDirection: "row",
               alignItems: "center",
               m: "2rem",
-              maxWidth: "80rem"
+              maxWidth: "90rem"
             }}
           >
             <Typography level="h3" sx={{ textAlign: "left", flexGrow: 1 }}>
@@ -105,7 +105,7 @@ function AppsPage() {
               mt: "1rem",
               mb: "1rem",
               borderRadius: "sm",
-              maxWidth: "80rem",
+              maxWidth: "90rem",
               "--Table-firstColumnWidth": "180px",
               "--Table-lastColumnWidth": "160px",
               // background needs to have transparency to show the scrolling shadows
@@ -197,7 +197,7 @@ function AppsPage() {
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
 
-          <AppCreatePage setAppChangeRequest={setAppChangeRequest} setCreateApp={setCreateApp} />
+          <AppCreateModal setAppChangeRequest={setAppChangeRequest} setCreateApp={setCreateApp} />
         </Sheet>
       </Modal>
       <Modal aria-labelledby="modal-title" aria-describedby="modal-desc" open={editApp} onClose={() => setEditApp(false)} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -207,12 +207,13 @@ function AppsPage() {
             maxWidth: "70rem",
             borderRadius: "md",
             p: 3,
-            boxShadow: "lg"
+            boxShadow: "lg",
+            height: "50rem"
           }}
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
 
-          <AppDetailsPage appid={editableAppID} setAppChangeRequest={setAppChangeRequest} setCreateApp={setCreateApp} />
+          <AppDetailsModal appid={editableAppID} setAppChangeRequest={setAppChangeRequest} setCreateApp={setCreateApp} />
         </Sheet>
       </Modal>
     </Page>

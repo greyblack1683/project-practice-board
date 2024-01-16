@@ -6,53 +6,34 @@ import axios from "axios";
 import GlobalContext from "../components/GlobalContext";
 
 import Page from "../components/Page";
-import PlanRow from "../components/PlanRow";
+import PlansModal from "../components/PlansModal";
 
-import { Typography, Table, Sheet, Box, Button } from "@mui/joy";
+import { Typography, Table, Sheet, Box, Button, Modal, ModalClose } from "@mui/joy";
 
 function KanbanPage() {
   const { appid } = useParams();
-  const [allPlans, setAllPlans] = useState([]);
   const { checkPermission } = useOutletContext();
   const [isPM, setIsPM] = useState(false);
   const navigate = useNavigate();
 
   const { handleAlerts } = useContext(GlobalContext);
 
+  const [viewPlans, setViewPlans] = useState(false);
+
   useEffect(() => {
     const controller = new AbortController();
-    async function getApps() {
-      try {
-        await axios
-          .post("/plans/forapp", {
-            plan_app_acronym: appid
-          })
-          .then(response => setAllPlans(response.data.results))
-          .catch(error => {
-            console.log(error.response.data.message);
-            handleAlerts(`${error.response.data.message}`, false);
-          });
-      } catch (error) {
-        console.log(error);
-        handleAlerts("Error: Internal Server Error", false);
-      }
-    }
-    getApps();
-
-    return controller.abort();
-  }, []);
-
-  useEffect(() => {
     console.log("Running useEffect to check if user is of project manager");
     async function check() {
-      const response = await checkPermission("plans_create", appid, false);
+      const response = await checkPermission("create", appid, false);
       console.log(response);
       if (response) setIsPM(true);
     }
     check();
+
+    return controller.abort();
   }, []);
   return (
-    <Page title="Plans">
+    <Page title="Kanban">
       <Box display="flex" justifyContent="center">
         <Box>
           <Box
@@ -61,11 +42,11 @@ function KanbanPage() {
               flexDirection: "row",
               alignItems: "center",
               m: "2rem",
-              maxWidth: "80rem"
+              maxWidth: "90rem"
             }}
           >
             <Typography level="h3" sx={{ textAlign: "left", flexGrow: 1 }}>
-              Plans
+              Tasks of {appid}
             </Typography>
             <Box
               sx={{
@@ -75,35 +56,36 @@ function KanbanPage() {
                 alignItems: "center"
               }}
             >
+              <Button variant="outlined" size="sm" onClick={() => setViewPlans(true)}>
+                View Plans
+              </Button>
               {isPM && (
                 <Button variant="solid" size="sm" onClick={() => navigate(`/apps/${appid}/plans/create`)}>
-                  Add Plan
+                  Add Tasks
                 </Button>
               )}
             </Box>
           </Box>
           <Sheet
-            variant="outlined"
+            variant="plain"
             sx={{
               ml: "2rem",
               mr: "2rem",
               mt: "1rem",
               mb: "1rem",
-              borderRadius: "sm",
-              maxWidth: "80rem",
-              "--Table-firstColumnWidth": "250px",
-              "--Table-lastColumnWidth": "150px",
-              // background needs to have transparency to show the scrolling shadows
-              "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
-              "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
+              maxWidth: "90rem",
+              // "--Table-firstColumnWidth": "250px",
+              // "--Table-lastColumnWidth": "150px",
+              // // background needs to have transparency to show the scrolling shadows
+              // "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
+              // "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
               overflow: "auto",
               backgroundColor: "background.surface"
             }}
           >
             <Table
-              borderAxis="xBetween"
+              borderAxis="yBetween"
               stickyHeader
-              hoverRow
               sx={{
                 // "& tr > *:first-of-type": {
                 //   position: "sticky",
@@ -111,33 +93,72 @@ function KanbanPage() {
                 //   boxShadow: "1px 0 var(--TableCell-borderColor)",
                 //   bgcolor: "background.surface"
                 // },
-                "& tr > *:last-child": {
-                  position: "sticky",
-                  right: 0,
-                  bgcolor: "var(--TableCell-headBackground)"
-                },
+                // "& tr > *:last-child": {
+                //   position: "sticky",
+                //   right: 0,
+                //   bgcolor: "var(--TableCell-headBackground)"
+                // },
                 whiteSpace: "normal",
                 wordWrap: "break-word"
               }}
             >
               <thead>
                 <tr>
-                  <th style={{ width: "var(--Table-firstColumnWidth)" }}>Plan Name</th>
-                  <th style={{ textAlign: "center" }}>Start Date</th>
-                  <th style={{ textAlign: "center" }}>End Date</th>
-                  <th aria-label="last" style={{ width: "var(--Table-lastColumnWidth)" }} />
+                  <th style={{ textAlign: "center" }}>
+                    <Typography level="title-md" variant="soft" sx={{ mr: "0.2rem", padding: "0.5rem" }}>
+                      Open
+                    </Typography>
+                  </th>
+                  <th style={{ textAlign: "center" }}>
+                    <Typography level="title-md" variant="soft" sx={{ ml: "0.2rem", mr: "0.2rem", padding: "0.5rem" }}>
+                      To Do
+                    </Typography>
+                  </th>
+                  <th style={{ textAlign: "center" }}>
+                    <Typography level="title-md" variant="soft" sx={{ ml: "0.2rem", mr: "0.2rem", padding: "0.5rem" }}>
+                      Doing
+                    </Typography>
+                  </th>
+                  <th style={{ textAlign: "center" }}>
+                    <Typography level="title-md" variant="soft" sx={{ ml: "0.2rem", mr: "0.2rem", padding: "0.5rem" }}>
+                      Done
+                    </Typography>
+                  </th>
+                  <th style={{ textAlign: "center" }}>
+                    <Typography level="title-md" variant="soft" sx={{ ml: "0.2rem", padding: "0.5rem" }}>
+                      Closed
+                    </Typography>
+                  </th>
                 </tr>
               </thead>
-              <tbody>{allPlans && allPlans.map(row => <PlanRow row={row} key={row.plan_mvp_name} />)}</tbody>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>1</td>
+                </tr>
+              </tbody>
             </Table>
-            {!allPlans && (
-              <Typography level="body-sm" sx={{ textAlign: "center", flexGrow: 1, m: "2rem" }}>
-                There are no plans under this application.
-              </Typography>
-            )}
           </Sheet>
         </Box>
       </Box>
+      <Modal aria-labelledby="modal-title" aria-describedby="modal-desc" open={viewPlans} onClose={() => setViewPlans(false)} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <Sheet
+          variant="outlined"
+          sx={{
+            maxWidth: "50rem",
+            borderRadius: "md",
+            p: 3,
+            boxShadow: "lg",
+            height: "50rem"
+          }}
+        >
+          <ModalClose variant="plain" sx={{ m: 1 }} />
+          <PlansModal />
+        </Sheet>
+      </Modal>
     </Page>
   );
 }

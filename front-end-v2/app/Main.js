@@ -19,14 +19,7 @@ import UserMgmtPage from "./routes/UserMgmtPage";
 import LoadingPage from "./routes/LoadingPage";
 
 import AppsPage from "./routes/AppsPage";
-import AppCreatePage from "./routes/AppCreatePage";
-import AppDetailsPage from "./routes/AppDetailsPage";
-
 import KanbanPage from "./routes/KanbanPage";
-
-import PlansPage from "./routes/PlansPage";
-import PlanCreatePage from "./routes/PlanCreatePage";
-import PlanDetailsPage from "./routes/PlanDetailsPage";
 
 axios.defaults.baseURL = "http://localhost:8080";
 
@@ -47,7 +40,7 @@ function Main() {
   const handleCookie = token => {
     if (token) {
       //if handleCookie is called with a value
-      if (Cookies.get("token") !== token) Cookies.set("token", token, { expires: 7, path: "" });
+      if (Cookies.get("token") !== token) Cookies.set("token", token, { expires: 7, path: "/" });
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       console.log("set login to true");
       setLoggedIn(true);
@@ -102,11 +95,7 @@ function Main() {
               <Route path="/" element={loggedIn == "pending" ? <LoadingPage /> : loggedIn ? <Header /> : <LoginPage />}>
                 <Route path="" element={<AppsPage />} />
                 <Route path="apps" element={<AppsPage />} />
-
-                <Route path="apps/:appid" element={<AppDetailsPage />} />
                 <Route path="apps/:appid/kanban" element={<KanbanPage />} />
-                <Route path="apps/:appid/kanban/createtask" element={<HomePage />} />
-                <Route path="apps/:appid/kanban/:taskid" element={<HomePage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="usermgmt" element={<UserMgmtPage />} />
                 <Route path="tasks" element={<HomePage />} />

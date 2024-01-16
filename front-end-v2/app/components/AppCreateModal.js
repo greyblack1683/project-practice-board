@@ -2,13 +2,11 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import axios from "axios";
 
-import Container from "../components/Container";
-
-import GlobalContext from "../components/GlobalContext";
+import GlobalContext from "./GlobalContext";
 
 import { Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete, Textarea } from "@mui/joy";
 
-function AppCreatePage({ setAppChangeRequest, setCreateApp }) {
+function AppCreateModal({ setAppChangeRequest, setCreateApp }) {
   const { handleAlerts } = useContext(GlobalContext);
   const { handleUserNotAuthorised, checkGroup } = useOutletContext();
   const navigate = useNavigate();
@@ -50,7 +48,7 @@ function AppCreatePage({ setAppChangeRequest, setCreateApp }) {
         })
         .catch(error => {
           console.log(error.response.data.message);
-          handleUserNotAuthorised(error.response.data.message);
+          handleUserNotAuthorised(error.response.data.message, "pl_app");
           handleAlerts(`${error.response.data.message}`, false);
         });
     } catch (error) {
@@ -68,7 +66,7 @@ function AppCreatePage({ setAppChangeRequest, setCreateApp }) {
           .then(response => setAllGroups(response.data.results))
           .catch(error => {
             console.log(error.response.data.message);
-            handleUserNotAuthorised(error.response.data.message);
+            handleUserNotAuthorised(error.response.data.message, "pl_app");
             handleAlerts(`${error.response.data.message}`, false);
           });
       } catch (error) {
@@ -120,7 +118,7 @@ function AppCreatePage({ setAppChangeRequest, setCreateApp }) {
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>
-            <Textarea variant="soft" minRows={3} maxRows={8} color="primary" value={desc} onChange={e => setDesc(e.target.value)} />
+            <Textarea variant="soft" minRows={4} maxRows={4} color="primary" value={desc} onChange={e => setDesc(e.target.value)} />
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Start Date</FormLabel>
@@ -157,8 +155,8 @@ function AppCreatePage({ setAppChangeRequest, setCreateApp }) {
           </FormControl>
         </Box>
       </Box>
-      <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "center", mt: "5rem", mb: "2rem" }}>
-        <Button size="sm" variant="solid" color="danger" onClick={() => navigate(`/apps`)}>
+      <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "center", mt: "4rem", mb: "2rem" }}>
+        <Button size="sm" variant="plain" color="danger" onClick={() => navigate(`/apps`)}>
           Cancel
         </Button>
         <Button size="sm" variant="solid" color="success" type="submit" onClick={handleSubmit}>
@@ -169,4 +167,4 @@ function AppCreatePage({ setAppChangeRequest, setCreateApp }) {
   );
 }
 
-export default AppCreatePage;
+export default AppCreateModal;

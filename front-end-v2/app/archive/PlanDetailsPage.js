@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import axios from "axios";
 
 import Container from "../components/Container";
@@ -36,7 +36,8 @@ function PlanDetailsPage() {
           plan_mvp_name: planName,
           plan_startdate: startDate,
           plan_enddate: endDate,
-          plan_app_acronym: appid
+          plan_app_acronym: appid,
+          app_acronym: appid
         })
         .then(response => {
           console.log(response);
@@ -45,7 +46,7 @@ function PlanDetailsPage() {
         })
         .catch(error => {
           console.log(error.response.data.message);
-          handleUserNotAuthorised(error.response.data.message);
+          handleUserNotAuthorised(error.response.data.message, null, appid);
           handleAlerts(`${error.response.data.message}`, false);
         });
     } catch (error) {
@@ -57,7 +58,7 @@ function PlanDetailsPage() {
   useEffect(() => {
     console.log("Running useEffect to check if user is a project manager");
     async function check() {
-      const response = await checkPermission("plans_create", appid, false);
+      const response = await checkPermission("open", appid, false);
       console.log(response);
       if (!response) setIsPM(true);
     }
