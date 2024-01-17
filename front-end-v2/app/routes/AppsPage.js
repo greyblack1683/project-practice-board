@@ -167,7 +167,7 @@ function AppsPage() {
                             <Button size="sm" variant="plain" color="primary" onClick={() => handleEdit(row.app_acronym)}>
                               View
                             </Button>
-                            <Button size="sm" variant="outlined" color="primary" onClick={() => navigate(`/apps/${row.app_acronym}/kanban`)}>
+                            <Button size="sm" variant="outlined" color="primary" onClick={() => navigate(`/apps/${row.app_acronym}`)}>
                               Kanban
                             </Button>
                           </Box>
@@ -197,7 +197,7 @@ function AppsPage() {
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
 
-          <AppCreateModal setAppChangeRequest={setAppChangeRequest} setCreateApp={setCreateApp} />
+          <AppCreateModal setAppChangeRequest={setAppChangeRequest} setCreateApp={setCreateApp} setIsPL={setIsPL} />
         </Sheet>
       </Modal>
       <Modal aria-labelledby="modal-title" aria-describedby="modal-desc" open={editApp} onClose={() => setEditApp(false)} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>

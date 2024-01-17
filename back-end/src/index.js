@@ -37,7 +37,7 @@ const { getAuthenticiated, getAuthorised, getAuthorisedforPlansnTasks } = requir
 const { createGroup, getGroups } = require("./controllers/groupController");
 const { getApps, getSelectedApp, createApp, updateApp } = require("./controllers/appController");
 const { getPlansOfApp, getSelectedPlan, createPlan, updatePlan } = require("./controllers/planController");
-const { getTasksOfApp, createTask, updateOpenTask } = require("./controllers/taskController");
+const { getTasksOfApp, getSelectedTask, createTask, updateOpenTask, updateToDoTask, updateDoingTask, updateDoneTask } = require("./controllers/taskController");
 
 /* Routes */
 app.get("/users/all", isAuthenticated, isAuthorised("admin"), getUsers);
@@ -66,9 +66,13 @@ app.post("/plans/selected", isAuthenticated, getSelectedPlan);
 app.post("/plans/create", isAuthenticated, isPermitted("open"), createPlan);
 app.post("/plans/update", isAuthenticated, isPermitted("open"), updatePlan);
 
-app.get("/tasks/forapp", isAuthenticated, getTasksOfApp);
+app.post("/tasks/forapp", isAuthenticated, getTasksOfApp);
+app.post("/tasks/selected", isAuthenticated, getSelectedTask);
 app.post("/tasks/create", isAuthenticated, isPermitted("create"), createTask);
 app.post("/tasks/updateOpen", isAuthenticated, isPermitted("open"), updateOpenTask);
+app.post("/tasks/updateTodo", isAuthenticated, isPermitted("todo"), updateToDoTask);
+app.post("/tasks/updateDoing", isAuthenticated, isPermitted("doing"), updateDoingTask);
+app.post("/tasks/updateDone", isAuthenticated, isPermitted("done"), updateDoneTask);
 
 app.all("*", (req, res, next) => {
   res.status(500).json({

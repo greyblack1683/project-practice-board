@@ -69,7 +69,7 @@ function Header() {
           break;
         default:
           if (appid) {
-            navigate(`/apps/${appid}/kanban`);
+            navigate(`/apps/${appid}`);
           } else {
             navigate("/");
           }

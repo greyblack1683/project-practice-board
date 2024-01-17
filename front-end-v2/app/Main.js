@@ -95,7 +95,7 @@ function Main() {
               <Route path="/" element={loggedIn == "pending" ? <LoadingPage /> : loggedIn ? <Header /> : <LoginPage />}>
                 <Route path="" element={<AppsPage />} />
                 <Route path="apps" element={<AppsPage />} />
-                <Route path="apps/:appid/kanban" element={<KanbanPage />} />
+                <Route path="apps/:appid" element={<KanbanPage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="usermgmt" element={<UserMgmtPage />} />
                 <Route path="tasks" element={<HomePage />} />

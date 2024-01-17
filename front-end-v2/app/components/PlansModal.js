@@ -19,7 +19,7 @@ function PlansModal() {
 
   useEffect(() => {
     const controller = new AbortController();
-    async function getApps() {
+    async function getPlans() {
       try {
         await axios
           .post("/plans/forapp", {
@@ -35,7 +35,7 @@ function PlansModal() {
         handleAlerts("Error: Internal Server Error", false);
       }
     }
-    getApps();
+    getPlans();
 
     return controller.abort();
   }, [editPlanRequest]);

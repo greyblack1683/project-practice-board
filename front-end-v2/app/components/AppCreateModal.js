@@ -6,7 +6,7 @@ import GlobalContext from "./GlobalContext";
 
 import { Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete, Textarea } from "@mui/joy";
 
-function AppCreateModal({ setAppChangeRequest, setCreateApp }) {
+function AppCreateModal({ setAppChangeRequest, setCreateApp, setIsPL }) {
   const { handleAlerts } = useContext(GlobalContext);
   const { handleUserNotAuthorised, checkGroup } = useOutletContext();
   const navigate = useNavigate();
@@ -17,11 +17,11 @@ function AppCreateModal({ setAppChangeRequest, setCreateApp }) {
   const [desc, setDesc] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [permitCreate, setPermitCreate] = useState(undefined);
-  const [permitOpen, setPermitOpen] = useState(undefined);
-  const [permitToDo, setPermitToDo] = useState(undefined);
-  const [permitDoing, setPermitDoing] = useState(undefined);
-  const [permitDone, setPermitDone] = useState(undefined);
+  const [permitCreate, setPermitCreate] = useState(null);
+  const [permitOpen, setPermitOpen] = useState(null);
+  const [permitToDo, setPermitToDo] = useState(null);
+  const [permitDoing, setPermitDoing] = useState(null);
+  const [permitDone, setPermitDone] = useState(null);
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -49,6 +49,7 @@ function AppCreateModal({ setAppChangeRequest, setCreateApp }) {
         .catch(error => {
           console.log(error.response.data.message);
           handleUserNotAuthorised(error.response.data.message, "pl_app");
+          if (error.response.data.message.includes("not authorised")) setIsPL(false);
           handleAlerts(`${error.response.data.message}`, false);
         });
     } catch (error) {

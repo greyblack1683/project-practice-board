@@ -1,5 +1,14 @@
 const connection = require("../utils/database");
 
+function updateNotes(oldTaskStatus, newTaskStatus, newTaskNotes, user) {
+  const today = new Date();
+  let taskNotes = `========================================\n${today} - Task status changed from '${oldTaskStatus}' to '${newTaskStatus}'. Task edited by ${user}.\n========================================\n`;
+  taskNotes = newTaskNotes ? taskNotes + "NOTES: \n" + newTaskNotes : taskNotes;
+  taskNotes = taskNotes + "\n";
+  console.log(taskNotes);
+  return taskNotes;
+}
+
 exports.getTasksOfApp = async (req, res, next) => {
   try {
     const [row, fields] = await connection.query("SELECT * FROM tasks WHERE task_app_acronym = ?", req.body.task_app_acronym);
@@ -27,6 +36,30 @@ exports.getTasksOfApp = async (req, res, next) => {
   }
 };
 
+exports.getSelectedTask = async (req, res, next) => {
+  try {
+    const [row, fields] = await connection.query("SELECT * FROM tasks WHERE task_id = ?", req.body.task_id);
+    console.log("row", row);
+
+    if (row.length === 1) {
+      return res.status(200).json({
+        success: true,
+        message: `Retrieved task ${req.body.task_id}`,
+        results: row[0]
+      });
+    } else {
+      throw new Error("Error: Task does not exist");
+    }
+  } catch (error) {
+    return res.status(error.message.includes("Error") ? 400 : 500).json({
+      success: false,
+      error,
+      message: error.message,
+      stack: error.stack
+    });
+  }
+};
+
 exports.createTask = async (req, res, next) => {
   try {
     if (req.body.task_name.search(/[^a-zA-Z0-9\s]/g) > 0) throw new Error("Error: Task Name should not contain special characters.");
@@ -41,10 +74,7 @@ exports.createTask = async (req, res, next) => {
       const today = new Date();
 
       //put in task notes
-      let taskNotes = `========================================\n${today} - Task status changed from 'Create' to 'Open'. Task edited by ${req.user.username}.\n========================================\n`;
-      taskNotes = req.body.task_notes ? taskNotes + "NOTES: \n" + req.body.task_notes : taskNotes;
-      console.log("taskID", taskID);
-      console.log(taskNotes);
+      let taskNotes = updateNotes("Create", "Open", req.body.task_notes, req.user.username);
 
       // update database
       const response = await connection.query(`INSERT INTO tasks VALUES (?,?,?,?,?,?,?,?,?,?)`, [req.body.task_name, taskID, req.body.task_description, "open", req.user.username, req.user.username, today.toLocaleDateString("en-CA"), taskNotes, req.body.task_plan, req.body.task_app_acronym]);
@@ -94,9 +124,9 @@ exports.updateOpenTask = async (req, res, next) => {
      * Note: No Demotion
      */
     const taskStatus = req.body.action === "promote" ? "todo" : "open";
-    const today = new Date();
-    let taskNotes = `\n========================================\n${today} - Task status changed from 'Open' to '${req.body.action === "promote" ? "To Do" : "Open"}'. Task edited by ${req.user.username}.\n========================================\n`;
-    taskNotes = req.body.task_notes ? taskNotes + "NOTES: \n" + req.body.task_notes : taskNotes;
+    let taskNotes = updateNotes("Open", req.body.action === "promote" ? "To Do" : "Open", req.body.task_notes, req.user.username);
+    // let taskNotes = `\n========================================\n${today} - Task status changed from 'Open' to '${req.body.action === "promote" ? "To Do" : "Open"}'. Task edited by ${req.user.username}.\n========================================\n`;
+    // taskNotes = req.body.task_notes ? taskNotes + "NOTES: \n" + req.body.task_notes : taskNotes;
 
     const response = await connection.query(
       `UPDATE tasks SET 
@@ -136,6 +166,141 @@ exports.updateToDoTask = async (req, res, next) => {
      * Other inputs: app_acronym, task_id
      * Note: No Demotion
      */
+
+    const taskStatus = req.body.action === "promote" ? "doing" : "todo";
+    let taskNotes = updateNotes("To Do", req.body.action === "promote" ? "Doing" : "To Do", req.body.task_notes, req.user.username);
+
+    const response = await connection.query(
+      `UPDATE tasks SET 
+        task_description = ?, 
+        task_status = ?, 
+        task_owner = ?, 
+        task_notes = CONCAT(task_notes, ?)
+        WHERE task_id = ?`,
+      [req.body.task_description, taskStatus, req.user.username, taskNotes, req.body.task_id]
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `Task ${req.body.task_id} has been updated`
+    });
+  } catch (error) {
+    return res.status(error.message.includes("Error") ? 400 : 500).json({
+      success: false,
+      error,
+      message: error.message,
+      stack: error.stack
+    });
+  }
+};
+
+exports.updateDoingTask = async (req, res, next) => {
+  try {
+    /**
+     * DOING TASK
+     * Permissions: Only Dev team persona -> permit checked by middleware
+     * Actions Allowed:
+     * 1. Save - Add notes -> input expected (task_notes)
+     * 2. Save - Change description - Input expected (task_description)
+     * 3. Save & Promote -> Go to Done - Input expected (action: none/demote/promote)
+     * 4. Save & Demote -> Go to To Do - Input expected (action: none/demote/promote)
+     *
+     * Other inputs: app_acronym, task_id
+     */
+
+    let taskStatus, notesTaskStatus;
+    switch (req.body.action) {
+      case "promote":
+        taskStatus = "done";
+        notesTaskStatus = "Done";
+        break;
+      case "demote":
+        taskStatus = "todo";
+        notesTaskStatus = "To Do";
+        break;
+      default:
+        taskStatus = "doing";
+        notesTaskStatus = "Doing";
+    }
+    let taskNotes = updateNotes("Doing", notesTaskStatus, req.body.task_notes, req.user.username);
+
+    const response = await connection.query(
+      `UPDATE tasks SET 
+        task_description = ?, 
+        task_status = ?, 
+        task_owner = ?, 
+        task_notes = CONCAT(task_notes, ?)
+        WHERE task_id = ?`,
+      [req.body.task_description, taskStatus, req.user.username, taskNotes, req.body.task_id]
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `Task ${req.body.task_id} has been updated`
+    });
+  } catch (error) {
+    return res.status(error.message.includes("Error") ? 400 : 500).json({
+      success: false,
+      error,
+      message: error.message,
+      stack: error.stack
+    });
+  }
+};
+
+exports.updateDoneTask = async (req, res, next) => {
+  try {
+    /**
+     * DONE TASK
+     * Permissions: Only PL team persona -> permit checked by middleware
+     * Actions Allowed:
+     * 1. Save - Add notes -> input expected (task_notes)
+     * 2. Save - Change description - Input expected (task_description)
+     * 3. Save & Promote -> Go to Done - Input expected (action: none/demote/promote)
+     * 4. Save & Demote -> Go to To Do - Input expected (task_plan, action: none/demote/promote)
+     *
+     * Other inputs: app_acronym, task_id
+     * Note: if there is task_plan but the action is not demote -> reject;
+     */
+
+    let taskStatus, notesTaskStatus;
+    switch (req.body.action) {
+      case "promote":
+        taskStatus = "closed";
+        notesTaskStatus = "Closed";
+        break;
+      case "demote":
+        taskStatus = "doing";
+        notesTaskStatus = "Doing";
+        break;
+      default:
+        taskStatus = "done";
+        notesTaskStatus = "Done";
+    }
+    let taskNotes = updateNotes("Done", notesTaskStatus, req.body.task_notes, req.user.username);
+
+    let sqlBuilder = `UPDATE tasks SET task_description = ?, task_status = ?, task_owner = ?, task_notes = CONCAT(task_notes, ?)`;
+    let sqlValues = [req.body.task_description, taskStatus, req.user.username, taskNotes];
+    if (req.body.task_plan) {
+      if (req.body.action !== "demote") throw new Error("Error: Cannot change task plan when promoting or no change in task status");
+      sqlBuilder = sqlBuilder + `, task_plan = ?`;
+      sqlValues.push(req.body.task_plan);
+    }
+
+    sqlBuilder = sqlBuilder + ` WHERE task_id = ?;`;
+    sqlValues.push(req.body.task_id);
+    console.log(sqlBuilder, sqlValues);
+
+    const response = await connection.query(sqlBuilder, sqlValues);
+
+    if (response) {
+      return res.status(200).json({
+        success: true,
+        message: `Task ${req.body.task_id} has been updated`
+      });
+    } else {
+      throw new Error("Error: Request to SQL server failed");
+    }
   } catch (error) {
     return res.status(error.message.includes("Error") ? 400 : 500).json({
       success: false,

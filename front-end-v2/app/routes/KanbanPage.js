@@ -6,32 +6,76 @@ import axios from "axios";
 import GlobalContext from "../components/GlobalContext";
 
 import Page from "../components/Page";
+import TaskStateCard from "../components/TaskStateCard";
+import TaskCard from "../components/TaskCard";
 import PlansModal from "../components/PlansModal";
+import TaskCreateModal from "../components/TaskCreateModal";
+import TaskDetailsModal from "../components/TaskDetailsModal";
 
-import { Typography, Table, Sheet, Box, Button, Modal, ModalClose } from "@mui/joy";
+import { Typography, Sheet, Box, Button, Modal, ModalClose, Card, CardContent, Stack } from "@mui/joy";
 
 function KanbanPage() {
   const { appid } = useParams();
   const { checkPermission } = useOutletContext();
-  const [isPM, setIsPM] = useState(false);
+  const [isPL, setIsPL] = useState(false);
   const navigate = useNavigate();
 
   const { handleAlerts } = useContext(GlobalContext);
 
   const [viewPlans, setViewPlans] = useState(false);
+  const [addTask, setAddTask] = useState(false);
+  const [viewTask, setViewTask] = useState(false);
+  const [allTasks, setAllTasks] = useState([]);
+  const [editableTaskID, setEditableTaskID] = useState("");
+
+  const [taskChangeRequest, setTaskChangeRequest] = useState(0);
+
+  const handleView = taskID => {
+    setEditableTaskID(taskID);
+    setViewTask(true);
+  };
 
   useEffect(() => {
     const controller = new AbortController();
-    console.log("Running useEffect to check if user is of project manager");
+    console.log("Running useEffect to check if user is of project lead");
     async function check() {
       const response = await checkPermission("create", appid, false);
       console.log(response);
-      if (response) setIsPM(true);
+      if (response) setIsPL(true);
     }
     check();
 
     return controller.abort();
   }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    console.log("Running useEffect to get tasks of this application");
+
+    async function getTasks() {
+      try {
+        await axios
+          .post("/tasks/forapp", {
+            task_app_acronym: appid
+          })
+          .then(response => {
+            console.log(response.data.results);
+            setAllTasks(response.data.results);
+          })
+          .catch(error => {
+            console.log(error.response.data.message);
+            handleAlerts(`${error.response.data.message}`, false);
+          });
+      } catch (error) {
+        console.log(error);
+        handleAlerts("Error: Internal Server Error", false);
+      }
+    }
+
+    getTasks();
+    return controller.abort();
+  }, [taskChangeRequest]);
+
   return (
     <Page title="Kanban">
       <Box display="flex" justifyContent="center">
@@ -42,6 +86,7 @@ function KanbanPage() {
               flexDirection: "row",
               alignItems: "center",
               m: "2rem",
+              minWidth: "80rem",
               maxWidth: "90rem"
             }}
           >
@@ -59,8 +104,8 @@ function KanbanPage() {
               <Button variant="outlined" size="sm" onClick={() => setViewPlans(true)}>
                 View Plans
               </Button>
-              {isPM && (
-                <Button variant="solid" size="sm" onClick={() => navigate(`/apps/${appid}/plans/create`)}>
+              {isPL && (
+                <Button variant="solid" size="sm" onClick={() => setAddTask(true)}>
                   Add Tasks
                 </Button>
               )}
@@ -74,73 +119,17 @@ function KanbanPage() {
               mt: "1rem",
               mb: "1rem",
               maxWidth: "90rem",
-              // "--Table-firstColumnWidth": "250px",
-              // "--Table-lastColumnWidth": "150px",
-              // // background needs to have transparency to show the scrolling shadows
-              // "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",
-              // "--TableRow-hoverBackground": "rgba(0 0 0 / 0.08)",
               overflow: "auto",
               backgroundColor: "background.surface"
             }}
           >
-            <Table
-              borderAxis="yBetween"
-              stickyHeader
-              sx={{
-                // "& tr > *:first-of-type": {
-                //   position: "sticky",
-                //   left: 0,
-                //   boxShadow: "1px 0 var(--TableCell-borderColor)",
-                //   bgcolor: "background.surface"
-                // },
-                // "& tr > *:last-child": {
-                //   position: "sticky",
-                //   right: 0,
-                //   bgcolor: "var(--TableCell-headBackground)"
-                // },
-                whiteSpace: "normal",
-                wordWrap: "break-word"
-              }}
-            >
-              <thead>
-                <tr>
-                  <th style={{ textAlign: "center" }}>
-                    <Typography level="title-md" variant="soft" sx={{ mr: "0.2rem", padding: "0.5rem" }}>
-                      Open
-                    </Typography>
-                  </th>
-                  <th style={{ textAlign: "center" }}>
-                    <Typography level="title-md" variant="soft" sx={{ ml: "0.2rem", mr: "0.2rem", padding: "0.5rem" }}>
-                      To Do
-                    </Typography>
-                  </th>
-                  <th style={{ textAlign: "center" }}>
-                    <Typography level="title-md" variant="soft" sx={{ ml: "0.2rem", mr: "0.2rem", padding: "0.5rem" }}>
-                      Doing
-                    </Typography>
-                  </th>
-                  <th style={{ textAlign: "center" }}>
-                    <Typography level="title-md" variant="soft" sx={{ ml: "0.2rem", mr: "0.2rem", padding: "0.5rem" }}>
-                      Done
-                    </Typography>
-                  </th>
-                  <th style={{ textAlign: "center" }}>
-                    <Typography level="title-md" variant="soft" sx={{ ml: "0.2rem", padding: "0.5rem" }}>
-                      Closed
-                    </Typography>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>1</td>
-                  <td>1</td>
-                  <td>1</td>
-                  <td>1</td>
-                </tr>
-              </tbody>
-            </Table>
+            <Stack direction="row" spacing={1.2}>
+              <TaskStateCard taskStatus="Open">{allTasks && allTasks.filter(row => row.task_status === "open").map(row => <TaskCard taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} />)}</TaskStateCard>
+              <TaskStateCard taskStatus="To Do">{allTasks && allTasks.filter(row => row.task_status === "todo").map(row => <TaskCard taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} />)}</TaskStateCard>
+              <TaskStateCard taskStatus="Doing">{allTasks && allTasks.filter(row => row.task_status === "doing").map(row => <TaskCard taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} />)}</TaskStateCard>
+              <TaskStateCard taskStatus="Done">{allTasks && allTasks.filter(row => row.task_status === "done").map(row => <TaskCard taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} />)}</TaskStateCard>
+              <TaskStateCard taskStatus="Closed">{allTasks && allTasks.filter(row => row.task_status === "closed").map(row => <TaskCard taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} />)}</TaskStateCard>
+            </Stack>
           </Sheet>
         </Box>
       </Box>
@@ -157,6 +146,34 @@ function KanbanPage() {
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
           <PlansModal />
+        </Sheet>
+      </Modal>
+      <Modal aria-labelledby="modal-title" aria-describedby="modal-desc" open={addTask} onClose={() => setAddTask(false)} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <Sheet
+          variant="outlined"
+          sx={{
+            maxWidth: "80rem",
+            borderRadius: "md",
+            p: 3,
+            boxShadow: "lg"
+          }}
+        >
+          <ModalClose variant="plain" sx={{ m: 1 }} />
+          <TaskCreateModal setTaskChangeRequest={setTaskChangeRequest} setAddTask={setAddTask} setIsPL={setIsPL} />
+        </Sheet>
+      </Modal>
+      <Modal aria-labelledby="modal-title" aria-describedby="modal-desc" open={viewTask} onClose={() => setViewTask(false)} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <Sheet
+          variant="outlined"
+          sx={{
+            maxWidth: "80rem",
+            borderRadius: "md",
+            p: 3,
+            boxShadow: "lg"
+          }}
+        >
+          <ModalClose variant="plain" sx={{ m: 1 }} />
+          <TaskDetailsModal taskID={editableTaskID} />
         </Sheet>
       </Modal>
     </Page>
