@@ -175,7 +175,7 @@ function KanbanPage() {
           }}
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
-          <TaskDetailsModal taskID={editableTaskID} setViewTask={setViewTask} />
+          <TaskDetailsModal taskID={editableTaskID} setIsPL={setIsPL} isPL={isPL} />
         </Sheet>
       </Modal>
     </Page>

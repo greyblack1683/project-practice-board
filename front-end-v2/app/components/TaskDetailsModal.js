@@ -3,13 +3,15 @@ import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import axios from "axios";
 
 import GlobalContext from "./GlobalContext";
+import TaskView from "./TaskView";
+import TaskEditOpen from "./TaskEditOpen";
 
 import { Stack, Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete, AutocompleteOption, ListItemContent, Textarea, Chip } from "@mui/joy";
 
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
-function TaskDetailsModal({ taskID, setViewTask }) {
+function TaskDetailsModal({ taskID, setIsPL, isPL }) {
   const { handleAlerts } = useContext(GlobalContext);
   const { handleUserNotAuthorised, checkPermission } = useOutletContext();
   const { appid } = useParams();
@@ -20,11 +22,10 @@ function TaskDetailsModal({ taskID, setViewTask }) {
   const [taskDesc, setTaskDesc] = useState("");
   const [taskNotes, setTaskNotes] = useState("");
   const [taskPlan, setTaskPlan] = useState(null);
+  const [isPM, setIsPM] = useState(false);
+  const [isDevTeam, setIsDevTeam] = useState(false);
   const [taskDetails, setTaskDetails] = useState({});
-
-  const handleSubmit = () => {
-    alert("yo");
-  };
+  const [editable, setEditable] = useState(false);
 
   const statusColor = status => {
     switch (status) {
@@ -39,8 +40,50 @@ function TaskDetailsModal({ taskID, setViewTask }) {
     }
   };
 
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+  function TaskEditSwitch() {
+    switch (taskDetails.task_status) {
+      case "open":
+        return <TaskEditOpen taskDetails={taskDetails} setIsEditing={setIsEditing} taskDesc={taskDesc} setTaskDesc={setTaskDesc} taskNotes={taskNotes} setTaskNotes={setTaskNotes} taskPlan={taskPlan} setTaskPlan={setTaskPlan} />;
+      case "todo":
+        return <></>;
+      case "doing":
+        return <></>;
+      case "done":
+        return <></>;
+    }
+  }
+
   useEffect(() => {
     const controller = new AbortController();
+
+    async function check(taskStatus) {
+      console.log("Running useEffect to check if user is of PM / PL/ Dev Team");
+      const response = await checkPermission(taskStatus, appid, false);
+      console.log("check permit", response);
+
+      if (response) {
+        switch (taskStatus) {
+          case "open":
+            setIsPM(true);
+            break;
+          case "todo":
+          case "doing":
+            setIsDevTeam(true);
+            break;
+          case "done":
+            setIsPL(true);
+            break;
+          default:
+            break;
+        }
+      }
+
+      return response;
+    }
+
     async function getSelectedTask(plans) {
       try {
         await axios
@@ -52,9 +95,13 @@ function TaskDetailsModal({ taskID, setViewTask }) {
             console.log("plan", plan, plan[0]);
             console.log(response.data.results);
             setTaskDesc(response.data.results.task_description);
-            setTaskNotes(response.data.results.task_notes);
             setTaskPlan(plan[0]);
             setTaskDetails(response.data.results);
+            if (response.data.results.task_status !== "closed") {
+              check(response.data.results.task_status);
+              console.log(check(response.data.results.task_status));
+              setEditable(check(response.data.results.task_status));
+            }
           })
           .catch(error => {
             console.log(error.response.data.message);
@@ -109,7 +156,7 @@ function TaskDetailsModal({ taskID, setViewTask }) {
       >
         <Stack>
           <Typography level="h3" sx={{ textAlign: "left" }}>
-            View Task # {taskID} for {appid}
+            View Task #{taskID} for {appid}
           </Typography>
           <Typography level="body-xs" sx={{ textAlign: "left", mt: "0.1rem", mb: "0.5rem" }}>
             Created by {taskDetails.task_creator} on {taskDetails.task_createdate}
@@ -124,56 +171,7 @@ function TaskDetailsModal({ taskID, setViewTask }) {
           </Stack>
         </Stack>
       </Box>
-      <Box display="flex" justifyContent="center" sx={{ flexDirection: "row", gap: 5, m: "2rem" }}>
-        <Box sx={{ width: "40%" }}>
-          <FormControl>
-            <FormLabel>Name</FormLabel>
-            <Input variant="soft" color="neutral" value={taskDetails.task_name} readOnly />
-          </FormControl>
-          <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>
-            <Textarea variant="soft" minRows={4} maxRows={4} color="neutral" value={taskDesc} readOnly />
-          </FormControl>
-          <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>Plan</FormLabel>
-            <Input variant="soft" color="neutral" value={taskDetails.task_plan} readOnly />
-            {/* <Autocomplete
-              variant="outlined"
-              color="primary"
-              size="md"
-              options={allPlans}
-              getOptionLabel={option => option.plan_mvp_name}
-              value={taskPlan}
-              onChange={(e, newValue) => setTaskPlan(newValue)}
-              renderOption={(props, option) => (
-                <AutocompleteOption {...props}>
-                  <ListItemContent sx={{ fontSize: "sm" }}>
-                    {option.plan_mvp_name}
-                    <Typography level="body-xs">
-                      {option.plan_startdate} to {option.plan_enddate}
-                    </Typography>
-                  </ListItemContent>
-                </AutocompleteOption>
-              )}
-            /> */}
-          </FormControl>
-        </Box>
-        <Box sx={{ width: "60%", flexDirection: "column" }}>
-          <FormControl>
-            <FormLabel>Notes</FormLabel>
-            <Textarea variant="soft" size="sm" minRows={14} maxRows={14} color="neutral" value={taskNotes} onChange={e => setTaskNotes(e.target.value)} readOnly />
-          </FormControl>
-          {/* <FormControl sx={{ mt: "1rem" }}>
-            <FormLabel>New Note</FormLabel>
-            <Textarea variant="soft" size="sm" minRows={3} maxRows={3} variant="outlined" />
-          </FormControl> */}
-        </Box>
-      </Box>
-      <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "bottom", mt: "3rem", mb: "2rem" }}>
-        <Button size="sm" variant="solid" color="primary" onClick={() => setIsEditing(true)}>
-          Edit
-        </Button>
-      </Box>
+      {isEditing ? <TaskEditSwitch /> : <TaskView taskDetails={taskDetails} handleEdit={handleEdit} editable={editable} />}
     </>
   );
 }

@@ -2,22 +2,22 @@ import React from "react";
 
 import { Button, Box, Input, FormControl, FormLabel, Textarea } from "@mui/joy";
 
-function TaskView({ taskDetails, handleEdit, editable }) {
+function TaskView({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDesc, setTaskDesc, taskNotes, setTaskNotes }) {
   return (
     <>
       <Box display="flex" justifyContent="center" sx={{ flexDirection: "row", gap: 5, m: "2rem" }}>
         <Box sx={{ width: "35%" }}>
           <FormControl>
             <FormLabel>Name</FormLabel>
-            <Input variant="soft" color="neutral" value={taskDetails.task_name} readOnly />
+            <Input variant="soft" color="neutral" value={taskDetails.task_name} />
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>
-            <Textarea variant="soft" minRows={4} maxRows={4} color="neutral" value={taskDetails.task_description} readOnly />
+            <Textarea variant="soft" minRows={4} maxRows={4} color="neutral" value={taskDesc} onChange={e => setTaskDesc(e.target.value)} />
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Plan</FormLabel>
-            <Input variant="soft" color="neutral" value={taskDetails.task_plan} readOnly />
+            <Input variant="soft" color="neutral" value={taskPlan} onChange={e => setTaskPlan(e.target.value)} />
             {/* <Autocomplete
               variant="outlined"
               color="primary"
@@ -44,19 +44,18 @@ function TaskView({ taskDetails, handleEdit, editable }) {
             <FormLabel>Notes</FormLabel>
             <Textarea variant="soft" size="sm" minRows={14} maxRows={14} color="neutral" value={taskDetails.task_notes} readOnly />
           </FormControl>
-          {/* <FormControl sx={{ mt: "1rem" }}>
+          <FormControl sx={{ mt: "1rem" }}>
             <FormLabel>New Note</FormLabel>
-            <Textarea variant="soft" size="sm" minRows={3} maxRows={3} variant="outlined" />
-          </FormControl> */}
+            <Textarea variant="outlined" size="sm" minRows={3} maxRows={3} value={taskNotes} onChange={e => setTaskNotes(e.target.value)} />
+          </FormControl>
         </Box>
       </Box>
-      {editable && (
-        <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "bottom", mt: "3rem", mb: "2rem" }}>
-          <Button size="sm" variant="solid" color="primary" onClick={handleEdit}>
-            Edit
-          </Button>
-        </Box>
-      )}
+
+      <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "bottom", mt: "3rem", mb: "2rem" }}>
+        <Button size="sm" variant="plain" color="danger" onClick={() => setIsEditing(false)}>
+          Cancel
+        </Button>
+      </Box>
     </>
   );
 }

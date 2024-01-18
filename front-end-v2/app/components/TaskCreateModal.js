@@ -27,7 +27,7 @@ function TaskCreateModal({ setTaskChangeRequest, setAddTask, setIsPL }) {
           task_name: taskName,
           task_description: taskDesc,
           task_notes: taskNotes,
-          task_plan: taskPlan.plan_mvp_name,
+          task_plan: taskPlan ? taskPlan.plan_mvp_name : null,
           task_app_acronym: appid
         })
         .then(response => {
@@ -37,7 +37,7 @@ function TaskCreateModal({ setTaskChangeRequest, setAddTask, setIsPL }) {
           handleAlerts(`Created task ${taskName} successfully`, true);
         })
         .catch(error => {
-          console.log(error.response.data.message);
+          console.log(error);
           handleUserNotAuthorised(error.response.data.message, null, appid);
           if (error.response.data.message.includes("not authorised")) setIsPL(false);
           handleAlerts(`${error.response.data.message}`, false);

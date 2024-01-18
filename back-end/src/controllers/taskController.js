@@ -79,6 +79,7 @@ exports.createTask = async (req, res, next) => {
 
       // update database
       const response = await connection.query(`INSERT INTO tasks VALUES (?,?,?,?,?,?,?,?,?,?)`, [req.body.task_name, taskID, req.body.task_description, "open", req.user.username, req.user.username, today.toLocaleDateString("en-CA"), taskNotes, req.body.task_plan, req.body.task_app_acronym]);
+
       if (response) {
         const responseApp = await connection.query(`UPDATE applications SET app_rnumber = ? WHERE app_acronym = ?;`, [rNum, req.body.task_app_acronym]);
       } else {
@@ -100,7 +101,6 @@ exports.createTask = async (req, res, next) => {
         stack: error.stack
       });
     }
-
     return res.status(error.message.includes("Error") ? 400 : 500).json({
       success: false,
       error,
