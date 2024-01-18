@@ -89,81 +89,75 @@ function AppCreateModal({ setAppChangeRequest, setCreateApp, setIsPL }) {
       <Box
         sx={{
           display: "flex",
-          flexDirection: "row",
-          alignItems: "left",
-          mt: "2rem",
-          ml: "2rem",
-          mr: "2rem",
-          mb: "2rem",
-          borderBottom: "1px solid",
-          borderColor: "divider",
-          paddingBottom: "0.7rem"
+          m: "2rem"
         }}
       >
-        <Typography level="h3" sx={{ textAlign: "left" }}>
+        <Typography level="h3" sx={{ textAlign: "left", borderBottom: "1px solid", borderColor: "divider", paddingBottom: "0.7rem", flexGrow: 1 }}>
           Create Application
         </Typography>
       </Box>
-      <Box display="flex" justifyContent="center" sx={{ flexDirection: "row", gap: 5, m: "2rem" }}>
-        <Box sx={{ minWidth: "25rem" }}>
-          <Typography level="title-lg" sx={{ mb: "1rem" }}>
-            Application Details
-          </Typography>
-          <FormControl>
-            <FormLabel>Acronym</FormLabel>
-            <Input variant="soft" color="primary" value={acronym} onChange={e => setAcronym(e.target.value)} />
-          </FormControl>
-          <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>Running Number</FormLabel>
-            <Input variant="soft" color="primary" type="number" value={rNum} onChange={e => setRNum(e.target.value)} />
-          </FormControl>
-          <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>
-            <Textarea variant="soft" minRows={4} maxRows={4} color="primary" value={desc} onChange={e => setDesc(e.target.value)} />
-          </FormControl>
-          <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>Start Date</FormLabel>
-            <Input type="date" variant="soft" color="primary" value={startDate} onChange={e => setStartDate(e.target.value)} />
-          </FormControl>
-          <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>End Date</FormLabel>
-            <Input type="date" variant="soft" color="primary" value={endDate} onChange={e => setEndDate(e.target.value)} />
-          </FormControl>
+      <form onSubmit={handleSubmit}>
+        <Box display="flex" justifyContent="center" sx={{ flexDirection: "row", gap: 5, m: "2rem" }}>
+          <Box sx={{ width: "60%" }}>
+            <Typography level="title-lg" sx={{ mb: "1rem" }}>
+              Application Details
+            </Typography>
+            <FormControl>
+              <FormLabel>Acronym</FormLabel>
+              <Input variant="soft" color="primary" value={acronym} onChange={e => setAcronym(e.target.value)} />
+            </FormControl>
+            <FormControl>
+              <FormLabel sx={{ mt: "1rem" }}>Running Number</FormLabel>
+              <Input variant="soft" color="primary" type="number" value={rNum} onChange={e => setRNum(e.target.value)} />
+            </FormControl>
+            <FormControl>
+              <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>
+              <Textarea variant="soft" minRows={4} maxRows={4} color="primary" value={desc} onChange={e => setDesc(e.target.value)} />
+            </FormControl>
+            <FormControl>
+              <FormLabel sx={{ mt: "1rem" }}>Start Date</FormLabel>
+              <Input type="date" variant="soft" color="primary" value={startDate} onChange={e => setStartDate(e.target.value)} />
+            </FormControl>
+            <FormControl>
+              <FormLabel sx={{ mt: "1rem" }}>End Date</FormLabel>
+              <Input type="date" variant="soft" color="primary" value={endDate} onChange={e => setEndDate(e.target.value)} />
+            </FormControl>
+          </Box>
+          <Box sx={{ width: "40%" }}>
+            <Typography level="title-lg" sx={{ mb: "1rem" }}>
+              Permissions
+            </Typography>
+            <FormControl>
+              <FormLabel>Create Tasks</FormLabel>
+              <Autocomplete variant="outlined" color="primary" size="md" options={allGroups} value={permitCreate} onChange={(e, newValue) => setPermitCreate(newValue)} />
+            </FormControl>
+            <FormControl>
+              <FormLabel sx={{ mt: "1rem" }}>Edit Open Tasks</FormLabel>
+              <Autocomplete variant="outlined" color="primary" size="md" options={allGroups} value={permitOpen} onChange={(e, newValue) => setPermitOpen(newValue)} />
+            </FormControl>
+            <FormControl>
+              <FormLabel sx={{ mt: "1rem" }}>Edit To-Do Tasks</FormLabel>
+              <Autocomplete variant="outlined" color="primary" size="md" options={allGroups} value={permitToDo} onChange={(e, newValue) => setPermitToDo(newValue)} />
+            </FormControl>
+            <FormControl>
+              <FormLabel sx={{ mt: "1rem" }}>Edit Doing Tasks</FormLabel>
+              <Autocomplete variant="outlined" color="primary" size="md" options={allGroups} value={permitDoing} onChange={(e, newValue) => setPermitDoing(newValue)} />
+            </FormControl>
+            <FormControl>
+              <FormLabel sx={{ mt: "1rem" }}>Edit Done Tasks</FormLabel>
+              <Autocomplete variant="outlined" color="primary" size="md" options={allGroups} value={permitDone} onChange={(e, newValue) => setPermitDone(newValue)} />
+            </FormControl>
+          </Box>
         </Box>
-        <Box sx={{ minWidth: "20rem" }}>
-          <Typography level="title-lg" sx={{ mb: "1rem" }}>
-            Permissions
-          </Typography>
-          <FormControl>
-            <FormLabel>Create Tasks</FormLabel>
-            <Autocomplete variant="outlined" color="primary" size="md" options={allGroups} value={permitCreate} onChange={(e, newValue) => setPermitCreate(newValue)} />
-          </FormControl>
-          <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>Edit Open Tasks</FormLabel>
-            <Autocomplete variant="outlined" color="primary" size="md" options={allGroups} value={permitOpen} onChange={(e, newValue) => setPermitOpen(newValue)} />
-          </FormControl>
-          <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>Edit To-Do Tasks</FormLabel>
-            <Autocomplete variant="outlined" color="primary" size="md" options={allGroups} value={permitToDo} onChange={(e, newValue) => setPermitToDo(newValue)} />
-          </FormControl>
-          <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>Edit Doing Tasks</FormLabel>
-            <Autocomplete variant="outlined" color="primary" size="md" options={allGroups} value={permitDoing} onChange={(e, newValue) => setPermitDoing(newValue)} />
-          </FormControl>
-          <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>Edit Done Tasks</FormLabel>
-            <Autocomplete variant="outlined" color="primary" size="md" options={allGroups} value={permitDone} onChange={(e, newValue) => setPermitDone(newValue)} />
-          </FormControl>
+        <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "center", mt: "4rem", mb: "2rem" }}>
+          <Button size="sm" variant="plain" color="danger" onClick={() => navigate(`/apps`)}>
+            Cancel
+          </Button>
+          <Button size="sm" variant="solid" color="success" type="submit" onClick={handleSubmit}>
+            Save
+          </Button>
         </Box>
-      </Box>
-      <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "center", mt: "4rem", mb: "2rem" }}>
-        <Button size="sm" variant="plain" color="danger" onClick={() => navigate(`/apps`)}>
-          Cancel
-        </Button>
-        <Button size="sm" variant="solid" color="success" type="submit" onClick={handleSubmit}>
-          Save
-        </Button>
-      </Box>
+      </form>
     </>
   );
 }

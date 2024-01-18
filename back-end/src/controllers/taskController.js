@@ -2,7 +2,7 @@ const connection = require("../utils/database");
 
 function updateNotes(oldTaskStatus, newTaskStatus, newTaskNotes, user) {
   const today = new Date();
-  let taskNotes = `========================================\n${today} - Task status changed from '${oldTaskStatus}' to '${newTaskStatus}'. Task edited by ${user}.\n========================================\n`;
+  let taskNotes = `========================================\n${today} - Task status changed from '${oldTaskStatus}' to '${newTaskStatus}'. Task edited by ${user}.\n`;
   taskNotes = newTaskNotes ? taskNotes + "NOTES: \n" + newTaskNotes : taskNotes;
   taskNotes = taskNotes + "\n";
   console.log(taskNotes);
@@ -38,6 +38,7 @@ exports.getTasksOfApp = async (req, res, next) => {
 
 exports.getSelectedTask = async (req, res, next) => {
   try {
+    console.log("getselected Task:", req.body);
     const [row, fields] = await connection.query("SELECT * FROM tasks WHERE task_id = ?", req.body.task_id);
     console.log("row", row);
 

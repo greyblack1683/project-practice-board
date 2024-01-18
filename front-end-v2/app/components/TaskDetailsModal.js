@@ -4,16 +4,19 @@ import axios from "axios";
 
 import GlobalContext from "./GlobalContext";
 
-import { Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete, AutocompleteOption, ListItemContent, Textarea } from "@mui/joy";
+import { Stack, Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete, AutocompleteOption, ListItemContent, Textarea, Chip } from "@mui/joy";
 
-function TaskDetailsModal({ taskID }) {
+import TaskAltIcon from "@mui/icons-material/TaskAlt";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+
+function TaskDetailsModal({ taskID, setViewTask }) {
   const { handleAlerts } = useContext(GlobalContext);
   const { handleUserNotAuthorised, checkPermission } = useOutletContext();
   const { appid } = useParams();
   const navigate = useNavigate();
 
+  const [isEditing, setIsEditing] = useState(false);
   const [allPlans, setAllPlans] = useState({});
-  const [taskName, setTaskName] = useState("");
   const [taskDesc, setTaskDesc] = useState("");
   const [taskNotes, setTaskNotes] = useState("");
   const [taskPlan, setTaskPlan] = useState(null);
@@ -23,21 +26,34 @@ function TaskDetailsModal({ taskID }) {
     alert("yo");
   };
 
-  //stuck here
+  const statusColor = status => {
+    switch (status) {
+      case "todo":
+        return "primary";
+      case "doing":
+        return "warning";
+      case "done":
+        return "success";
+      default:
+        return "neutral";
+    }
+  };
+
   useEffect(() => {
     const controller = new AbortController();
-    async function getSelectedTask() {
+    async function getSelectedTask(plans) {
       try {
         await axios
           .post("/tasks/selected", {
             task_id: taskID
           })
           .then(response => {
+            const plan = plans.filter(plan => plan.plan_mvp_name === response.data.results.task_plan);
+            console.log("plan", plan, plan[0]);
             console.log(response.data.results);
-            setTaskName(response.data.results.task_name);
             setTaskDesc(response.data.results.task_description);
             setTaskNotes(response.data.results.task_notes);
-            setTaskPlan(response.data.results.task_plan);
+            setTaskPlan(plan[0]);
             setTaskDetails(response.data.results);
           })
           .catch(error => {
@@ -50,7 +66,28 @@ function TaskDetailsModal({ taskID }) {
       }
     }
 
-    getSelectedTask();
+    async function getPlans() {
+      try {
+        const response = await axios
+          .post("/plans/forapp", {
+            plan_app_acronym: appid
+          })
+          .catch(error => {
+            console.log(error.response.data.message);
+            handleAlerts(`${error.response.data.message}`, false);
+          });
+        if (response) {
+          console.log(response.data.results);
+          setAllPlans(response.data.results);
+          getSelectedTask(response.data.results);
+        }
+      } catch (error) {
+        console.log(error);
+        handleAlerts("Error: Internal Server Error", false);
+      }
+    }
+
+    getPlans();
     return controller.abort();
   }, []);
 
@@ -70,23 +107,37 @@ function TaskDetailsModal({ taskID }) {
           paddingBottom: "0.7rem"
         }}
       >
-        <Typography level="h3" sx={{ textAlign: "left" }}>
-          Create Task for {appid}
-        </Typography>
+        <Stack>
+          <Typography level="h3" sx={{ textAlign: "left" }}>
+            View Task # {taskID} for {appid}
+          </Typography>
+          <Typography level="body-xs" sx={{ textAlign: "left", mt: "0.1rem", mb: "0.5rem" }}>
+            Created by {taskDetails.task_creator} on {taskDetails.task_createdate}
+          </Typography>
+          <Stack direction="row" spacing={0.5}>
+            <Chip size="sm" variant={taskDetails.task_status === "open" ? "outlined" : "soft"} color={statusColor(taskDetails.task_status)} startDecorator={<TaskAltIcon />}>
+              Status: {taskDetails.task_status}
+            </Chip>
+            <Chip size="sm" color="primary" variant="soft" startDecorator={<AccountCircleIcon />}>
+              Owner: {taskDetails.task_owner}
+            </Chip>
+          </Stack>
+        </Stack>
       </Box>
       <Box display="flex" justifyContent="center" sx={{ flexDirection: "row", gap: 5, m: "2rem" }}>
-        <Box sx={{ minWidth: "20rem" }}>
+        <Box sx={{ width: "40%" }}>
           <FormControl>
             <FormLabel>Name</FormLabel>
-            <Input variant="soft" color="primary" value={taskName} onChange={e => setTaskName(e.target.value)} />
+            <Input variant="soft" color="neutral" value={taskDetails.task_name} readOnly />
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>
-            <Textarea variant="soft" minRows={4} maxRows={4} color="primary" value={taskDesc} onChange={e => setTaskDesc(e.target.value)} />
+            <Textarea variant="soft" minRows={4} maxRows={4} color="neutral" value={taskDesc} readOnly />
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Plan</FormLabel>
-            <Autocomplete
+            <Input variant="soft" color="neutral" value={taskDetails.task_plan} readOnly />
+            {/* <Autocomplete
               variant="outlined"
               color="primary"
               size="md"
@@ -104,22 +155,23 @@ function TaskDetailsModal({ taskID }) {
                   </ListItemContent>
                 </AutocompleteOption>
               )}
-            />
+            /> */}
           </FormControl>
         </Box>
-        <Box sx={{ minWidth: "30rem" }}>
+        <Box sx={{ width: "60%", flexDirection: "column" }}>
           <FormControl>
             <FormLabel>Notes</FormLabel>
-            <Textarea variant="soft" minRows={16} maxRows={16} color="primary" value={taskNotes} onChange={e => setTaskNotes(e.target.value)} />
+            <Textarea variant="soft" size="sm" minRows={14} maxRows={14} color="neutral" value={taskNotes} onChange={e => setTaskNotes(e.target.value)} readOnly />
           </FormControl>
+          {/* <FormControl sx={{ mt: "1rem" }}>
+            <FormLabel>New Note</FormLabel>
+            <Textarea variant="soft" size="sm" minRows={3} maxRows={3} variant="outlined" />
+          </FormControl> */}
         </Box>
       </Box>
-      <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "center", mt: "3rem", mb: "2rem" }}>
-        <Button size="sm" variant="plain" color="danger" onClick={() => navigate(`/apps/${appid}`)}>
-          Cancel
-        </Button>
-        <Button size="sm" variant="solid" color="success" type="submit" onClick={handleSubmit}>
-          Save
+      <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "bottom", mt: "3rem", mb: "2rem" }}>
+        <Button size="sm" variant="solid" color="primary" onClick={() => setIsEditing(true)}>
+          Edit
         </Button>
       </Box>
     </>

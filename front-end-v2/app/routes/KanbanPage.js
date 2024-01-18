@@ -124,11 +124,11 @@ function KanbanPage() {
             }}
           >
             <Stack direction="row" spacing={1.2}>
-              <TaskStateCard taskStatus="Open">{allTasks && allTasks.filter(row => row.task_status === "open").map(row => <TaskCard taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} />)}</TaskStateCard>
-              <TaskStateCard taskStatus="To Do">{allTasks && allTasks.filter(row => row.task_status === "todo").map(row => <TaskCard taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} />)}</TaskStateCard>
-              <TaskStateCard taskStatus="Doing">{allTasks && allTasks.filter(row => row.task_status === "doing").map(row => <TaskCard taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} />)}</TaskStateCard>
-              <TaskStateCard taskStatus="Done">{allTasks && allTasks.filter(row => row.task_status === "done").map(row => <TaskCard taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} />)}</TaskStateCard>
-              <TaskStateCard taskStatus="Closed">{allTasks && allTasks.filter(row => row.task_status === "closed").map(row => <TaskCard taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} />)}</TaskStateCard>
+              <TaskStateCard taskStatus="Open">{allTasks && allTasks.filter(row => row.task_status === "open").map(row => <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />)}</TaskStateCard>
+              <TaskStateCard taskStatus="To Do">{allTasks && allTasks.filter(row => row.task_status === "todo").map(row => <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />)}</TaskStateCard>
+              <TaskStateCard taskStatus="Doing">{allTasks && allTasks.filter(row => row.task_status === "doing").map(row => <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />)}</TaskStateCard>
+              <TaskStateCard taskStatus="Done">{allTasks && allTasks.filter(row => row.task_status === "done").map(row => <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />)}</TaskStateCard>
+              <TaskStateCard taskStatus="Closed">{allTasks && allTasks.filter(row => row.task_status === "closed").map(row => <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />)}</TaskStateCard>
             </Stack>
           </Sheet>
         </Box>
@@ -137,11 +137,12 @@ function KanbanPage() {
         <Sheet
           variant="outlined"
           sx={{
-            maxWidth: "50rem",
+            maxWidth: "40%",
             borderRadius: "md",
             p: 3,
             boxShadow: "lg",
-            height: "50rem"
+            overflowY: "scroll",
+            height: "80%"
           }}
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
@@ -166,14 +167,15 @@ function KanbanPage() {
         <Sheet
           variant="outlined"
           sx={{
-            maxWidth: "80rem",
+            width: "60%",
             borderRadius: "md",
             p: 3,
-            boxShadow: "lg"
+            boxShadow: "lg",
+            height: "80%"
           }}
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
-          <TaskDetailsModal taskID={editableTaskID} />
+          <TaskDetailsModal taskID={editableTaskID} setViewTask={setViewTask} />
         </Sheet>
       </Modal>
     </Page>

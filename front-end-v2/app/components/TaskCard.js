@@ -5,7 +5,7 @@ import { Typography, Card, CardContent, Chip, Stack, Link } from "@mui/joy";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
-function TaskCard({ taskID, taskName, taskOwner, taskPlan, handleView }) {
+function TaskCard({ taskID, taskName, taskOwner, taskPlan, handleView, viewTask }) {
   return (
     <Card
       variant="plain"
@@ -16,7 +16,13 @@ function TaskCard({ taskID, taskName, taskOwner, taskPlan, handleView }) {
     >
       <CardContent>
         <Typography level="title-sm">
-          <Link overlay underline="none" onClick={handleView}>
+          <Link
+            overlay
+            underline="none"
+            onClick={() => {
+              if (!viewTask) handleView(taskID);
+            }}
+          >
             {taskName}
           </Link>
         </Typography>
