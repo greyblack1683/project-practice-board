@@ -171,7 +171,13 @@ function TaskDetailsModal({ taskID, setIsPL, isPL }) {
           </Stack>
         </Stack>
       </Box>
-      {isEditing ? <TaskEditSwitch /> : <TaskView taskDetails={taskDetails} handleEdit={handleEdit} editable={editable} />}
+      {isEditing ? (
+        {
+          open: <TaskEditOpen taskDetails={taskDetails} setIsEditing={setIsEditing} taskDesc={taskDesc} setTaskDesc={setTaskDesc} taskNotes={taskNotes} setTaskNotes={setTaskNotes} taskPlan={taskPlan} setTaskPlan={setTaskPlan} allPlans={allPlans} />
+        }[taskDetails.task_status]
+      ) : (
+        <TaskView taskDetails={taskDetails} handleEdit={handleEdit} editable={editable} />
+      )}
     </>
   );
 }

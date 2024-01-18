@@ -1,8 +1,8 @@
 import React from "react";
 
-import { Button, Box, Input, FormControl, FormLabel, Textarea } from "@mui/joy";
+import { Button, Box, Input, FormControl, FormLabel, Textarea, Autocomplete, AutocompleteOption, ListItemContent, Typography } from "@mui/joy";
 
-function TaskView({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDesc, setTaskDesc, taskNotes, setTaskNotes }) {
+function TaskView({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDesc, setTaskDesc, taskNotes, setTaskNotes, allPlans }) {
   return (
     <>
       <Box display="flex" justifyContent="center" sx={{ flexDirection: "row", gap: 5, m: "2rem" }}>
@@ -17,8 +17,8 @@ function TaskView({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDesc, 
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Plan</FormLabel>
-            <Input variant="soft" color="neutral" value={taskPlan} onChange={e => setTaskPlan(e.target.value)} />
-            {/* <Autocomplete
+            {/* <Input variant="soft" color="neutral" value={taskPlan} onChange={e => setTaskPlan(e.target.value)} /> */}
+            <Autocomplete
               variant="outlined"
               color="primary"
               size="md"
@@ -36,7 +36,7 @@ function TaskView({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDesc, 
                   </ListItemContent>
                 </AutocompleteOption>
               )}
-            /> */}
+            />
           </FormControl>
         </Box>
         <Box sx={{ width: "65%", flexDirection: "column" }}>
