@@ -35,6 +35,11 @@ function KanbanPage() {
     setViewTask(true);
   };
 
+  const handleClose = () => {
+    setViewTask(false);
+    setTaskChangeRequest(prev => prev + 1);
+  };
+
   useEffect(() => {
     const controller = new AbortController();
     console.log("Running useEffect to check if user is of project lead");
@@ -112,24 +117,62 @@ function KanbanPage() {
             </Box>
           </Box>
           <Sheet
-            variant="plain"
+            variant={allTasks ? "plain" : "outlined"}
             sx={{
               ml: "2rem",
               mr: "2rem",
               mt: "1rem",
               mb: "1rem",
+              borderRadius: "sm",
               maxWidth: "90rem",
               overflow: "auto",
               backgroundColor: "background.surface"
             }}
           >
-            <Stack direction="row" spacing={1.2}>
-              <TaskStateCard taskStatus="Open">{allTasks && allTasks.filter(row => row.task_status === "open").map(row => <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />)}</TaskStateCard>
-              <TaskStateCard taskStatus="To Do">{allTasks && allTasks.filter(row => row.task_status === "todo").map(row => <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />)}</TaskStateCard>
-              <TaskStateCard taskStatus="Doing">{allTasks && allTasks.filter(row => row.task_status === "doing").map(row => <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />)}</TaskStateCard>
-              <TaskStateCard taskStatus="Done">{allTasks && allTasks.filter(row => row.task_status === "done").map(row => <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />)}</TaskStateCard>
-              <TaskStateCard taskStatus="Closed">{allTasks && allTasks.filter(row => row.task_status === "closed").map(row => <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />)}</TaskStateCard>
-            </Stack>
+            {allTasks && (
+              <Stack direction="row" spacing={1.2}>
+                <TaskStateCard taskStatus="Open">
+                  {allTasks
+                    .filter(row => row.task_status === "open")
+                    .map(row => (
+                      <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />
+                    ))}
+                </TaskStateCard>
+                <TaskStateCard taskStatus="To Do">
+                  {allTasks
+                    .filter(row => row.task_status === "todo")
+                    .map(row => (
+                      <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />
+                    ))}
+                </TaskStateCard>
+                <TaskStateCard taskStatus="Doing">
+                  {allTasks
+                    .filter(row => row.task_status === "doing")
+                    .map(row => (
+                      <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />
+                    ))}
+                </TaskStateCard>
+                <TaskStateCard taskStatus="Done">
+                  {allTasks
+                    .filter(row => row.task_status === "done")
+                    .map(row => (
+                      <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />
+                    ))}
+                </TaskStateCard>
+                <TaskStateCard taskStatus="Closed">
+                  {allTasks
+                    .filter(row => row.task_status === "closed")
+                    .map(row => (
+                      <TaskCard key={row.task_id} taskID={row.task_id} taskName={row.task_name} taskOwner={row.task_owner} taskPlan={row.task_plan} handleView={handleView} viewTask={viewTask} />
+                    ))}
+                </TaskStateCard>
+              </Stack>
+            )}
+            {!allTasks && (
+              <Typography level="body-sm" sx={{ textAlign: "center", flexGrow: 1, m: "2rem" }}>
+                There are no tasks under this application.
+              </Typography>
+            )}
           </Sheet>
         </Box>
       </Box>
@@ -137,7 +180,7 @@ function KanbanPage() {
         <Sheet
           variant="outlined"
           sx={{
-            maxWidth: "40%",
+            width: "60%",
             borderRadius: "md",
             p: 3,
             boxShadow: "lg",
@@ -163,7 +206,7 @@ function KanbanPage() {
           <TaskCreateModal setTaskChangeRequest={setTaskChangeRequest} setAddTask={setAddTask} setIsPL={setIsPL} />
         </Sheet>
       </Modal>
-      <Modal aria-labelledby="modal-title" aria-describedby="modal-desc" open={viewTask} onClose={() => setViewTask(false)} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <Modal aria-labelledby="modal-title" aria-describedby="modal-desc" open={viewTask} onClose={handleClose} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
         <Sheet
           variant="outlined"
           sx={{
@@ -175,7 +218,7 @@ function KanbanPage() {
           }}
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
-          <TaskDetailsModal taskID={editableTaskID} setIsPL={setIsPL} isPL={isPL} />
+          <TaskDetailsModal taskID={editableTaskID} setIsPL={setIsPL} isPL={isPL} handleClose={handleClose} />
         </Sheet>
       </Modal>
     </Page>

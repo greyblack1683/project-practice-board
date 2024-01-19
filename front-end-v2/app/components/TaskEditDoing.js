@@ -4,9 +4,9 @@ import axios from "axios";
 
 import GlobalContext from "./GlobalContext";
 
-import { Button, Box, Input, FormControl, FormLabel, Textarea, Autocomplete, AutocompleteOption, ListItemContent, Typography, Stack } from "@mui/joy";
+import { Button, Box, Input, FormControl, FormLabel, Textarea, Stack } from "@mui/joy";
 
-function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDesc, setTaskDesc, taskNotes, setTaskNotes, allPlans, setTaskChangeRequest, handleClose }) {
+function TaskEditDoing({ taskDetails, setIsEditing, taskDesc, setTaskDesc, taskNotes, setTaskNotes, setTaskChangeRequest, handleClose }) {
   const { handleAlerts } = useContext(GlobalContext);
   const { handleUserNotAuthorised, checkPermission } = useOutletContext();
   const { appid } = useParams();
@@ -15,11 +15,10 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
   const handleSave = async action => {
     try {
       await axios
-        .post("/tasks/updateOpen", {
+        .post("/tasks/updatedoing", {
           task_id: taskDetails.task_id,
           task_description: taskDesc,
           task_notes: taskNotes,
-          task_plan: taskPlan ? taskPlan.plan_mvp_name : null,
           action,
           app_acronym: appid
         })
@@ -28,7 +27,7 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
           setTaskNotes("");
           setTaskChangeRequest(prev => prev + 1);
           setIsEditing(false);
-          if (action === "promote") handleClose();
+          if (action === "promote" || action == "demote") handleClose();
           handleAlerts(`Updated task ${taskDetails.task_id} successfully`, true);
         })
         .catch(error => {
@@ -50,27 +49,10 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
             <FormLabel>Description</FormLabel>
             <Textarea variant="soft" minRows={7} maxRows={7} color="primary" value={taskDesc} onChange={e => setTaskDesc(e.target.value)} />
           </FormControl>
+
           <FormControl>
             <FormLabel sx={{ mt: "1.35rem" }}>Plan</FormLabel>
-            <Autocomplete
-              variant="outlined"
-              color="primary"
-              size="md"
-              options={allPlans}
-              getOptionLabel={option => option.plan_mvp_name}
-              value={taskPlan}
-              onChange={(e, newValue) => setTaskPlan(newValue)}
-              renderOption={(props, option) => (
-                <AutocompleteOption {...props}>
-                  <ListItemContent sx={{ fontSize: "sm" }}>
-                    {option.plan_mvp_name}
-                    <Typography level="body-xs">
-                      {option.plan_startdate} to {option.plan_enddate}
-                    </Typography>
-                  </ListItemContent>
-                </AutocompleteOption>
-              )}
-            />
+            <Input variant="solid" color="neutral" value={taskDetails.task_plan} disabled />
           </FormControl>
         </Box>
         <Box sx={{ width: "65%", flexDirection: "column" }}>
@@ -92,6 +74,9 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
         <Button size="sm" variant="solid" color="primary" onClick={() => handleSave("none")}>
           Save
         </Button>
+        <Button size="sm" variant="solid" color="warning" onClick={() => handleSave("demote")}>
+          Save & Demote
+        </Button>
         <Button size="sm" variant="solid" color="success" onClick={() => handleSave("promote")}>
           Save & Promote
         </Button>
@@ -100,4 +85,4 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
   );
 }
 
-export default TaskEditOpen;
+export default TaskEditDoing;

@@ -204,7 +204,7 @@ function AppsPage() {
         <Sheet
           variant="outlined"
           sx={{
-            maxWidth: "70rem",
+            width: "60%",
             borderRadius: "md",
             p: 3,
             boxShadow: "lg",

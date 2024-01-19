@@ -134,21 +134,15 @@ function AppDetailsModal({ appid, setAppChangeRequest, setCreateApp }) {
           display: "flex",
           flexDirection: "row",
           alignItems: "left",
-          mt: "2rem",
-          ml: "2rem",
-          mr: "2rem",
-          mb: "2rem",
-          borderBottom: "1px solid",
-          borderColor: "divider",
-          paddingBottom: "0.7rem"
+          m: "2rem"
         }}
       >
-        <Typography level="h3" sx={{ textAlign: "left" }}>
+        <Typography level="h3" sx={{ textAlign: "left", borderBottom: "1px solid", borderColor: "divider", paddingBottom: "0.7rem", flexGrow: 1 }}>
           {isEditing ? "Edit Application" : "View Application"}
         </Typography>
       </Box>
       <Box display="flex" justifyContent="center" sx={{ flexDirection: "row", gap: 5, m: "2rem" }}>
-        <Box sx={{ minWidth: "25rem" }}>
+        <Box sx={{ width: "60%" }}>
           <Typography level="title-lg" sx={{ mb: "1rem" }}>
             Application Details
           </Typography>
@@ -173,7 +167,7 @@ function AppDetailsModal({ appid, setAppChangeRequest, setCreateApp }) {
             <Input type="date" variant={isEditing ? "soft" : "solid"} color="primary" value={endDate} onChange={e => setEndDate(e.target.value)} disabled={isEditing ? false : true} />
           </FormControl>
         </Box>
-        <Box sx={{ minWidth: "15rem" }}>
+        <Box sx={{ width: "40%" }}>
           <Typography level="title-lg" sx={{ mb: "1rem" }}>
             Permissions
           </Typography>

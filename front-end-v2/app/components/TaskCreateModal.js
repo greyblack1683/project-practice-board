@@ -12,7 +12,7 @@ function TaskCreateModal({ setTaskChangeRequest, setAddTask, setIsPL }) {
   const { appid } = useParams();
   const navigate = useNavigate();
 
-  const [allPlans, setAllPlans] = useState({});
+  const [allPlans, setAllPlans] = useState([]);
 
   const [taskName, setTaskName] = useState("");
   const [taskDesc, setTaskDesc] = useState("");
@@ -57,8 +57,8 @@ function TaskCreateModal({ setTaskChangeRequest, setAddTask, setIsPL }) {
             plan_app_acronym: appid
           })
           .then(response => {
-            console.log(response.data.results);
-            setAllPlans(response.data.results);
+            console.log(response.data);
+            if (!response.data.message.includes("no plans")) setAllPlans(response.data.results);
           })
           .catch(error => {
             console.log(error.response.data.message);

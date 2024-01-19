@@ -5,20 +5,24 @@ import axios from "axios";
 import GlobalContext from "./GlobalContext";
 import TaskView from "./TaskView";
 import TaskEditOpen from "./TaskEditOpen";
+import TaskEditToDo from "./TaskEditToDo";
+import TaskEditDoing from "./TaskEditDoing";
+import TaskEditDone from "./TaskEditDone";
 
-import { Stack, Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete, AutocompleteOption, ListItemContent, Textarea, Chip } from "@mui/joy";
+import { Stack, Box, Typography, Chip } from "@mui/joy";
 
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
-function TaskDetailsModal({ taskID, setIsPL, isPL }) {
+function TaskDetailsModal({ taskID, setIsPL, isPL, handleClose }) {
   const { handleAlerts } = useContext(GlobalContext);
   const { handleUserNotAuthorised, checkPermission } = useOutletContext();
   const { appid } = useParams();
   const navigate = useNavigate();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [allPlans, setAllPlans] = useState({});
+  const [taskChangeRequest, setTaskChangeRequest] = useState(0);
+  const [allPlans, setAllPlans] = useState([]);
   const [taskDesc, setTaskDesc] = useState("");
   const [taskNotes, setTaskNotes] = useState("");
   const [taskPlan, setTaskPlan] = useState(null);
@@ -43,18 +47,6 @@ function TaskDetailsModal({ taskID, setIsPL, isPL }) {
   const handleEdit = () => {
     setIsEditing(true);
   };
-  function TaskEditSwitch() {
-    switch (taskDetails.task_status) {
-      case "open":
-        return <TaskEditOpen taskDetails={taskDetails} setIsEditing={setIsEditing} taskDesc={taskDesc} setTaskDesc={setTaskDesc} taskNotes={taskNotes} setTaskNotes={setTaskNotes} taskPlan={taskPlan} setTaskPlan={setTaskPlan} />;
-      case "todo":
-        return <></>;
-      case "doing":
-        return <></>;
-      case "done":
-        return <></>;
-    }
-  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -68,13 +60,16 @@ function TaskDetailsModal({ taskID, setIsPL, isPL }) {
         switch (taskStatus) {
           case "open":
             setIsPM(true);
+            setEditable(true);
             break;
           case "todo":
           case "doing":
             setIsDevTeam(true);
+            setEditable(true);
             break;
           case "done":
             setIsPL(true);
+            setEditable(true);
             break;
           default:
             break;
@@ -91,16 +86,18 @@ function TaskDetailsModal({ taskID, setIsPL, isPL }) {
             task_id: taskID
           })
           .then(response => {
-            const plan = plans.filter(plan => plan.plan_mvp_name === response.data.results.task_plan);
-            console.log("plan", plan, plan[0]);
+            if (response.data.results.task_plan) {
+              const plan = plans.filter(plan => plan.plan_mvp_name === response.data.results.task_plan);
+              console.log("plan", plan, plan[0]);
+              setTaskPlan(plan[0]);
+            }
+
             console.log(response.data.results);
             setTaskDesc(response.data.results.task_description);
-            setTaskPlan(plan[0]);
+
             setTaskDetails(response.data.results);
             if (response.data.results.task_status !== "closed") {
               check(response.data.results.task_status);
-              console.log(check(response.data.results.task_status));
-              setEditable(check(response.data.results.task_status));
             }
           })
           .catch(error => {
@@ -124,8 +121,8 @@ function TaskDetailsModal({ taskID, setIsPL, isPL }) {
             handleAlerts(`${error.response.data.message}`, false);
           });
         if (response) {
-          console.log(response.data.results);
-          setAllPlans(response.data.results);
+          console.log(response.data);
+          if (!response.data.message.includes("no plans")) setAllPlans(response.data.results);
           getSelectedTask(response.data.results);
         }
       } catch (error) {
@@ -136,7 +133,7 @@ function TaskDetailsModal({ taskID, setIsPL, isPL }) {
 
     getPlans();
     return controller.abort();
-  }, []);
+  }, [taskChangeRequest]);
 
   return (
     <>
@@ -156,10 +153,10 @@ function TaskDetailsModal({ taskID, setIsPL, isPL }) {
       >
         <Stack>
           <Typography level="h3" sx={{ textAlign: "left" }}>
-            View Task #{taskID} for {appid}
+            Task #{taskID}: {taskDetails.task_name}
           </Typography>
           <Typography level="body-xs" sx={{ textAlign: "left", mt: "0.1rem", mb: "0.5rem" }}>
-            Created by {taskDetails.task_creator} on {taskDetails.task_createdate}
+            Created by {taskDetails.task_creator} on {taskDetails.task_createdate} for application {appid}
           </Typography>
           <Stack direction="row" spacing={0.5}>
             <Chip size="sm" variant={taskDetails.task_status === "open" ? "outlined" : "soft"} color={statusColor(taskDetails.task_status)} startDecorator={<TaskAltIcon />}>
@@ -173,7 +170,10 @@ function TaskDetailsModal({ taskID, setIsPL, isPL }) {
       </Box>
       {isEditing ? (
         {
-          open: <TaskEditOpen taskDetails={taskDetails} setIsEditing={setIsEditing} taskDesc={taskDesc} setTaskDesc={setTaskDesc} taskNotes={taskNotes} setTaskNotes={setTaskNotes} taskPlan={taskPlan} setTaskPlan={setTaskPlan} allPlans={allPlans} />
+          open: <TaskEditOpen taskDetails={taskDetails} setIsEditing={setIsEditing} taskDesc={taskDesc} setTaskDesc={setTaskDesc} taskNotes={taskNotes} setTaskNotes={setTaskNotes} taskPlan={taskPlan} setTaskPlan={setTaskPlan} allPlans={allPlans} setTaskChangeRequest={setTaskChangeRequest} handleClose={handleClose} />,
+          todo: <TaskEditToDo taskDetails={taskDetails} setIsEditing={setIsEditing} taskDesc={taskDesc} setTaskDesc={setTaskDesc} taskNotes={taskNotes} setTaskNotes={setTaskNotes} setTaskChangeRequest={setTaskChangeRequest} handleClose={handleClose} />,
+          doing: <TaskEditDoing taskDetails={taskDetails} setIsEditing={setIsEditing} taskDesc={taskDesc} setTaskDesc={setTaskDesc} taskNotes={taskNotes} setTaskNotes={setTaskNotes} setTaskChangeRequest={setTaskChangeRequest} handleClose={handleClose} />,
+          done: <TaskEditDone taskDetails={taskDetails} setIsEditing={setIsEditing} taskDesc={taskDesc} setTaskDesc={setTaskDesc} taskNotes={taskNotes} setTaskNotes={setTaskNotes} taskPlan={taskPlan} setTaskPlan={setTaskPlan} allPlans={allPlans} setTaskChangeRequest={setTaskChangeRequest} handleClose={handleClose} />
         }[taskDetails.task_status]
       ) : (
         <TaskView taskDetails={taskDetails} handleEdit={handleEdit} editable={editable} />

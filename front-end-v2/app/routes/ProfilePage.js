@@ -4,7 +4,7 @@ import axios from "axios";
 import GlobalContext from "../components/GlobalContext";
 import Page from "../components/Page";
 
-import { Box, Input, FormControl, FormLabel, FormHelperText, Typography, Button, Avatar } from "@mui/joy";
+import { Box, Input, FormControl, FormLabel, FormHelperText, Typography, Button, Avatar, Chip } from "@mui/joy";
 
 function ProfilePage() {
   const { handleAlerts, handleCookie } = useContext(GlobalContext);
@@ -21,6 +21,7 @@ function ProfilePage() {
         await axios
           .get("/profile")
           .then(response => {
+            console.log(response.data);
             setUsername(response.data.results.username);
             setEmail(response.data.results.email ? response.data.results.email : "");
           })

@@ -4,22 +4,31 @@ import axios from "axios";
 
 import GlobalContext from "./GlobalContext";
 
-import { Button, Box, Input, FormControl, FormLabel, Textarea, Autocomplete, AutocompleteOption, ListItemContent, Typography, Stack } from "@mui/joy";
+import { Button, Box, Input, FormControl, FormLabel, Textarea, Autocomplete, AutocompleteOption, ListItemContent, Typography, Stack, FormHelperText } from "@mui/joy";
 
-function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDesc, setTaskDesc, taskNotes, setTaskNotes, allPlans, setTaskChangeRequest, handleClose }) {
+import InfoOutlined from "@mui/icons-material/InfoOutlined";
+
+function TaskEditDone({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDesc, setTaskDesc, taskNotes, setTaskNotes, allPlans, setTaskChangeRequest, handleClose }) {
   const { handleAlerts } = useContext(GlobalContext);
   const { handleUserNotAuthorised, checkPermission } = useOutletContext();
   const { appid } = useParams();
+  const [demoteOnly, setDemoteOnly] = useState(false);
   const navigate = useNavigate();
 
+  const checkPlanChange = newValue => {
+    setTaskPlan(newValue);
+    setDemoteOnly(newValue ? newValue.plan_mvp_name !== taskDetails.task_plan : null !== taskDetails.task_plan);
+  };
+
   const handleSave = async action => {
+    const taskPlanAllowed = action === "demote" ? (taskPlan ? taskPlan.plan_mvp_name : null) : null;
     try {
       await axios
-        .post("/tasks/updateOpen", {
+        .post("/tasks/updatedone", {
           task_id: taskDetails.task_id,
           task_description: taskDesc,
           task_notes: taskNotes,
-          task_plan: taskPlan ? taskPlan.plan_mvp_name : null,
+          task_plan: taskPlanAllowed,
           action,
           app_acronym: appid
         })
@@ -28,7 +37,7 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
           setTaskNotes("");
           setTaskChangeRequest(prev => prev + 1);
           setIsEditing(false);
-          if (action === "promote") handleClose();
+          if (action === "promote" || action === "demote") handleClose();
           handleAlerts(`Updated task ${taskDetails.task_id} successfully`, true);
         })
         .catch(error => {
@@ -50,7 +59,7 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
             <FormLabel>Description</FormLabel>
             <Textarea variant="soft" minRows={7} maxRows={7} color="primary" value={taskDesc} onChange={e => setTaskDesc(e.target.value)} />
           </FormControl>
-          <FormControl>
+          <FormControl error={demoteOnly}>
             <FormLabel sx={{ mt: "1.35rem" }}>Plan</FormLabel>
             <Autocomplete
               variant="outlined"
@@ -59,7 +68,7 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
               options={allPlans}
               getOptionLabel={option => option.plan_mvp_name}
               value={taskPlan}
-              onChange={(e, newValue) => setTaskPlan(newValue)}
+              onChange={(e, newValue) => checkPlanChange(newValue)}
               renderOption={(props, option) => (
                 <AutocompleteOption {...props}>
                   <ListItemContent sx={{ fontSize: "sm" }}>
@@ -71,6 +80,12 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
                 </AutocompleteOption>
               )}
             />
+            {demoteOnly && (
+              <FormHelperText>
+                <InfoOutlined />
+                Detected change of plan from "{taskDetails.task_plan}" to "{taskPlan ? taskPlan.plan_mvp_name : null}". Only 'Save and Demote' is allowed.
+              </FormHelperText>
+            )}
           </FormControl>
         </Box>
         <Box sx={{ width: "65%", flexDirection: "column" }}>
@@ -85,14 +100,20 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
         <FormLabel>Additional Notes</FormLabel>
         <Textarea variant="soft" color="primary" minRows={4} maxRows={4} value={taskNotes} onChange={e => setTaskNotes(e.target.value)} />
       </FormControl>
-      <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "bottom", mt: "3rem" }}>
+      <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "bottom", mt: "2rem" }}>
         <Button size="sm" variant="plain" color="danger" onClick={() => setIsEditing(false)}>
           Cancel
         </Button>
-        <Button size="sm" variant="solid" color="primary" onClick={() => handleSave("none")}>
+
+        <Button size="sm" variant="solid" color="primary" onClick={() => handleSave("none")} disabled={demoteOnly}>
           Save
         </Button>
-        <Button size="sm" variant="solid" color="success" onClick={() => handleSave("promote")}>
+
+        <Button size="sm" variant="solid" color="warning" onClick={() => handleSave("demote")}>
+          Save & Demote
+        </Button>
+
+        <Button size="sm" variant="solid" color="success" onClick={() => handleSave("promote")} disabled={demoteOnly}>
           Save & Promote
         </Button>
       </Box>
@@ -100,4 +121,4 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
   );
 }
 
-export default TaskEditOpen;
+export default TaskEditDone;

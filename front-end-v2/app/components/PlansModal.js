@@ -57,8 +57,8 @@ function PlansModal() {
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
-            m: "2rem",
-            maxWidth: "80rem"
+            m: "2rem"
+            // maxWidth: "80rem"
           }}
         >
           <Typography level="h3" sx={{ textAlign: "left", flexGrow: 1 }}>
@@ -74,8 +74,7 @@ function PlansModal() {
             mt: "1rem",
             mb: "1rem",
             borderRadius: "sm",
-            maxWidth: "80rem",
-            "--Table-firstColumnWidth": "200px",
+            // maxWidth: "80rem",
             "--Table-lastColumnWidth": "120px",
             // background needs to have transparency to show the scrolling shadows
             "--TableRow-stripeBackground": "rgba(0 0 0 / 0.04)",

@@ -4,9 +4,9 @@ import axios from "axios";
 
 import GlobalContext from "./GlobalContext";
 
-import { Button, Box, Input, FormControl, FormLabel, Textarea, Autocomplete, AutocompleteOption, ListItemContent, Typography, Stack } from "@mui/joy";
+import { Button, Box, Input, FormControl, FormLabel, Textarea, Stack } from "@mui/joy";
 
-function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDesc, setTaskDesc, taskNotes, setTaskNotes, allPlans, setTaskChangeRequest, handleClose }) {
+function TaskEditToDo({ taskDetails, setIsEditing, taskDesc, setTaskDesc, taskNotes, setTaskNotes, setTaskChangeRequest, handleClose }) {
   const { handleAlerts } = useContext(GlobalContext);
   const { handleUserNotAuthorised, checkPermission } = useOutletContext();
   const { appid } = useParams();
@@ -15,11 +15,10 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
   const handleSave = async action => {
     try {
       await axios
-        .post("/tasks/updateOpen", {
+        .post("/tasks/updatetodo", {
           task_id: taskDetails.task_id,
           task_description: taskDesc,
           task_notes: taskNotes,
-          task_plan: taskPlan ? taskPlan.plan_mvp_name : null,
           action,
           app_acronym: appid
         })
@@ -52,25 +51,7 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1.35rem" }}>Plan</FormLabel>
-            <Autocomplete
-              variant="outlined"
-              color="primary"
-              size="md"
-              options={allPlans}
-              getOptionLabel={option => option.plan_mvp_name}
-              value={taskPlan}
-              onChange={(e, newValue) => setTaskPlan(newValue)}
-              renderOption={(props, option) => (
-                <AutocompleteOption {...props}>
-                  <ListItemContent sx={{ fontSize: "sm" }}>
-                    {option.plan_mvp_name}
-                    <Typography level="body-xs">
-                      {option.plan_startdate} to {option.plan_enddate}
-                    </Typography>
-                  </ListItemContent>
-                </AutocompleteOption>
-              )}
-            />
+            <Input variant="solid" color="neutral" value={taskDetails.task_plan} disabled />
           </FormControl>
         </Box>
         <Box sx={{ width: "65%", flexDirection: "column" }}>
@@ -100,4 +81,4 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
   );
 }
 
-export default TaskEditOpen;
+export default TaskEditToDo;

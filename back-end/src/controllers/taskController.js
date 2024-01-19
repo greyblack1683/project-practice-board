@@ -2,9 +2,10 @@ const connection = require("../utils/database");
 
 function updateNotes(oldTaskStatus, newTaskStatus, newTaskNotes, user) {
   const today = new Date();
-  let taskNotes = `========================================\n${today} - Task status changed from '${oldTaskStatus}' to '${newTaskStatus}'. Task edited by ${user}.\n`;
-  taskNotes = newTaskNotes ? taskNotes + "NOTES: \n" + newTaskNotes : taskNotes;
-  taskNotes = taskNotes + "\n";
+  let taskNotes;
+  taskNotes = `${today}\nTask status changed from '${oldTaskStatus}' to '${newTaskStatus}'. Task edited by ${user}.`;
+  taskNotes = newTaskNotes ? taskNotes + `\n\nAdditional Notes from ${user}: \n` + newTaskNotes : taskNotes;
+  taskNotes = taskNotes + "\n========================================\n";
   console.log(taskNotes);
   return taskNotes;
 }
@@ -134,7 +135,7 @@ exports.updateOpenTask = async (req, res, next) => {
         task_description = ?, 
         task_status = ?, 
         task_owner = ?, 
-        task_notes = CONCAT(task_notes, ?), 
+        task_notes = CONCAT(?, task_notes), 
         task_plan = ? 
         WHERE task_id = ?`,
       [req.body.task_description, taskStatus, req.user.username, taskNotes, req.body.task_plan, req.body.task_id]
@@ -176,7 +177,7 @@ exports.updateToDoTask = async (req, res, next) => {
         task_description = ?, 
         task_status = ?, 
         task_owner = ?, 
-        task_notes = CONCAT(task_notes, ?)
+        task_notes = CONCAT(?, task_notes)
         WHERE task_id = ?`,
       [req.body.task_description, taskStatus, req.user.username, taskNotes, req.body.task_id]
     );
@@ -230,7 +231,7 @@ exports.updateDoingTask = async (req, res, next) => {
         task_description = ?, 
         task_status = ?, 
         task_owner = ?, 
-        task_notes = CONCAT(task_notes, ?)
+        task_notes = CONCAT(?, task_notes)
         WHERE task_id = ?`,
       [req.body.task_description, taskStatus, req.user.username, taskNotes, req.body.task_id]
     );
@@ -280,7 +281,7 @@ exports.updateDoneTask = async (req, res, next) => {
     }
     let taskNotes = updateNotes("Done", notesTaskStatus, req.body.task_notes, req.user.username);
 
-    let sqlBuilder = `UPDATE tasks SET task_description = ?, task_status = ?, task_owner = ?, task_notes = CONCAT(task_notes, ?)`;
+    let sqlBuilder = `UPDATE tasks SET task_description = ?, task_status = ?, task_owner = ?, task_notes = CONCAT(?, task_notes)`;
     let sqlValues = [req.body.task_description, taskStatus, req.user.username, taskNotes];
     if (req.body.task_plan) {
       if (req.body.action !== "demote") throw new Error("Error: Cannot change task plan when promoting or no change in task status");
