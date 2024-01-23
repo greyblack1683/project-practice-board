@@ -107,7 +107,7 @@ function KanbanPage() {
               }}
             >
               <Button variant="outlined" size="sm" onClick={() => setViewPlans(true)}>
-                View Plans
+                Plans
               </Button>
               {isPL && (
                 <Button variant="solid" size="sm" onClick={() => setAddTask(true)}>

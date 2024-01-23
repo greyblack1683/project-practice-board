@@ -1,4 +1,6 @@
 const connection = require("../utils/database");
+const { sendEmail } = require("../utils/emailer");
+const { checkPermits } = require("./authController");
 
 function updateNotes(oldTaskStatus, newTaskStatus, newTaskNotes, user) {
   const today = new Date();
@@ -13,7 +15,6 @@ function updateNotes(oldTaskStatus, newTaskStatus, newTaskNotes, user) {
 exports.getTasksOfApp = async (req, res, next) => {
   try {
     const [row, fields] = await connection.query("SELECT * FROM tasks WHERE task_app_acronym = ?", req.body.task_app_acronym);
-    console.log("row", row);
 
     if (row.length > 0) {
       return res.status(200).json({
@@ -236,6 +237,33 @@ exports.updateDoingTask = async (req, res, next) => {
       [req.body.task_description, taskStatus, req.user.username, taskNotes, req.body.task_id]
     );
 
+    if (response) {
+      // Send email for promotion of doing task to done
+      if (req.body.action === "promote") {
+        const groupname = await checkPermits("done", req.body.app_acronym);
+        console.log([groupname, `%, ${groupname}`, `${groupname}, %`, `%, ${groupname}, %`]);
+        if (groupname.length > 0) {
+          const [row, fields] = await connection.query(`SELECT email FROM accounts WHERE groupname = ? OR groupname LIKE ? OR groupname LIKE ? OR groupname LIKE ?;`, [groupname, `%, ${groupname}`, `${groupname}, %`, `%, ${groupname}, %`]);
+          const resUser = row.map(user => user.email);
+          console.log(resUser);
+          if (resUser.length > 0) {
+            sendEmail(
+              resUser,
+              `${req.body.task_id} has been promoted to Done`,
+              `<div><font face="arial, sans-serif"><i>[This is an auto generated response. Please do not reply to this email]</i></font></div>
+              <br>
+              <font face="arial, sans-serif">Dear user,</font><div>
+              <br>
+            <div><font face="arial, sans-serif">Please note that task ${req.body.task_id} has been promoted to done by ${req.user.username}. Please proceed to <a href="http://localhost:3000/apps/${req.body.app_acronym}" style="color: rgb(17, 85, 204);">http://localhost:3000/apps/${req.body.app_acronym}</a> to approve the closure (promote), or reject the task (demote) and reassign the plan if required. </font></div>
+            <div><font face="arial, sans-serif"><br></font></div>
+            <div><font face="arial, sans-serif">Regards,</font></div><div><font face="arial, sans-serif">TMS Support Team</font></div></div>`
+            );
+          } else {
+            throw new Error("Error: No groupname found for project lead. Failed to send email");
+          }
+        }
+      }
+    }
     return res.status(200).json({
       success: true,
       message: `Task ${req.body.task_id} has been updated`

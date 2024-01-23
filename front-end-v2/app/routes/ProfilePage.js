@@ -4,13 +4,14 @@ import axios from "axios";
 import GlobalContext from "../components/GlobalContext";
 import Page from "../components/Page";
 
-import { Box, Input, FormControl, FormLabel, FormHelperText, Typography, Button, Avatar, Chip } from "@mui/joy";
+import { Stack, Box, Input, FormControl, FormLabel, FormHelperText, Typography, Button, Avatar, Chip } from "@mui/joy";
 
 function ProfilePage() {
   const { handleAlerts, handleCookie } = useContext(GlobalContext);
   const [isEditing, setIsEditing] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [groupname, setGroupName] = useState([]);
   const [editRequest, setEditRequest] = useState(0);
 
   useEffect(() => {
@@ -24,6 +25,7 @@ function ProfilePage() {
             console.log(response.data);
             setUsername(response.data.results.username);
             setEmail(response.data.results.email ? response.data.results.email : "");
+            setGroupName(response.data.results.groupname.split(", "));
           })
           .catch(error => {
             console.log(error.response.data.message);
@@ -135,9 +137,17 @@ function ProfilePage() {
           <Box display="flex" sx={{ justifyContent: "center", alignItems: "center", mt: "-2rem" }}>
             <Avatar variant="outlined" sx={{ height: 60, width: 60 }} />
           </Box>
-          <Typography level="h3" sx={{ textAlign: "center", m: "2rem" }}>
+          <Typography level="h3" sx={{ textAlign: "center", mt: "2rem" }}>
             {username}'s Profile
           </Typography>
+          <Stack direction="row" justifyContent="center" flexWrap="wrap" useFlexGap sx={{ width: "15rem", mt: "1rem", mb: "2rem" }}>
+            {groupname &&
+              groupname.map(group => (
+                <Chip variant="outlined" color="primary" size="sm" sx={{ m: "2px" }}>
+                  {group}
+                </Chip>
+              ))}
+          </Stack>
           {isEditing ? <ProfileEdit /> : <ProfileView />}
         </Box>
       </Box>

@@ -176,7 +176,7 @@ function TaskDetailsModal({ taskID, setIsPL, isPL, handleClose }) {
           done: <TaskEditDone taskDetails={taskDetails} setIsEditing={setIsEditing} taskDesc={taskDesc} setTaskDesc={setTaskDesc} taskNotes={taskNotes} setTaskNotes={setTaskNotes} taskPlan={taskPlan} setTaskPlan={setTaskPlan} allPlans={allPlans} setTaskChangeRequest={setTaskChangeRequest} handleClose={handleClose} />
         }[taskDetails.task_status]
       ) : (
-        <TaskView taskDetails={taskDetails} handleEdit={handleEdit} editable={editable} />
+        <TaskView taskDetails={taskDetails} handleEdit={handleEdit} editable={editable} taskPlan={taskPlan} />
       )}
     </>
   );

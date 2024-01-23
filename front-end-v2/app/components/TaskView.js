@@ -1,8 +1,10 @@
 import React from "react";
 
-import { Button, Box, Input, FormControl, FormLabel, Textarea } from "@mui/joy";
+import { Button, Box, Input, FormControl, FormLabel, Textarea, FormHelperText, Chip } from "@mui/joy";
 
-function TaskView({ taskDetails, handleEdit, editable }) {
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+
+function TaskView({ taskDetails, handleEdit, editable, taskPlan }) {
   return (
     <>
       <Box display="flex" justifyContent="center" sx={{ flexDirection: "row", gap: 5, m: "2rem" }}>
@@ -13,7 +15,19 @@ function TaskView({ taskDetails, handleEdit, editable }) {
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1.35rem" }}>Plan</FormLabel>
-            <Input variant="soft" color="neutral" value={taskDetails.task_plan} readOnly />
+            <Input
+              variant="soft"
+              color="neutral"
+              value={taskDetails.task_plan}
+              readOnly
+              endDecorator={
+                taskPlan && (
+                  <Chip startDecorator={<CalendarTodayIcon />} variant="outlined" size="sm" sx={{ ml: "-6rem" }}>
+                    {taskPlan.plan_startdate} to {taskPlan.plan_enddate}
+                  </Chip>
+                )
+              }
+            />
           </FormControl>
         </Box>
         <Box sx={{ width: "65%", flexDirection: "column" }}>
