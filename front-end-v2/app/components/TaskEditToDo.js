@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
-import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import React, { useContext } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 
 import GlobalContext from "./GlobalContext";
@@ -8,9 +8,7 @@ import { Button, Box, Input, FormControl, FormLabel, Textarea, Stack } from "@mu
 
 function TaskEditToDo({ taskDetails, setIsEditing, taskDesc, setTaskDesc, taskNotes, setTaskNotes, setTaskChangeRequest, handleClose }) {
   const { handleAlerts } = useContext(GlobalContext);
-  const { handleUserNotAuthorised, checkPermission } = useOutletContext();
   const { appid } = useParams();
-  const navigate = useNavigate();
 
   const handleSave = async action => {
     try {
@@ -32,7 +30,7 @@ function TaskEditToDo({ taskDetails, setIsEditing, taskDesc, setTaskDesc, taskNo
         })
         .catch(error => {
           console.log(error.response.data.message);
-          handleUserNotAuthorised(error.response.data.message, null, appid);
+          if (error.response.data.message.includes("not authorised")) handleClose();
           handleAlerts(`${error.response.data.message}`, false);
         });
     } catch (error) {

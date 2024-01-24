@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import axios from "axios";
 
 import GlobalContext from "./GlobalContext";
@@ -13,12 +13,12 @@ import { Stack, Box, Typography, Chip } from "@mui/joy";
 
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import AppsIcon from "@mui/icons-material/Apps";
 
-function TaskDetailsModal({ taskID, setIsPL, isPL, handleClose }) {
+function TaskDetailsModal({ taskID, setIsPL, handleClose }) {
   const { handleAlerts } = useContext(GlobalContext);
-  const { handleUserNotAuthorised, checkPermission } = useOutletContext();
+  const { checkPermission } = useOutletContext();
   const { appid } = useParams();
-  const navigate = useNavigate();
 
   const [isEditing, setIsEditing] = useState(false);
   const [taskChangeRequest, setTaskChangeRequest] = useState(0);
@@ -26,8 +26,6 @@ function TaskDetailsModal({ taskID, setIsPL, isPL, handleClose }) {
   const [taskDesc, setTaskDesc] = useState("");
   const [taskNotes, setTaskNotes] = useState("");
   const [taskPlan, setTaskPlan] = useState(null);
-  const [isPM, setIsPM] = useState(false);
-  const [isDevTeam, setIsDevTeam] = useState(false);
   const [taskDetails, setTaskDetails] = useState({});
   const [editable, setEditable] = useState(false);
 
@@ -54,17 +52,14 @@ function TaskDetailsModal({ taskID, setIsPL, isPL, handleClose }) {
     async function check(taskStatus) {
       console.log("Running useEffect to check if user is of PM / PL/ Dev Team");
       const response = await checkPermission(taskStatus, appid, false);
-      console.log("check permit", response);
 
       if (response) {
         switch (taskStatus) {
           case "open":
-            setIsPM(true);
             setEditable(true);
             break;
           case "todo":
           case "doing":
-            setIsDevTeam(true);
             setEditable(true);
             break;
           case "done":
@@ -92,7 +87,6 @@ function TaskDetailsModal({ taskID, setIsPL, isPL, handleClose }) {
               setTaskPlan(plan[0]);
             }
 
-            console.log(response.data.results);
             setTaskDesc(response.data.results.task_description);
 
             setTaskDetails(response.data.results);
@@ -140,8 +134,8 @@ function TaskDetailsModal({ taskID, setIsPL, isPL, handleClose }) {
       <Box
         sx={{
           display: "flex",
-          flexDirection: "row",
-          alignItems: "left",
+          flexGrow: 1,
+          justifyContent: "space-between",
           mt: "2rem",
           ml: "2rem",
           mr: "2rem",
@@ -155,6 +149,7 @@ function TaskDetailsModal({ taskID, setIsPL, isPL, handleClose }) {
           <Typography level="h3" sx={{ textAlign: "left" }}>
             Task #{taskID}: {taskDetails.task_name}
           </Typography>
+
           <Typography level="body-xs" sx={{ textAlign: "left", mt: "0.1rem", mb: "0.5rem" }}>
             Created by {taskDetails.task_creator} on {taskDetails.task_createdate} for application {appid}
           </Typography>
@@ -165,9 +160,34 @@ function TaskDetailsModal({ taskID, setIsPL, isPL, handleClose }) {
             <Chip size="sm" color="primary" variant="soft" startDecorator={<AccountCircleIcon />}>
               Owner: {taskDetails.task_owner}
             </Chip>
+            {/* <Chip size="sm" color="neutral" variant="outlined" startDecorator={<AppsIcon />}>
+              App: {appid}
+            </Chip> */}
           </Stack>
         </Stack>
+        {/* <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 1.5,
+            alignItems: "flex-start"
+          }}
+        >
+          <Chip
+            size="lg"
+            variant={taskDetails.task_status === "open" ? "outlined" : "soft"}
+            color={statusColor(taskDetails.task_status)}
+            startDecorator={<TaskAltIcon />}
+            sx={{
+              "--Chip-minHeight": "40px",
+              fontSize: "18px"
+            }}
+          >
+            {taskDetails.task_status}
+          </Chip>
+        </Box> */}
       </Box>
+
       {isEditing ? (
         {
           open: <TaskEditOpen taskDetails={taskDetails} setIsEditing={setIsEditing} taskDesc={taskDesc} setTaskDesc={setTaskDesc} taskNotes={taskNotes} setTaskNotes={setTaskNotes} taskPlan={taskPlan} setTaskPlan={setTaskPlan} allPlans={allPlans} setTaskChangeRequest={setTaskChangeRequest} handleClose={handleClose} />,

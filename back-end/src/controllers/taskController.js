@@ -63,7 +63,7 @@ exports.getSelectedTask = async (req, res, next) => {
 
 exports.createTask = async (req, res, next) => {
   try {
-    if (!/^(?=.{1,45}$)[a-zA-Z0-9]+(?:\s+[a-zA-Z0-9]+)*$/.test(req.body.task_name) > 0) throw new Error("Error: Task Name should not be more than 45 characters, should not contain special characters and spaces.");
+    if (!/^(?=.{1,45}$)[a-zA-Z0-9]+(?:\s+[a-zA-Z0-9]+)*$/.test(req.body.task_name) > 0) throw new Error("Error: Task Name should not be more than 45 characters, should not contain special characters, leading and trailing spaces.");
 
     //get app running number
     const [row, fields] = await connection.query("SELECT app_rnumber FROM applications WHERE app_acronym = ?", req.body.task_app_acronym);
@@ -272,6 +272,7 @@ exports.updateDoingTask = async (req, res, next) => {
         WHERE task_id = ? AND task_status = ?`,
       [req.body.task_description, taskStatus, req.user.username, taskNotes, req.body.task_id, "doing"]
     );
+    console.log("doing");
 
     if (response[0].changedRows === 1) {
       // Send email for promotion of doing task to done
@@ -290,14 +291,25 @@ exports.updateDoingTask = async (req, res, next) => {
               <br>
               <font face="arial, sans-serif">Dear user,</font><div>
               <br>
-            <div><font face="arial, sans-serif">Please note that task ${req.body.task_id} has been promoted to done by ${req.user.username}. Please proceed to <a href="http://localhost:3000/apps/${req.body.app_acronym}" style="color: rgb(17, 85, 204);">http://localhost:3000/apps/${req.body.app_acronym}</a> to approve the closure (promote), or reject the task (demote) and reassign the plan if required. </font></div>
-            <div><font face="arial, sans-serif"><br></font></div>
+            <div><font face="arial, sans-serif">Please note that task ${req.body.task_id} has been promoted to done by ${req.user.username}. Please proceed to <a href="http://localhost:3000/apps/${req.body.app_acronym}" style="color: rgb(17, 85, 204);">http://localhost:3000/apps/${req.body.app_acronym}</a> to approve (promote), or reject the task closure (demote) and reassign the plan if required. </font></div>
+            <br>
             <div><font face="arial, sans-serif">Regards,</font></div><div><font face="arial, sans-serif">TMS Support Team</font></div></div>`
             );
+            return res.status(200).json({
+              success: true,
+              message: `Task ${req.body.task_id} has been updated`
+            });
           } else {
-            throw new Error("Error: No groupname found for project lead. Failed to send email");
+            throw new Error("Error: No users found for project lead group. Failed to send email");
           }
+        } else {
+          throw new Error("Error: No groupname found for project lead. Failed to send email");
         }
+      } else {
+        return res.status(200).json({
+          success: true,
+          message: `Task ${req.body.task_id} has been updated`
+        });
       }
     } else {
       return res.status(404).json({

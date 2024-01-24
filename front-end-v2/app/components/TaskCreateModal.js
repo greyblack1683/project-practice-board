@@ -38,8 +38,12 @@ function TaskCreateModal({ setTaskChangeRequest, setAddTask, setIsPL }) {
         })
         .catch(error => {
           console.log(error);
+          if (error.response.data.message.includes("not authorised")) {
+            setIsPL(false);
+            setAddTask(false);
+          }
           handleUserNotAuthorised(error.response.data.message, null, appid);
-          if (error.response.data.message.includes("not authorised")) setIsPL(false);
+
           handleAlerts(`${error.response.data.message}`, false);
         });
     } catch (error) {
@@ -106,11 +110,11 @@ function TaskCreateModal({ setTaskChangeRequest, setAddTask, setIsPL }) {
             <Input variant="soft" color="primary" value={taskName} onChange={e => setTaskName(e.target.value)} />
           </FormControl>
           <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>
-            <Textarea variant="soft" minRows={4} maxRows={4} color="primary" value={taskDesc} onChange={e => setTaskDesc(e.target.value)} />
+            <FormLabel sx={{ mt: "1.35rem" }}>Description</FormLabel>
+            <Textarea variant="soft" minRows={7} maxRows={7} color="primary" value={taskDesc} onChange={e => setTaskDesc(e.target.value)} />
           </FormControl>
           <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>Plan</FormLabel>
+            <FormLabel sx={{ mt: "1.35rem" }}>Plan</FormLabel>
             <Autocomplete
               variant="outlined"
               color="primary"
@@ -135,7 +139,7 @@ function TaskCreateModal({ setTaskChangeRequest, setAddTask, setIsPL }) {
         <Box sx={{ minWidth: "30rem" }}>
           <FormControl>
             <FormLabel>Notes</FormLabel>
-            <Textarea variant="soft" minRows={16} maxRows={16} color="primary" value={taskNotes} onChange={e => setTaskNotes(e.target.value)} />
+            <Textarea variant="soft" minRows={14} maxRows={14} color="primary" value={taskNotes} onChange={e => setTaskNotes(e.target.value)} />
           </FormControl>
         </Box>
       </Box>

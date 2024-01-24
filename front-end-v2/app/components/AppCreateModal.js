@@ -48,8 +48,11 @@ function AppCreateModal({ setAppChangeRequest, setCreateApp, setIsPL }) {
         })
         .catch(error => {
           console.log(error.response.data.message);
+          if (error.response.data.message.includes("not authorised")) {
+            setIsPL(false);
+            setCreateApp(false);
+          }
           handleUserNotAuthorised(error.response.data.message, "pl_app");
-          if (error.response.data.message.includes("not authorised")) setIsPL(false);
           handleAlerts(`${error.response.data.message}`, false);
         });
     } catch (error) {
@@ -108,7 +111,19 @@ function AppCreateModal({ setAppChangeRequest, setCreateApp, setIsPL }) {
             </FormControl>
             <FormControl>
               <FormLabel sx={{ mt: "1rem" }}>Running Number</FormLabel>
-              <Input variant="soft" color="primary" type="number" value={rNum} onChange={e => setRNum(e.target.value)} />
+              <Input
+                variant="soft"
+                color="primary"
+                type="number"
+                value={rNum}
+                onChange={e => setRNum(e.target.value)}
+                slotProps={{
+                  input: {
+                    min: 0,
+                    max: 100000
+                  }
+                }}
+              />
             </FormControl>
             <FormControl>
               <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>
@@ -116,7 +131,19 @@ function AppCreateModal({ setAppChangeRequest, setCreateApp, setIsPL }) {
             </FormControl>
             <FormControl>
               <FormLabel sx={{ mt: "1rem" }}>Start Date</FormLabel>
-              <Input type="date" variant="soft" color="primary" value={startDate} onChange={e => setStartDate(e.target.value)} />
+              <Input
+                type="date"
+                variant="soft"
+                color="primary"
+                value={startDate}
+                onChange={e => setStartDate(e.target.value)}
+                slotProps={{
+                  input: {
+                    min: "2015-01-01",
+                    max: "2099-12-31"
+                  }
+                }}
+              />
             </FormControl>
             <FormControl>
               <FormLabel sx={{ mt: "1rem" }}>End Date</FormLabel>

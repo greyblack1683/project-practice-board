@@ -2,7 +2,7 @@ const connection = require("../utils/database");
 
 function checkPlanName(planName) {
   if (!planName) throw new Error("Error: Plan Name should not be blank");
-  if (!/^(?=.{1,45}$)[a-zA-Z0-9]+(?:\s+[a-zA-Z0-9]+)*$/.test(planName)) throw new Error("Error: Plan Name should not be more than 45 characters, should not contain special characters and spaces.");
+  if (!/^(?=.{1,45}$)[a-zA-Z0-9]+(?:\s+[a-zA-Z0-9]+)*$/.test(planName)) throw new Error("Error: Plan Name should not be more than 45 characters, should not contain special characters, leading and trailing spaces.");
   // if (planName > 45) throw new Error("Error: Plan Name should be not be more than 45 characters.");
   // if (planName.search(/[^a-zA-Z0-9]/g) > 0) throw new Error("Error: Plan Name should not contain special characters and spaces.");
   // if (/^[A-Za-z0-9]*$/.test(planName) === false) throw new Error("Error: Plan Name should be alphabets or alphanumeric.");

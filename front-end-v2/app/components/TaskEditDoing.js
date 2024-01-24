@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
-import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import React, { useContext } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 
 import GlobalContext from "./GlobalContext";
@@ -8,14 +8,12 @@ import { Button, Box, Input, FormControl, FormLabel, Textarea, Stack } from "@mu
 
 function TaskEditDoing({ taskDetails, setIsEditing, taskDesc, setTaskDesc, taskNotes, setTaskNotes, setTaskChangeRequest, handleClose }) {
   const { handleAlerts } = useContext(GlobalContext);
-  const { handleUserNotAuthorised, checkPermission } = useOutletContext();
   const { appid } = useParams();
-  const navigate = useNavigate();
 
   const handleSave = async action => {
     try {
       await axios
-        .post("/tasks/updatedoing", {
+        .post("/tasks/updateDoing", {
           task_id: taskDetails.task_id,
           task_description: taskDesc,
           task_notes: taskNotes,
@@ -23,16 +21,16 @@ function TaskEditDoing({ taskDetails, setIsEditing, taskDesc, setTaskDesc, taskN
           app_acronym: appid
         })
         .then(response => {
-          console.log(response);
+          console.log("doing", response);
           setTaskNotes("");
           setTaskChangeRequest(prev => prev + 1);
           setIsEditing(false);
-          if (action === "promote" || action == "demote") handleClose();
+          if (action === "promote" || action === "demote") handleClose();
           handleAlerts(`Updated task ${taskDetails.task_id} successfully`, true);
         })
         .catch(error => {
           console.log(error.response.data.message);
-          handleUserNotAuthorised(error.response.data.message, null, appid);
+          if (error.response.data.message.includes("not authorised")) handleClose();
           handleAlerts(`${error.response.data.message}`, false);
         });
     } catch (error) {

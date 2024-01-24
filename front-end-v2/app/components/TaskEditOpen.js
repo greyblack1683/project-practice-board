@@ -1,16 +1,14 @@
-import React, { useState, useEffect, useContext } from "react";
-import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import React, { useContext } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 
 import GlobalContext from "./GlobalContext";
 
-import { Button, Box, Input, FormControl, FormLabel, Textarea, Autocomplete, AutocompleteOption, ListItemContent, Typography, Stack } from "@mui/joy";
+import { Button, Box, FormControl, FormLabel, Textarea, Autocomplete, AutocompleteOption, ListItemContent, Typography, Stack } from "@mui/joy";
 
 function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDesc, setTaskDesc, taskNotes, setTaskNotes, allPlans, setTaskChangeRequest, handleClose }) {
   const { handleAlerts } = useContext(GlobalContext);
-  const { handleUserNotAuthorised, checkPermission } = useOutletContext();
   const { appid } = useParams();
-  const navigate = useNavigate();
 
   const handleSave = async action => {
     try {
@@ -33,7 +31,7 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
         })
         .catch(error => {
           console.log(error.response.data.message);
-          handleUserNotAuthorised(error.response.data.message, null, appid);
+          if (error.response.data.message.includes("not authorised")) handleClose();
           handleAlerts(`${error.response.data.message}`, false);
         });
     } catch (error) {

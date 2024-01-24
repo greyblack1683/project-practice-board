@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Button, Box, Input, FormControl, FormLabel, Textarea, FormHelperText, Chip } from "@mui/joy";
+import { Button, Box, Input, FormControl, FormLabel, Textarea, Chip, Tooltip } from "@mui/joy";
 
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
@@ -22,9 +22,9 @@ function TaskView({ taskDetails, handleEdit, editable, taskPlan }) {
               readOnly
               endDecorator={
                 taskPlan && (
-                  <Chip startDecorator={<CalendarTodayIcon />} variant="outlined" size="sm" sx={{ ml: "-6rem" }}>
-                    {taskPlan.plan_startdate} to {taskPlan.plan_enddate}
-                  </Chip>
+                  <Tooltip title={`${taskPlan.plan_startdate} to ${taskPlan.plan_enddate}`} variant="soft">
+                    <Chip startDecorator={<CalendarTodayIcon />} variant="soft" size="md" sx={{ mr: "-0.5rem" }} />
+                  </Tooltip>
                 )
               }
             />
