@@ -11,7 +11,6 @@ function checkPlanName(planName) {
 // exports.getPlans = async (req, res, next) => {
 //   try {
 //     const [row, fields] = await connection.query("SELECT * FROM plans;", null);
-//     console.log("row:", row);
 
 //     if (row.length > 0) {
 //       return res.status(200).json({
@@ -38,7 +37,6 @@ function checkPlanName(planName) {
 exports.getPlansOfApp = async (req, res, next) => {
   try {
     const [row, fields] = await connection.query("SELECT * FROM plans WHERE `plan_app_acronym` = ?;", req.body.plan_app_acronym);
-    console.log("row:", row);
 
     if (row.length > 0) {
       return res.status(200).json({
@@ -64,7 +62,6 @@ exports.getPlansOfApp = async (req, res, next) => {
 
 exports.getSelectedPlan = async (req, res, next) => {
   try {
-    console.log("request:", req.body);
     const [row, fields] = await connection.query("SELECT * FROM plans WHERE plan_app_acronym = ? AND plan_mvp_name = ?", [req.body.plan_app_acronym, req.body.plan_mvp_name]);
 
     if (row.length === 1) {
@@ -88,7 +85,6 @@ exports.getSelectedPlan = async (req, res, next) => {
 
 exports.createPlan = async (req, res, next) => {
   try {
-    console.log("request:", req.body);
     checkPlanName(req.body.plan_mvp_name);
     if (!req.body.plan_startdate || !req.body.plan_enddate) throw new Error("Error: Start and end dates are mandatory fields");
 
@@ -118,7 +114,6 @@ exports.createPlan = async (req, res, next) => {
 
 exports.updatePlan = async (req, res, next) => {
   try {
-    console.log("request:", req.body);
     if (!req.body.plan_startdate || !req.body.plan_enddate) throw new Error("Error: Start and end dates are mandatory fields");
     const response = await connection.query("UPDATE `plans` SET `plan_startdate` = ?, `plan_enddate` = ? WHERE `plan_mvp_name` = ? AND `plan_app_acronym` = ?;", [req.body.plan_startdate, req.body.plan_enddate, req.body.plan_mvp_name, req.body.plan_app_acronym]);
     return res.status(200).json({

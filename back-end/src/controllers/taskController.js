@@ -148,7 +148,6 @@ exports.updateOpenTask = async (req, res, next) => {
       [req.body.task_description, taskStatus, req.user.username, taskNotes, req.body.task_plan, req.body.task_id, "open"]
     );
 
-    console.log("open task edit", response[0].changedRows);
     if (response[0].changedRows === 1) {
       return res.status(200).json({
         success: true,

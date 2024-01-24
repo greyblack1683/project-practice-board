@@ -11,8 +11,6 @@ function checkPassword(password) {
 
 exports.createUser = async (req, res, next) => {
   try {
-    console.log("Creating user");
-
     if (!req.body.username) throw new Error("Error: Username is blank");
     // if (req.body.username.length > 45) throw new Error("Error: Username should be not be more than 45 characters.");
     if (!/^[a-zA-Z][a-zA-Z0-9]{0,44}$/g.test(req.body.username)) throw new Error("Error: Username should not be more than 45 characters, should not contain special characters and spaces, and should be alphabets or alphabets with numbers.");
@@ -39,11 +37,7 @@ exports.createUser = async (req, res, next) => {
 
     sqlBuilder = sqlBuilder + sqlValuesBuilder + ");";
 
-    console.log("sqlBuilder", sqlBuilder, "sqlValuesBuilder: ", sqlValuesBuilder);
-    console.log(Object.values(results));
-
     const response = await connection.query(sqlBuilder, Object.values(results));
-    console.log(response);
 
     return res.status(201).json({
       success: true,
@@ -73,8 +67,6 @@ exports.createUser = async (req, res, next) => {
 
 exports.loginUser = async (req, res, next) => {
   try {
-    console.log("request body:", req.body);
-
     const { username, password } = req.body;
 
     // check username and password
@@ -122,7 +114,6 @@ exports.loginUser = async (req, res, next) => {
 exports.getUsers = async (req, res, next) => {
   try {
     const [row, fields] = await connection.query("SELECT `username`, `email`, `groupname`, `isactive` FROM accounts", null);
-    console.log("row:", row);
 
     return res.status(200).json({
       success: true,
@@ -143,10 +134,7 @@ exports.getUsers = async (req, res, next) => {
 //note: to revisit
 exports.getOwnUser = async (req, res, next) => {
   try {
-    console.log("request body:", req.user);
-
     const [row, fields] = await connection.query("SELECT `username`, `email`, `groupname`, `isactive` FROM accounts WHERE username = ?", req.user.username);
-    console.log("row", row);
 
     if (row.length === 1) {
       return res.status(200).json({
@@ -170,10 +158,8 @@ exports.getOwnUser = async (req, res, next) => {
 exports.updateUserforAdmin = async (req, res, next) => {
   try {
     //assumed that isAuthenticated and isAuthorised has already ran
-    console.log("request body:", req.body);
-    console.log("request body:", req.body.username);
+
     if (req.body.username == "admin") {
-      console.log(req.body.groups);
       if (!req.body.groups.includes("admin")) throw new Error("Error: You cannot remove admin usergroup from this account");
       if (req.body.isactive === "false") throw new Error("Error: You cannot disable this account");
     }
@@ -197,9 +183,7 @@ exports.updateUserforAdmin = async (req, res, next) => {
 
     //update user details
     sqlBuilder = sqlBuilder + " WHERE `username` = ?;";
-    console.log(sqlBuilder);
     const response = await connection.query(sqlBuilder, Object.values(results));
-    console.log("response", response);
 
     return res.status(200).json({
       success: true,
@@ -218,8 +202,6 @@ exports.updateUserforAdmin = async (req, res, next) => {
 
 exports.updateUserforUser = async (req, res, next) => {
   try {
-    console.log("request body:", req.body);
-
     let sqlBuilder = "UPDATE `accounts` SET `email` = ?";
 
     let results = {
@@ -237,9 +219,8 @@ exports.updateUserforUser = async (req, res, next) => {
 
     //update user details
     sqlBuilder = sqlBuilder + " WHERE `username` = ?;";
-    console.log(sqlBuilder);
+
     const response = await connection.query(sqlBuilder, Object.values(results));
-    console.log("response", response);
 
     return res.status(200).json({
       success: true,

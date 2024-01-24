@@ -27,7 +27,7 @@ function AppDetailsModal({ appid, setAppChangeRequest, setCreateApp }) {
   const handleCancel = () => {
     setAcronym(appDetails.app_acronym);
     setRNum(appDetails.app_rnumber);
-    setDesc(appDetails.app_description);
+    setDesc(appDetails.app_description ? appDetails.app_description : "");
     setStartDate(appDetails.app_startdate);
     setEndDate(appDetails.app_enddate);
     setPermitCreate(appDetails.app_permit_create);
@@ -148,23 +148,23 @@ function AppDetailsModal({ appid, setAppChangeRequest, setCreateApp }) {
           </Typography>
           <FormControl>
             <FormLabel>Acronym</FormLabel>
-            <Input variant="solid" color="primary" value={acronym} disabled={true} />
+            <Input variant="soft" color="neutral" value={acronym} readOnly />
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Running Number</FormLabel>
-            <Input variant="solid" color="primary" type="number" value={rNum} sx={{ min: "0", max: "100000" }} disabled={true} />
+            <Input variant="soft" color="neutral" type="number" value={rNum} sx={{ min: "0", max: "100000" }} readOnly />
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>
-            <Textarea variant={isEditing ? "soft" : "solid"} minRows={4} maxRows={4} color="primary" value={desc} onChange={e => setDesc(e.target.value)} disabled={isEditing ? false : true} />
+            <Textarea variant="soft" minRows={4} maxRows={4} color={isEditing ? "primary" : "neutral"} value={desc} onChange={e => setDesc(e.target.value)} readOnly={isEditing ? false : true} />
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Start Date</FormLabel>
-            <Input type="date" variant={isEditing ? "soft" : "solid"} color="primary" value={startDate} onChange={e => setStartDate(e.target.value)} disabled={isEditing ? false : true} />
+            <Input type="date" variant="soft" color={isEditing ? "primary" : "neutral"} value={startDate} onChange={e => setStartDate(e.target.value)} readOnly={isEditing ? false : true} />
           </FormControl>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>End Date</FormLabel>
-            <Input type="date" variant={isEditing ? "soft" : "solid"} color="primary" value={endDate} onChange={e => setEndDate(e.target.value)} disabled={isEditing ? false : true} />
+            <Input type="date" variant="soft" color={isEditing ? "primary" : "neutral"} value={endDate} onChange={e => setEndDate(e.target.value)} readOnly={isEditing ? false : true} />
           </FormControl>
         </Box>
         <Box sx={{ width: "40%" }}>

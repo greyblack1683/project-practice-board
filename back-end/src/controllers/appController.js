@@ -17,7 +17,6 @@ function checkAcronym(acronym) {
 exports.getApps = async (req, res, next) => {
   try {
     const [row, fields] = await connection.query("SELECT * FROM applications;", null);
-    console.log("row:", row);
 
     if (row.length > 0) {
       return res.status(200).json({
@@ -46,8 +45,6 @@ exports.getSelectedApp = async (req, res, next) => {
   try {
     const [row, fields] = await connection.query("SELECT * FROM applications WHERE `app_acronym` = ?", req.body.app_acronym);
 
-    console.log("row:", row);
-
     if (row.length === 1) {
       return res.status(200).json({
         success: true,
@@ -69,7 +66,6 @@ exports.getSelectedApp = async (req, res, next) => {
 
 exports.createApp = async (req, res, next) => {
   try {
-    console.log("request", req.body);
     checkAcronym(req.body.app_acronym);
     checkRNum(req.body.app_rnumber);
 
@@ -97,7 +93,6 @@ exports.createApp = async (req, res, next) => {
         (?, ?, ?, ?, ?, ?, ?, ?, ?,?); `,
         [req.body.app_acronym, req.body.app_description, req.body.app_rnumber, req.body.app_startdate, req.body.app_enddate, req.body.app_permit_create, req.body.app_permit_open, req.body.app_permit_todolist, req.body.app_permit_doing, req.body.app_permit_done]
       );
-      console.log(response);
 
       return res.status(201).json({
         success: true,
@@ -134,8 +129,6 @@ exports.createApp = async (req, res, next) => {
 
 exports.updateApp = async (req, res, next) => {
   try {
-    console.log("request:", req.body);
-
     if (!req.body.app_startdate || !req.body.app_enddate) throw new Error("Error: Start and end dates are mandatory fields");
     if (!req.body.app_permit_create || !req.body.app_permit_open || !req.body.app_permit_todolist || !req.body.app_permit_doing || !req.body.app_permit_done) throw new Error("Error: All permissions are mandatory fields");
 
@@ -157,8 +150,6 @@ exports.updateApp = async (req, res, next) => {
           WHERE app_acronym = ?;`,
         [req.body.app_description, req.body.app_startdate, req.body.app_enddate, req.body.app_permit_create, req.body.app_permit_open, req.body.app_permit_todolist, req.body.app_permit_doing, req.body.app_permit_done, req.body.app_acronym]
       );
-
-      console.log("response", response);
     }
 
     return res.status(200).json({

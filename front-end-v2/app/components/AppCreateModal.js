@@ -4,7 +4,7 @@ import axios from "axios";
 
 import GlobalContext from "./GlobalContext";
 
-import { Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete, Textarea } from "@mui/joy";
+import { Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete, Textarea, Stack } from "@mui/joy";
 
 function AppCreateModal({ setAppChangeRequest, setCreateApp, setIsPL }) {
   const { handleAlerts } = useContext(GlobalContext);
