@@ -8,7 +8,7 @@ function updateNotes(oldTaskStatus, newTaskStatus, newTaskNotes, user) {
   taskNotes = `${today}\nTask status changed from '${oldTaskStatus}' to '${newTaskStatus}'. Task edited by ${user}.`;
   taskNotes = newTaskNotes ? taskNotes + `\n\nAdditional Notes from ${user}: \n` + newTaskNotes : taskNotes;
   taskNotes = taskNotes + "\n========================================\n";
-  console.log(taskNotes);
+
   return taskNotes;
 }
 
@@ -40,9 +40,7 @@ exports.getTasksOfApp = async (req, res, next) => {
 
 exports.getSelectedTask = async (req, res, next) => {
   try {
-    console.log("getselected Task:", req.body);
     const [row, fields] = await connection.query("SELECT * FROM tasks WHERE task_id = ?", req.body.task_id);
-    console.log("row", row);
 
     if (row.length === 1) {
       return res.status(200).json({
@@ -65,7 +63,7 @@ exports.getSelectedTask = async (req, res, next) => {
 
 exports.createTask = async (req, res, next) => {
   try {
-    if (req.body.task_name.search(/[^a-zA-Z0-9\s]/g) > 0) throw new Error("Error: Task Name should not contain special characters.");
+    if (!/^(?=.{1,45}$)[a-zA-Z0-9]+(?:\s+[a-zA-Z0-9]+)*$/.test(req.body.task_name) > 0) throw new Error("Error: Task Name should not be more than 45 characters, should not contain special characters and spaces.");
 
     //get app running number
     const [row, fields] = await connection.query("SELECT app_rnumber FROM applications WHERE app_acronym = ?", req.body.task_app_acronym);
@@ -95,6 +93,14 @@ exports.createTask = async (req, res, next) => {
       throw new Error("Error: Application does not exist");
     }
   } catch (error) {
+    if (error.code == "ER_DATA_TOO_LONG") {
+      return res.status(400).json({
+        success: false,
+        error,
+        message: "Error: Description exceeded 255 characters",
+        stack: error.stack
+      });
+    }
     if (error.code == "ER_DUP_ENTRY") {
       return res.status(400).json({
         success: false,
@@ -138,15 +144,31 @@ exports.updateOpenTask = async (req, res, next) => {
         task_owner = ?, 
         task_notes = CONCAT(?, task_notes), 
         task_plan = ? 
-        WHERE task_id = ?`,
-      [req.body.task_description, taskStatus, req.user.username, taskNotes, req.body.task_plan, req.body.task_id]
+        WHERE task_id = ? AND task_status = ?`,
+      [req.body.task_description, taskStatus, req.user.username, taskNotes, req.body.task_plan, req.body.task_id, "open"]
     );
 
-    return res.status(200).json({
-      success: true,
-      message: `Task ${req.body.task_id} has been updated`
-    });
+    console.log("open task edit", response[0].changedRows);
+    if (response[0].changedRows === 1) {
+      return res.status(200).json({
+        success: true,
+        message: `Task ${req.body.task_id} has been updated`
+      });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: `Task ${req.body.task_id} was not updated as it was already modified by another user. Please refresh to view the updated task.`
+      });
+    }
   } catch (error) {
+    if (error.code == "ER_DATA_TOO_LONG") {
+      return res.status(400).json({
+        success: false,
+        error,
+        message: "Error: Description exceeded 255 characters",
+        stack: error.stack
+      });
+    }
     return res.status(error.message.includes("Error") ? 400 : 500).json({
       success: false,
       error,
@@ -179,15 +201,30 @@ exports.updateToDoTask = async (req, res, next) => {
         task_status = ?, 
         task_owner = ?, 
         task_notes = CONCAT(?, task_notes)
-        WHERE task_id = ?`,
-      [req.body.task_description, taskStatus, req.user.username, taskNotes, req.body.task_id]
+        WHERE task_id = ? AND task_status = ?`,
+      [req.body.task_description, taskStatus, req.user.username, taskNotes, req.body.task_id, "todo"]
     );
 
-    return res.status(200).json({
-      success: true,
-      message: `Task ${req.body.task_id} has been updated`
-    });
+    if (response[0].changedRows === 1) {
+      return res.status(200).json({
+        success: true,
+        message: `Task ${req.body.task_id} has been updated`
+      });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: `Task ${req.body.task_id} was not updated as it was already modified by another user. Please refresh to view the updated task.`
+      });
+    }
   } catch (error) {
+    if (error.code == "ER_DATA_TOO_LONG") {
+      return res.status(400).json({
+        success: false,
+        error,
+        message: "Error: Description exceeded 255 characters",
+        stack: error.stack
+      });
+    }
     return res.status(error.message.includes("Error") ? 400 : 500).json({
       success: false,
       error,
@@ -233,19 +270,19 @@ exports.updateDoingTask = async (req, res, next) => {
         task_status = ?, 
         task_owner = ?, 
         task_notes = CONCAT(?, task_notes)
-        WHERE task_id = ?`,
-      [req.body.task_description, taskStatus, req.user.username, taskNotes, req.body.task_id]
+        WHERE task_id = ? AND task_status = ?`,
+      [req.body.task_description, taskStatus, req.user.username, taskNotes, req.body.task_id, "doing"]
     );
 
-    if (response) {
+    if (response[0].changedRows === 1) {
       // Send email for promotion of doing task to done
       if (req.body.action === "promote") {
         const groupname = await checkPermits("done", req.body.app_acronym);
-        console.log([groupname, `%, ${groupname}`, `${groupname}, %`, `%, ${groupname}, %`]);
+
         if (groupname.length > 0) {
           const [row, fields] = await connection.query(`SELECT email FROM accounts WHERE groupname = ? OR groupname LIKE ? OR groupname LIKE ? OR groupname LIKE ?;`, [groupname, `%, ${groupname}`, `${groupname}, %`, `%, ${groupname}, %`]);
           const resUser = row.map(user => user.email);
-          console.log(resUser);
+
           if (resUser.length > 0) {
             sendEmail(
               resUser,
@@ -263,12 +300,25 @@ exports.updateDoingTask = async (req, res, next) => {
           }
         }
       }
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: `Task ${req.body.task_id} was not updated as it was already modified by another user. Please refresh to view the updated task.`
+      });
     }
-    return res.status(200).json({
-      success: true,
-      message: `Task ${req.body.task_id} has been updated`
-    });
+    // return res.status(200).json({
+    //   success: true,
+    //   message: `Task ${req.body.task_id} has been updated`
+    // });
   } catch (error) {
+    if (error.code == "ER_DATA_TOO_LONG") {
+      return res.status(400).json({
+        success: false,
+        error,
+        message: "Error: Description exceeded 255 characters",
+        stack: error.stack
+      });
+    }
     return res.status(error.message.includes("Error") ? 400 : 500).json({
       success: false,
       error,
@@ -317,21 +367,32 @@ exports.updateDoneTask = async (req, res, next) => {
       sqlValues.push(req.body.task_plan);
     }
 
-    sqlBuilder = sqlBuilder + ` WHERE task_id = ?;`;
+    sqlBuilder = sqlBuilder + ` WHERE task_id = ? AND task_status = ?;`;
     sqlValues.push(req.body.task_id);
-    console.log(sqlBuilder, sqlValues);
+    sqlValues.push("done");
 
     const response = await connection.query(sqlBuilder, sqlValues);
 
-    if (response) {
+    if (response[0].changedRows === 1) {
       return res.status(200).json({
         success: true,
         message: `Task ${req.body.task_id} has been updated`
       });
     } else {
-      throw new Error("Error: Request to SQL server failed");
+      return res.status(404).json({
+        success: false,
+        message: `Task ${req.body.task_id} was not updated as it was already modified by another user. Please refresh to view the updated task.`
+      });
     }
   } catch (error) {
+    if (error.code == "ER_DATA_TOO_LONG") {
+      return res.status(400).json({
+        success: false,
+        error,
+        message: "Error: Description exceeded 255 characters",
+        stack: error.stack
+      });
+    }
     return res.status(error.message.includes("Error") ? 400 : 500).json({
       success: false,
       error,

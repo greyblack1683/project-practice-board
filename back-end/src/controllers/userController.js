@@ -14,9 +14,9 @@ exports.createUser = async (req, res, next) => {
     console.log("Creating user");
 
     if (!req.body.username) throw new Error("Error: Username is blank");
-    if (req.body.username.length > 45) throw new Error("Error: Username should be not be more than 45 characters.");
-    if (req.body.username.search(/[^a-zA-Z0-9]/g) > 0) throw new Error("Error: Username should not contain special characters and spaces.");
-    if (/^[A-Za-z0-9]*$/.test(req.body.username) === false) throw new Error("Error: Username should be alphabets or alphanumeric.");
+    // if (req.body.username.length > 45) throw new Error("Error: Username should be not be more than 45 characters.");
+    if (!/^[a-zA-Z][a-zA-Z0-9]{0,44}$/g.test(req.body.username)) throw new Error("Error: Username should not be more than 45 characters, should not contain special characters and spaces, and should be alphabets or alphabets with numbers.");
+    // if (/^[A-Za-z0-9]*$/.test(req.body.username) === false) throw new Error("Error: Username should be alphabets or alphanumeric.");
 
     checkPassword(req.body.password);
     const password = await bcrypt.hash(req.body.password, 10);
@@ -27,7 +27,7 @@ exports.createUser = async (req, res, next) => {
     results = {
       username: req.body.username,
       password,
-      group: req.body.group ? req.body.group : "",
+      email: req.body.email,
       isactive: req.body.isactive
     };
 
@@ -121,7 +121,7 @@ exports.loginUser = async (req, res, next) => {
 //note: to revisit when authen as admin is done
 exports.getUsers = async (req, res, next) => {
   try {
-    const [row, fields] = await connection.query("SELECT `id`, `username`, `email`, `groupname`, `isactive` FROM accounts", null);
+    const [row, fields] = await connection.query("SELECT `username`, `email`, `groupname`, `isactive` FROM accounts", null);
     console.log("row:", row);
 
     return res.status(200).json({
@@ -145,7 +145,7 @@ exports.getOwnUser = async (req, res, next) => {
   try {
     console.log("request body:", req.user);
 
-    const [row, fields] = await connection.query("SELECT `id`, `username`, `email`, `groupname`, `isactive` FROM accounts WHERE username = ?", req.user.username);
+    const [row, fields] = await connection.query("SELECT `username`, `email`, `groupname`, `isactive` FROM accounts WHERE username = ?", req.user.username);
     console.log("row", row);
 
     if (row.length === 1) {
@@ -171,6 +171,12 @@ exports.updateUserforAdmin = async (req, res, next) => {
   try {
     //assumed that isAuthenticated and isAuthorised has already ran
     console.log("request body:", req.body);
+    console.log("request body:", req.body.username);
+    if (req.body.username == "admin") {
+      console.log(req.body.groups);
+      if (!req.body.groups.includes("admin")) throw new Error("Error: You cannot remove admin usergroup from this account");
+      if (req.body.isactive === "false") throw new Error("Error: You cannot disable this account");
+    }
 
     let sqlBuilder = "UPDATE `accounts` SET `email` = ?, `groupname` = ?, `isactive` = ?";
 

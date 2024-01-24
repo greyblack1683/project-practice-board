@@ -199,7 +199,9 @@ function KanbanPage() {
             maxWidth: "80rem",
             borderRadius: "md",
             p: 3,
-            boxShadow: "lg"
+            boxShadow: "lg",
+            overflowY: "scroll",
+            height: "80%"
           }}
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
@@ -214,7 +216,8 @@ function KanbanPage() {
             borderRadius: "md",
             p: 3,
             boxShadow: "lg",
-            height: "80%"
+            height: "80%",
+            overflowY: "scroll"
           }}
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />

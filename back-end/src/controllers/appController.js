@@ -8,9 +8,10 @@ function checkRNum(rNum) {
 
 function checkAcronym(acronym) {
   if (!acronym) throw new Error("Error: App Acronym should not be blank");
-  if (acronym > 45) throw new Error("Error: App Acronym should be not be more than 45 characters.");
-  if (acronym.search(/[^a-zA-Z0-9]/g) > 0) throw new Error("Error: App Acronym should not contain special characters and spaces.");
-  if (/^[A-Za-z0-9]*$/.test(acronym) === false) throw new Error("Error: App Acronym should be alphabets or alphanumeric.");
+  if (!/^[a-zA-Z][a-zA-Z0-9]{0,44}$/g.test(acronym)) throw new Error("Error: App Acronym should not be more than 45 characters, should not contain special characters and spaces, and should be alphabets or alphabets with numbers.");
+  // if (acronym > 45) throw new Error("Error: App Acronym should be not be more than 45 characters.");
+  // if (acronym.search(/[^a-zA-Z0-9]/g) > 0) throw new Error("Error: App Acronym should not contain special characters and spaces.");
+  // if (/^[A-Za-z0-9]*$/.test(acronym) === false) throw new Error("Error: App Acronym should be alphabets or alphanumeric.");
 }
 
 exports.getApps = async (req, res, next) => {
@@ -106,6 +107,14 @@ exports.createApp = async (req, res, next) => {
       throw new Error("Error: Usergroup for permit does not exist");
     }
   } catch (error) {
+    if (error.code == "ER_DATA_TOO_LONG") {
+      return res.status(400).json({
+        success: false,
+        error,
+        message: "Error: Description exceeded 255 characters",
+        stack: error.stack
+      });
+    }
     if (error.code == "ER_DUP_ENTRY") {
       return res.status(400).json({
         success: false,
@@ -157,6 +166,14 @@ exports.updateApp = async (req, res, next) => {
       message: `Application ${req.body.app_acronym} has been updated.`
     });
   } catch (error) {
+    if (error.code == "ER_DATA_TOO_LONG") {
+      return res.status(400).json({
+        success: false,
+        error,
+        message: "Error: Description exceeded 255 characters",
+        stack: error.stack
+      });
+    }
     return res.status(error.message.includes("Error") ? 400 : 500).json({
       success: false,
       error,

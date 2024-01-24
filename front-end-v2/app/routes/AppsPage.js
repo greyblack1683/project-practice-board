@@ -192,7 +192,9 @@ function AppsPage() {
             width: "60%",
             borderRadius: "md",
             p: 3,
-            boxShadow: "lg"
+            boxShadow: "lg",
+            height: "80%",
+            overflowY: "scroll"
           }}
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
@@ -208,7 +210,8 @@ function AppsPage() {
             borderRadius: "md",
             p: 3,
             boxShadow: "lg",
-            height: "50rem"
+            height: "80%",
+            overflowY: "scroll"
           }}
         >
           <ModalClose variant="plain" sx={{ m: 1 }} />
