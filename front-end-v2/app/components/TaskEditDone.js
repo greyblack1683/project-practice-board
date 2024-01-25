@@ -12,6 +12,15 @@ function TaskEditDone({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
   const { handleAlerts } = useContext(GlobalContext);
   const { appid } = useParams();
   const [demoteOnly, setDemoteOnly] = useState(false);
+  const [taskPlanObj, setTaskPlanObj] = useState(taskPlan);
+
+  const handleCancel = () => {
+    setTaskNotes("");
+    setTaskDesc(taskDetails.task_description);
+    setTaskPlan(taskPlanObj);
+    setDemoteOnly(false);
+    setIsEditing(false);
+  };
 
   const checkPlanChange = newValue => {
     setTaskPlan(newValue);
@@ -99,7 +108,7 @@ function TaskEditDone({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
         <Textarea variant="soft" color="primary" minRows={4} maxRows={4} value={taskNotes} onChange={e => setTaskNotes(e.target.value)} />
       </FormControl>
       <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "bottom", mt: "2rem" }}>
-        <Button size="sm" variant="plain" color="danger" onClick={() => setIsEditing(false)}>
+        <Button size="sm" variant="plain" color="danger" onClick={handleCancel}>
           Cancel
         </Button>
 

@@ -347,8 +347,8 @@ exports.updateDoneTask = async (req, res, next) => {
      * Actions Allowed:
      * 1. Save - Add notes -> input expected (task_notes)
      * 2. Save - Change description - Input expected (task_description)
-     * 3. Save & Promote -> Go to Done - Input expected (action: none/demote/promote)
-     * 4. Save & Demote -> Go to To Do - Input expected (task_plan, action: none/demote/promote)
+     * 3. Save & Promote -> Go to Closed - Input expected (action: none/demote/promote)
+     * 4. Save & Demote -> Go to Doing - Input expected (task_plan, action: none/demote/promote)
      *
      * Other inputs: app_acronym, task_id
      * Note: if there is task_plan but the action is not demote -> reject;
