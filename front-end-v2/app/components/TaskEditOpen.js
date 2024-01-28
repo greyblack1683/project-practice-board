@@ -11,12 +11,27 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
   const { appid } = useParams();
 
   const handleSave = async action => {
+    if (!confirm(`Are you sure that you want to ${action === "promote" ? action : "save"}?`)) return;
+
+    let taskNotesData = null;
+    console.log("old task plan", taskDetails?.task_plan, "new task plan", taskPlan?.plan_mvp_name);
+    if (taskNotes) {
+      if (taskDetails?.task_plan != taskPlan?.plan_mvp_name) {
+        taskNotesData = `Changes made to plan from '${taskDetails.task_plan ? taskDetails.task_plan : "-"}' to '${taskPlan ? taskPlan.plan_mvp_name : "-"}'.\n ${taskNotes}`;
+      } else {
+        taskNotesData = taskNotes;
+      }
+    } else {
+      if (taskDetails?.task_plan != taskPlan?.plan_mvp_name) {
+        taskNotesData = `Changes made to plan from '${taskDetails.task_plan ? taskDetails.task_plan : "-"}' to '${taskPlan ? taskPlan.plan_mvp_name : "-"}'.`;
+      }
+    }
     try {
       await axios
         .post("/tasks/updateOpen", {
           task_id: taskDetails.task_id,
           task_description: taskDesc,
-          task_notes: taskNotes,
+          task_notes: taskNotesData,
           task_plan: taskPlan ? taskPlan.plan_mvp_name : null,
           action,
           app_acronym: appid
@@ -84,9 +99,9 @@ function TaskEditOpen({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
         <Textarea variant="soft" color="primary" minRows={4} maxRows={4} value={taskNotes} onChange={e => setTaskNotes(e.target.value)} />
       </FormControl>
       <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "bottom", mt: "3rem" }}>
-        <Button size="sm" variant="plain" color="danger" onClick={() => setIsEditing(false)}>
+        {/* <Button size="sm" variant="plain" color="danger" onClick={() => setIsEditing(false)}>
           Cancel
-        </Button>
+        </Button> */}
         <Button size="sm" variant="solid" color="primary" onClick={() => handleSave("none")}>
           Save
         </Button>

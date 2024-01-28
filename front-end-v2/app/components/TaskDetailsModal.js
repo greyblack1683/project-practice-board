@@ -57,14 +57,17 @@ function TaskDetailsModal({ taskID, setIsPL, handleClose }) {
         switch (taskStatus) {
           case "open":
             setEditable(true);
+            setIsEditing(true);
             break;
           case "todo":
           case "doing":
             setEditable(true);
+            setIsEditing(true);
             break;
           case "done":
             setIsPL(true);
             setEditable(true);
+            setIsEditing(true);
             break;
           default:
             break;

@@ -11,6 +11,7 @@ function TaskEditToDo({ taskDetails, setIsEditing, taskDesc, setTaskDesc, taskNo
   const { appid } = useParams();
 
   const handleSave = async action => {
+    if (!confirm(`Are you sure that you want to ${action === "promote" ? action : "save"}?`)) return;
     try {
       await axios
         .post("/tasks/updatetodo", {
@@ -65,9 +66,9 @@ function TaskEditToDo({ taskDetails, setIsEditing, taskDesc, setTaskDesc, taskNo
         <Textarea variant="soft" color="primary" minRows={4} maxRows={4} value={taskNotes} onChange={e => setTaskNotes(e.target.value)} />
       </FormControl>
       <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "bottom", mt: "3rem" }}>
-        <Button size="sm" variant="plain" color="danger" onClick={() => setIsEditing(false)}>
+        {/* <Button size="sm" variant="plain" color="danger" onClick={() => setIsEditing(false)}>
           Cancel
-        </Button>
+        </Button> */}
         <Button size="sm" variant="solid" color="primary" onClick={() => handleSave("none")}>
           Save
         </Button>

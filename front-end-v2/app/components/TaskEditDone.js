@@ -28,6 +28,7 @@ function TaskEditDone({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
   };
 
   const handleSave = async action => {
+    if (!confirm(`Are you sure that you want to ${action === "none" ? "save" : action}?`)) return;
     const taskPlanAllowed = action === "demote" ? (taskPlan ? taskPlan.plan_mvp_name : null) : null;
     try {
       await axios
@@ -108,9 +109,9 @@ function TaskEditDone({ taskDetails, setIsEditing, taskPlan, setTaskPlan, taskDe
         <Textarea variant="soft" color="primary" minRows={4} maxRows={4} value={taskNotes} onChange={e => setTaskNotes(e.target.value)} />
       </FormControl>
       <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "bottom", mt: "2rem" }}>
-        <Button size="sm" variant="plain" color="danger" onClick={handleCancel}>
+        {/* <Button size="sm" variant="plain" color="danger" onClick={handleCancel}>
           Cancel
-        </Button>
+        </Button> */}
 
         <Button size="sm" variant="solid" color="primary" onClick={() => handleSave("none")} disabled={demoteOnly}>
           Save
