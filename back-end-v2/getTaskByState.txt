@@ -1,0 +1,6 @@
+{
+"username":"user1",
+"password": "pass!123",
+"task_app_acronym": "ABC",
+"task_status": "done"
+}
