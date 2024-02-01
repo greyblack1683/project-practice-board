@@ -30,7 +30,20 @@ app.use(
     optionsSuccessStatus: 200
   })
 );
+
 app.use(jsonParser); // read JSON req body
+
+app.use(function (req, res, next) {
+  try {
+    decodeURIComponent(req.path);
+    console.log(req);
+  } catch (e) {
+    return res.status(404).json({
+      code: "V1"
+    });
+  }
+  next();
+});
 
 /* Controllers */
 
@@ -46,6 +59,21 @@ app.all("*", (req, res, next) => {
   res.status(404).json({
     code: "V1"
   });
+});
+
+app.use((err, req, res, next) => {
+  if (err) {
+    console.log(err);
+    if (err.type === "entity.parse.failed") {
+      return res.status(400).json({
+        code: "V2"
+      });
+    }
+    return res.status(400).json({
+      code: "V1"
+    });
+  }
+  next();
 });
 
 /* Listen on Port */

@@ -1,0 +1,12 @@
+curl -X POST -H "Content-Type:application/json" http://localhost:8080/PromoteTask2Done -d "{\"username\":\"dev\", \"password\":\"pass!123\", \"task_id\":\"app1_1\" }"
+
+curl -X POST -H "Content-Type:application/json" http://localhost:8080/GetTaskbyState -d "{\"username\" : \"user1\", \"password\":\"pass!123\", \"task_app_acronym\":\"app1\", \"task_status\":\"open\" }"
+
+curl -X POST -H "Content-Type:application/json" http://localhost:8080/CreateTask -d "{\"username\" : \"user1\", \"password\":\"pass!123\", \"task_app_acronym\":\"app1\", \"task_name\":\"task from plan\" }"
+
+
+curl -X POST -d @promoteTask2Done.txt http://localhost:8080/PromoteTask2Done --header "Content-Type:application/json"
+
+curl -X POST -d @createTask.txt http://localhost:8080/CreateTask --header "Content-Type:application/json"
+
+curl -X POST -d @getTaskByState.txt http://localhost:8080/GetTaskbyState --header "Content-Type:application/json"

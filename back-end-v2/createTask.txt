@@ -1,0 +1,8 @@
+{
+    "username": "user1",
+    "password": "pass!123",
+    "task_app_acronym" : "app1",
+    "task_name": "task from curl",
+    "task_description" : "task from curl",
+    "task_plan" : "sprint1"
+}

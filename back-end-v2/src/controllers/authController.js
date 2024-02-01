@@ -44,8 +44,11 @@ exports.checkPermits = async (permit, appAcronym) => {
 
   //check for the usergroup that has the right permission
   const [row, fields] = await connection.query(sqlBuilder, appAcronym);
-
   console.log(row);
+
+  // const [appAcronymFromDB, field] = await connection.query("SELECT app_acronym FROM applications WHERE app_acronym = ?", appAcronym);
+  // console.log(appAcronymFromDB[0].app_acronym);
+  // req.body.app_acronym = appAcronymFromDB[0].app_acronym;
 
   if (row.length === 1) {
     const groupname = Object.values(row[0]);

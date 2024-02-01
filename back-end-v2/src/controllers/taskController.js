@@ -162,12 +162,11 @@ exports.PromoteTask2Done = async (req, res, next) => {
               <br>
               <font face="arial, sans-serif">Dear user,</font><div>
               <br>
-            <div><font face="arial, sans-serif">Please note that task ${req.body.task_id} has been promoted to done by ${req.user.username}. Please proceed to <a href="http://localhost:3000/apps/${req.body.app_acronym}" style="color: rgb(17, 85, 204);">http://localhost:3000/apps/${req.body.app_acronym}</a> to approve (promote), or reject the task closure (demote) and reassign the plan if required. </font></div>
+            <div><font face="arial, sans-serif">Please note that task ${req.body.task_id} has been promoted to done by ${req.user.username}. Please proceed to <a href="http://localhost:3000/apps/${req.body.task_app_acronym}" style="color: rgb(17, 85, 204);">http://localhost:3000/apps/${req.body.task_app_acronym}</a> to approve (promote), or reject the task closure (demote) and reassign the plan if required. </font></div>
             <br>
             <div><font face="arial, sans-serif">Regards,</font></div><div><font face="arial, sans-serif">TMS Support Team</font></div></div>`
           );
           return res.status(200).json({
-            task_id: req.body.task_id,
             code: "S1"
           });
         } else {
