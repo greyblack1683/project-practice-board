@@ -4,8 +4,7 @@
   "description": "Backend of practice board using nodejs",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "start": "node src/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -18,8 +17,5 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.6.5",
     "nodemailer": "^6.9.8"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.2"
   }
 }
