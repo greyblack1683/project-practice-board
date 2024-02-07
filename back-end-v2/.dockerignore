@@ -6,3 +6,6 @@ cURLcommand.txt
 getTaskByState.txt
 promoteTask2Done.txt
 .env
+.gitignore
+.git
+Dockerfile
