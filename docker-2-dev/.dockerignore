@@ -1,0 +1,11 @@
+**/node_modules/
+
+.dockerignore
+createTask.txt
+cURLcommand.txt
+getTaskByState.txt
+promoteTask2Done.txt
+.env
+.gitignore
+.git
+Dockerfile
