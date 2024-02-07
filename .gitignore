@@ -4,5 +4,6 @@
 # dotenv environment variable files
 .env
 
-#ignore tgz files
+#ignore tgz and tar files
 *.tgz
+*.tar
