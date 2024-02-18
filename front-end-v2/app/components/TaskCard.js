@@ -26,7 +26,7 @@ function TaskCard({ taskID, taskName, taskOwner, taskPlan, handleView, viewTask 
             {taskName}
           </Link>
         </Typography>
-        <Stack direction="row" justifyContent="flex-start" alignItems="center" sx={{ ml: "-0.3rem" }}>
+        <Stack direction="row" justifyContent="flex-start" alignItems="center" sx={{ ml: "-0.3rem" }} flexWrap="wrap" useFlexGap>
           <Chip color="primary" size="sm" disabled>
             # {taskID}
           </Chip>

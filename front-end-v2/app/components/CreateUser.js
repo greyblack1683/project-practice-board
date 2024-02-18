@@ -56,66 +56,68 @@ function CreateUser({ allGroups, handleUserNotAuthorised, setEditUserRequest }) 
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        ml: "2rem",
-        mr: "2rem",
-        maxWidth: "80rem"
-      }}
-    >
+    <form onSubmit={handleSubmit}>
       <Box
         sx={{
           display: "flex",
           flexDirection: "row",
-          gap: 1.5,
-          alignItems: "center"
+          alignItems: "center",
+          ml: "2rem",
+          mr: "2rem",
+          maxWidth: "80rem"
         }}
       >
-        <PersonAddIcon />
-        <Input placeholder="username" value={newUsername} onChange={e => setNewUsername(e.target.value)} variant="soft" size="sm" color="primary" sx={{ maxWidth: "120px" }} />
-        <Input placeholder="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} variant="soft" size="sm" color="primary" type="password" sx={{ maxWidth: "120px" }} />
-        <Input placeholder="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} variant="soft" size="sm" color="primary" sx={{ maxWidth: "180px" }} />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 1.5,
+            alignItems: "center"
+          }}
+        >
+          <PersonAddIcon />
+          <Input placeholder="username" value={newUsername} onChange={e => setNewUsername(e.target.value)} variant="soft" size="sm" color="primary" sx={{ maxWidth: "120px" }} />
+          <Input placeholder="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} variant="soft" size="sm" color="primary" type="password" sx={{ maxWidth: "120px" }} />
+          <Input placeholder="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} variant="soft" size="sm" color="primary" sx={{ maxWidth: "180px" }} />
+        </Box>
+        <Autocomplete
+          key={rerenderAC}
+          placeholder={newUserGroups ? "" : "assign groups"}
+          variant="outlined"
+          color="primary"
+          value={newUserGroups}
+          size="sm"
+          multiple
+          options={allGroups}
+          onChange={(e, newValue) => setNewUserGroups(newValue)}
+          sx={{ flexGrow: 1, ml: "1rem", mr: "1rem" }}
+          renderTags={(tags, getTagProps) =>
+            tags.map((item, index) => (
+              <Chip variant="soft" size="sm" color="primary" endDecorator={<Close fontSize="sm" />} {...getTagProps({ index })}>
+                {item}
+              </Chip>
+            ))
+          }
+          width="400px"
+        />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 1.5,
+            alignItems: "center"
+          }}
+        >
+          <Select variant="soft" color="primary" size="sm" defaultValue={newIsActive} onChange={(e, newValue) => setNewIsActive(newValue)}>
+            <Option value="true">Enable</Option>
+            <Option value="false">Disable</Option>
+          </Select>
+          <Button onClick={handleSubmit} type="submit" variant="outlined" size="sm" sx={{ width: "90px" }}>
+            Add User
+          </Button>
+        </Box>
       </Box>
-      <Autocomplete
-        key={rerenderAC}
-        placeholder={newUserGroups ? "" : "assign groups"}
-        variant="outlined"
-        color="primary"
-        value={newUserGroups}
-        size="sm"
-        multiple
-        options={allGroups}
-        onChange={(e, newValue) => setNewUserGroups(newValue)}
-        sx={{ flexGrow: 1, ml: "1rem", mr: "1rem" }}
-        renderTags={(tags, getTagProps) =>
-          tags.map((item, index) => (
-            <Chip variant="soft" size="sm" color="primary" endDecorator={<Close fontSize="sm" />} {...getTagProps({ index })}>
-              {item}
-            </Chip>
-          ))
-        }
-        width="400px"
-      />
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          gap: 1.5,
-          alignItems: "center"
-        }}
-      >
-        <Select variant="soft" color="primary" size="sm" defaultValue={newIsActive} onChange={(e, newValue) => setNewIsActive(newValue)}>
-          <Option value="true">Enable</Option>
-          <Option value="false">Disable</Option>
-        </Select>
-        <Button onClick={handleSubmit} variant="outlined" size="sm" sx={{ width: "90px" }}>
-          Add User
-        </Button>
-      </Box>
-    </Box>
+    </form>
   );
 }
 

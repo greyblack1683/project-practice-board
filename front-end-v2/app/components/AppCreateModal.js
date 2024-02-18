@@ -105,49 +105,53 @@ function AppCreateModal({ setAppChangeRequest, setCreateApp, setIsPL }) {
             <Typography level="title-lg" sx={{ mb: "1rem" }}>
               Application Details
             </Typography>
-            <FormControl>
-              <FormLabel>Acronym</FormLabel>
-              <Input variant="soft" color="primary" value={acronym} onChange={e => setAcronym(e.target.value)} />
-            </FormControl>
-            <FormControl>
-              <FormLabel sx={{ mt: "1rem" }}>Running Number</FormLabel>
-              <Input
-                variant="soft"
-                color="primary"
-                type="number"
-                value={rNum}
-                onChange={e => setRNum(e.target.value)}
-                slotProps={{
-                  input: {
-                    min: 0,
-                    max: 100000
-                  }
-                }}
-              />
-            </FormControl>
+            <Stack direction="row" spacing="4%">
+              <FormControl sx={{ width: "71%" }}>
+                <FormLabel>Acronym</FormLabel>
+                <Input variant="soft" color="primary" value={acronym} onChange={e => setAcronym(e.target.value)} />
+              </FormControl>
+              <FormControl sx={{ width: "25%" }}>
+                <FormLabel>Running No.</FormLabel>
+                <Input
+                  variant="soft"
+                  color="primary"
+                  type="number"
+                  value={rNum}
+                  onChange={e => setRNum(e.target.value)}
+                  slotProps={{
+                    input: {
+                      min: 0,
+                      max: 100000
+                    }
+                  }}
+                />
+              </FormControl>
+            </Stack>
+            <Stack direction="row" spacing="4%">
+              <FormControl sx={{ width: "48%" }}>
+                <FormLabel sx={{ mt: "1rem" }}>Start Date</FormLabel>
+                <Input
+                  type="date"
+                  variant="soft"
+                  color="primary"
+                  value={startDate}
+                  onChange={e => setStartDate(e.target.value)}
+                  slotProps={{
+                    input: {
+                      min: "2015-01-01",
+                      max: "2099-12-31"
+                    }
+                  }}
+                />
+              </FormControl>
+              <FormControl sx={{ width: "48%" }}>
+                <FormLabel sx={{ mt: "1rem" }}>End Date</FormLabel>
+                <Input type="date" variant="soft" color="primary" value={endDate} onChange={e => setEndDate(e.target.value)} />
+              </FormControl>
+            </Stack>
             <FormControl>
               <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>
-              <Textarea variant="soft" minRows={4} maxRows={4} color="primary" value={desc} onChange={e => setDesc(e.target.value)} />
-            </FormControl>
-            <FormControl>
-              <FormLabel sx={{ mt: "1rem" }}>Start Date</FormLabel>
-              <Input
-                type="date"
-                variant="soft"
-                color="primary"
-                value={startDate}
-                onChange={e => setStartDate(e.target.value)}
-                slotProps={{
-                  input: {
-                    min: "2015-01-01",
-                    max: "2099-12-31"
-                  }
-                }}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel sx={{ mt: "1rem" }}>End Date</FormLabel>
-              <Input type="date" variant="soft" color="primary" value={endDate} onChange={e => setEndDate(e.target.value)} />
+              <Textarea variant="soft" minRows={8} maxRows={8} color="primary" value={desc} onChange={e => setDesc(e.target.value)} />
             </FormControl>
           </Box>
           <Box sx={{ width: "40%" }}>

@@ -3,13 +3,13 @@ import { useOutletContext } from "react-router-dom";
 import axios from "axios";
 import GlobalContext from "./GlobalContext";
 
-import { Button, Box, Input, FormControl, FormLabel, Typography, Autocomplete, Textarea } from "@mui/joy";
+import { Button, Box, Chip, Stack, Input, FormControl, FormLabel, Typography, Autocomplete, Textarea } from "@mui/joy";
+
+import SettingsBackupRestoreRoundedIcon from "@mui/icons-material/SettingsBackupRestoreRounded";
 
 function AppDetailsModal({ appid, setAppChangeRequest, setCreateApp }) {
   const { handleAlerts } = useContext(GlobalContext);
   const { handleUserNotAuthorised, checkGroup } = useOutletContext();
-
-  const [isPL, setIsPL] = useState(false);
   const [allGroups, setAllGroups] = useState([]);
   const [appDetails, setAppDetails] = useState({});
   const [acronym, setAcronym] = useState(undefined);
@@ -72,27 +72,27 @@ function AppDetailsModal({ appid, setAppChangeRequest, setCreateApp }) {
     }
   };
 
-  const handleEdit = async () => {
-    try {
-      await axios
-        .get("/groups/all")
-        .then(response => setAllGroups(response.data.results))
-        .catch(error => {
-          console.log(error.response.data.message);
-          handleUserNotAuthorised(error.response.data.message, "pl_app");
-          handleAlerts(`${error.response.data.message}`, false);
-        });
-      setIsEditing(true);
-    } catch (error) {
-      console.log(error);
-      handleAlerts("Error: Internal Server Error", false);
-    }
-  };
-
   useEffect(() => {
     async function check() {
       const response = await checkGroup("projectlead", false);
-      if (response) setIsPL(true);
+      if (response) {
+        setIsEditing(true);
+        try {
+          //get list of groups
+          await axios
+            .get("/groups/all")
+            .then(response => setAllGroups(response.data.results))
+            .catch(error => {
+              console.log(error.response.data.message);
+              handleUserNotAuthorised(error.response.data.message, "pl_app");
+              handleAlerts(`${error.response.data.message}`, false);
+            });
+          setIsEditing(true);
+        } catch (error) {
+          console.log(error);
+          handleAlerts("Error: Internal Server Error", false);
+        }
+      }
     }
     async function getApp() {
       try {
@@ -137,34 +137,34 @@ function AppDetailsModal({ appid, setAppChangeRequest, setCreateApp }) {
           m: "2rem"
         }}
       >
-        <Typography level="h3" sx={{ textAlign: "left", borderBottom: "1px solid", borderColor: "divider", paddingBottom: "0.7rem", flexGrow: 1 }}>
-          {isEditing ? "Edit Application" : "View Application"}
-        </Typography>
+        <Box sx={{ borderBottom: "1px solid", borderColor: "divider", paddingBottom: "0.7rem", flexGrow: 1 }}>
+          <Typography level="h3" sx={{ textAlign: "left" }}>
+            Application: {acronym}
+          </Typography>
+          <Chip size="sm" color="primary" startDecorator={<SettingsBackupRestoreRoundedIcon />}>
+            Running Number: {rNum}
+          </Chip>
+        </Box>
       </Box>
       <Box display="flex" justifyContent="center" sx={{ flexDirection: "row", gap: 5, m: "2rem" }}>
         <Box sx={{ width: "60%" }}>
           <Typography level="title-lg" sx={{ mb: "1rem" }}>
             Application Details
           </Typography>
-          <FormControl>
-            <FormLabel>Acronym</FormLabel>
-            <Input variant="soft" color="neutral" value={acronym} readOnly />
-          </FormControl>
-          <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>Running Number</FormLabel>
-            <Input variant="soft" color="neutral" type="number" value={rNum} sx={{ min: "0", max: "100000" }} readOnly />
-          </FormControl>
+
+          <Stack direction="row" spacing="4%">
+            <FormControl sx={{ width: "48%" }}>
+              <FormLabel>Start Date</FormLabel>
+              <Input type="date" variant="soft" color={isEditing ? "primary" : "neutral"} value={startDate} onChange={e => setStartDate(e.target.value)} readOnly={isEditing ? false : true} />
+            </FormControl>
+            <FormControl sx={{ width: "48%" }}>
+              <FormLabel>End Date</FormLabel>
+              <Input type="date" variant="soft" color={isEditing ? "primary" : "neutral"} value={endDate} onChange={e => setEndDate(e.target.value)} readOnly={isEditing ? false : true} />
+            </FormControl>
+          </Stack>
           <FormControl>
             <FormLabel sx={{ mt: "1rem" }}>Description</FormLabel>
-            <Textarea variant="soft" minRows={4} maxRows={4} color={isEditing ? "primary" : "neutral"} value={desc} onChange={e => setDesc(e.target.value)} readOnly={isEditing ? false : true} />
-          </FormControl>
-          <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>Start Date</FormLabel>
-            <Input type="date" variant="soft" color={isEditing ? "primary" : "neutral"} value={startDate} onChange={e => setStartDate(e.target.value)} readOnly={isEditing ? false : true} />
-          </FormControl>
-          <FormControl>
-            <FormLabel sx={{ mt: "1rem" }}>End Date</FormLabel>
-            <Input type="date" variant="soft" color={isEditing ? "primary" : "neutral"} value={endDate} onChange={e => setEndDate(e.target.value)} readOnly={isEditing ? false : true} />
+            <Textarea variant="soft" minRows={8} maxRows={8} color={isEditing ? "primary" : "neutral"} value={desc} onChange={e => setDesc(e.target.value)} readOnly={isEditing ? false : true} />
           </FormControl>
         </Box>
         <Box sx={{ width: "40%" }}>
@@ -193,23 +193,16 @@ function AppDetailsModal({ appid, setAppChangeRequest, setCreateApp }) {
           </FormControl>
         </Box>
       </Box>
-      {isPL &&
-        (isEditing ? (
-          <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "center", mt: "5rem" }}>
-            <Button size="sm" variant="plain" color="danger" onClick={handleCancel}>
-              Cancel
-            </Button>
-            <Button size="sm" variant="solid" color="success" onClick={handleSubmit}>
-              Save
-            </Button>
-          </Box>
-        ) : (
-          <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "center", mt: "5rem" }}>
-            <Button size="sm" variant="solid" color="primary" onClick={handleEdit}>
-              Edit
-            </Button>
-          </Box>
-        ))}
+      {isEditing && (
+        <Box sx={{ display: "flex", gap: 2, justifyContent: "center", alignItems: "center", mt: "4rem" }}>
+          <Button size="sm" variant="plain" color="danger" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button size="sm" variant="solid" color="success" onClick={handleSubmit}>
+            Save
+          </Button>
+        </Box>
+      )}
     </>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 
-import { useNavigate, useParams, useOutletContext } from "react-router-dom";
+import { useParams, useOutletContext } from "react-router-dom";
 import axios from "axios";
 
 import GlobalContext from "../components/GlobalContext";
@@ -18,7 +18,6 @@ function KanbanPage() {
   const { appid } = useParams();
   const { checkPermission } = useOutletContext();
   const [isPL, setIsPL] = useState(false);
-  const navigate = useNavigate();
 
   const { handleAlerts } = useContext(GlobalContext);
 
@@ -208,7 +207,7 @@ function KanbanPage() {
           <TaskCreateModal setTaskChangeRequest={setTaskChangeRequest} setAddTask={setAddTask} setIsPL={setIsPL} />
         </Sheet>
       </Modal>
-      <Modal aria-labelledby="modal-title" aria-describedby="modal-desc" open={viewTask} onClose={handleClose} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <Modal aria-labelledby="modal-title" aria-describedby="modal-desc" disableAutoFocus open={viewTask} onClose={handleClose} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
         <Sheet
           variant="outlined"
           sx={{
